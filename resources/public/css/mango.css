@@ -1,0 +1,52 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.article-list #vertical-container {
+    height: 640px;
+    width: 100%;
+}
+
+.article-list .repeated-item {
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+    padding-top: 10px;
+}
+
+.mango md-content {
+    margin: 16px;
+}
+
+.article-list md-virtual-repeat-container {
+    border: solid 1px grey;
+}
+
+.article-list .md-virtual-repeat-container .md-virtual-repeat-offsetter {
+    padding-left: 16px;
+}
+
+.repeated-item img {
+    height: 64px;
+}
+
+.mango md-grid-list {
+  margin: 8px; }
+.mango .gray {
+  background: #f5f5f5; }
+.mango .green {
+  background: #b9f6ca; }
+.mango .yellow {
+  background: #ffff8d; }
+.mango .blue {
+  background: #84ffff; }
+.mango .purple {
+  background: #b388ff; }
+.mango .red {
+  background: #ff8a80; }
+.mango md-grid-tile {
+  transition: all 400ms ease-out 50ms; }
+
+.articleThumbnail {
+    height: 128px;
+}

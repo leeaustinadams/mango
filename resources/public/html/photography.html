@@ -1,0 +1,40 @@
+<div class="mango" layout="column" ng-cloak>
+  <md-grid-list
+     md-cols-sm="1" md-cols-gt-sm="2"
+     md-row-height="1:1"
+     md-gutter="12px" md-gutter-gt-sm="8px">
+    <md-grid-tile
+       class="red"
+       md-rowspan="1" md-col-span="1" md-colspan-sm="1"
+       ng-click="go('http://www.flickr.com/photos/beamjack/tags/animals/')">
+      <md-grid-tile-footer>
+        <h3>Animals</h3>
+      </md-grid-tile-footer>
+    </md-grid-tile>
+    <md-grid-tile
+       class="green"
+       md-rowspan="1" md-col-span="1" md-colspan-sm="1"
+       ng-click="go('http://www.flickr.com/photos/beamjack/tags/buildings/')">
+      <md-grid-tile-footer>
+        <h3>Buildings</h3>
+      </md-grid-tile-footer>
+    </md-grid-tile>
+    <md-grid-tile
+       class="blue"
+       md-rowspan="1" md-col-span="1" md-colspan-sm="1"
+       ng-click="go('http://www.flickr.com/photos/beamjack/tags/places/')">
+      <md-grid-tile-footer>
+        <h3>Places</h3>
+      </md-grid-tile-footer>
+    </md-grid-tile>
+    <md-grid-tile
+       class="gray"
+       md-rowspan="1" md-col-span="1" md-colspan-sm="1"
+       ng-click="go('http://www.flickr.com/photos/beamjack')">
+      <md-grid-tile-footer>
+        <h3>Everything Else</h3>
+      </md-grid-tile-footer>
+    </md-grid-tile>
+  </md-grid-list>
+</div>
+
