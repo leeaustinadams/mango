@@ -1,0 +1,21 @@
+<md-content class="md-padding">
+  <div layout="column" layout-align="space-around center">
+    <h1>Sign In</h1>
+    <form name="userForm" action="/auth/signin" enctype="multipart/form-data">
+      <md-input-container>
+        <label>Username</label>
+        <input name="username" type="text" ng-model="user.name" required>
+      </md-input-container>
+	  <md-input-container>
+	    <label>Password</label>
+	    <input name="password" type="password" ng-model="user.password" required>
+	  </md-input-container>
+
+      <md-button class="md-raised" ng-click="signin()">Sign in</md-button>
+      
+	  <div ng-show="error" class="text-danger">
+	    <strong ng-bind="error"></strong>
+	  </div>
+    </form>
+  </div>
+</md-content>

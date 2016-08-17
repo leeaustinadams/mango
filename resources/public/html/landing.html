@@ -1,11 +1,11 @@
 <div class="mango" layout="column" ng-cloak>
   <md-grid-list
-     md-cols-sm="1" md-cols-gt-sm="2"
-     md-row-height="1:1"
-     md-gutter="12px" md-gutter-gt-sm="8px">
+     md-cols="1" md-cols-sm="1" md-cols-md="1" md-cols-gt-md="2"
+     md-row-height="4:1" md-row-height-sm="8:1"
+     md-gutter="12px" md-gutter-gt-md="8px" md-gutter-sm="4px">
     <md-grid-tile
        class="red"
-       md-rowspan="1" md-col-span="1" md-colspan-sm="1"
+       md-rowspan="3" colspan="1"
        ng-click="$location.path('blog')">
       <md-grid-tile-footer>
         <h3>Blog</h3>
@@ -13,7 +13,7 @@
     </md-grid-tile>
     <md-grid-tile
        class="green"
-       md-rowspan="1" md-col-span="1" md-colspan-sm="1"
+       md-rowspan="1" colspan="1"
        ng-click="$location.path('family')">
       <md-grid-tile-footer>
         <h3>Family</h3>
@@ -21,7 +21,7 @@
     </md-grid-tile>
     <md-grid-tile
        class="blue"
-       md-rowspan="1" md-col-span="1" md-colspan-sm="1"
+       md-rowspan="1" colspan="1"
        ng-click="$location.path('photography')">
       <md-grid-tile-footer>
         <h3>Photography</h3>
@@ -29,7 +29,7 @@
     </md-grid-tile>
     <md-grid-tile
        class="gray"
-       md-rowspan="1" md-col-span="1" md-colspan-sm="1"
+       md-rowspan="1" colspan="1"
        ng-click="$location.path('about')">
       <md-grid-tile-footer>
         <h3>About</h3>

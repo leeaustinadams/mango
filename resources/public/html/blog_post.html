@@ -1,0 +1,35 @@
+<md-content class="md-padding">
+  <div layout="column" layout-align="space-around center">
+    <h1>New Article</h1>
+    <form name="articleForm" action="/blog/post" enctype="multipart/form-data">
+      <md-input-container>
+        <label>Created</label>
+        <input name="created" type="datetime-local" ng-model="article.created">
+      </md-input-container>
+	  <md-input-container>
+	    <label>Title</label>
+	    <input name="title" ng-model="article.title" required>
+	  </md-input-container>
+	  <md-input-container>
+	    <label>Content</label>
+	    <textarea ng-model="article.content" cols="30" rows="10" placeholder="Content"></textarea>
+	  </md-input-container>
+      <md-input-container>
+        <label>Tags</label>
+        <input name="tags" type="text" ng-model="article.tags" placeholder="Tags, comma separated">
+      </md-input-container>
+      <md-input-container>
+        <md-select name="status" ng-model="article.status" placeholder="Status">
+          <md-option value="draft">Draft</md-option>
+          <md-option value="published">Published</md-option>
+        </md-select>
+      </md-input-container>
+
+      <md-button class="md-raised" ng-click="post()">Submit</md-button>
+      
+	  <div ng-show="error" class="text-danger">
+	    <strong ng-bind="error"></strong>
+	  </div>
+    </form>
+  </div>
+</md-content>
