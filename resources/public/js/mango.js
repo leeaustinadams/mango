@@ -19,8 +19,15 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
     }])
     .factory('BlogArticles', ['$resource',
 	                          function($resource) {
-		                          return $resource('/blog/articles.json?per-page=12');
-	                          }
+		                          return $resource('/blog/articles.json?per-page=12', {
+                                  }, {
+                                      drafts: {
+                                          method: 'GET',
+                                          url: '/blog/drafts.json?per-page=12',
+                                          isArray: true
+                                      }
+                                  });
+                              }
                              ])
     .factory('BlogArticle', ['$resource',
 	                         function($resource) {
@@ -34,18 +41,6 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
                                  });
 	                         }
                             ])
-    .factory('FamilyArticles', ['$resource',
-	                            function($resource) {
-		                            return $resource('/family/articles.json?per-page=12');
-	                            }
-                               ])
-    .factory('FamilyArticle', ['$resource',
-	                           function($resource) {
-		                           return $resource('/family/articles/:articleId.json', {
-			                           articleId: '@_id'
-		                           });
-	                           }
-                              ])
     .factory('User', ['$resource',
                       function($resource) {
                           return $resource('/users/:userId.json', {
@@ -70,10 +65,15 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
     .controller('LandingController', function($scope, $location) {
         $scope.$location = $location;
     })
-    .controller('BlogArticlesController', function($scope, $routeParams, BlogArticles) {
+    .controller('BlogArticlesController', function($scope, $routeParams, $location, BlogArticles) {
         $scope.name = 'BlogArticlesController';
         $scope.params = $routeParams;
-        $scope.articles = BlogArticles.query();
+        console.log($location.path());
+        if ($location.path().endsWith("drafts")) {
+            $scope.articles = BlogArticles.drafts();
+        } else {
+            $scope.articles = BlogArticles.query();
+        }
     })
     .controller('BlogArticleController', function($scope, $routeParams, $location, BlogArticle) {
         $scope.name = 'BlogArticleController';
@@ -107,21 +107,6 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
 			});
         }
     })
-    .controller('FamilyArticlesController', function($scope, $routeParams, FamilyArticles) {
-        $scope.name = 'FamilyArticlesController';
-        $scope.params = $routeParams;
-        $scope.articles = FamilyArticles.query(function() {}, function(){
-            $scope.$location.path('/unauthorized');
-        });
-    })
-    .controller('FamilyArticleController', function($scope, $routeParams, FamilyArticle) {
-        $scope.name = 'FamilyArticleController';
-        $scope.params = $routeParams;
-
-        $scope.article = FamilyArticle.get({
-            articleId: $scope.params.id
-        });
-    })
     .controller('UserController', function($scope, $routeParams, User) {
         $scope.name = 'UserController';
         $scope.params = $routeParams;
@@ -136,12 +121,13 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
         }
     })
     .config(['$locationProvider', '$routeProvider', '$mdThemingProvider', function($locationProvider, $routeProvider, $mdThemingProvider) {
-        $locationProvider.hashPrefix('!');
-
         $mdThemingProvider.theme('default').primaryPalette('brown').accentPalette('red');
         
         $routeProvider.when('/blog', {
             templateUrl: '/html/blog_articles.html',
+            controller: 'BlogArticlesController'
+        }).when('/blog/drafts', {
+            templateUrl: 'html/blog_articles.html',
             controller: 'BlogArticlesController'
         }).when('/blog/post', {
             templateUrl: '/html/blog_post.html',
@@ -149,12 +135,6 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
         }).when('/blog/:id', {
             templateUrl: '/html/blog_article.html',
             controller: 'BlogArticleController'
-        }).when('/family', {
-            templateUrl: '/html/family_articles.html',
-            controller: 'FamilyArticlesController'
-        }).when('/family/:id', {
-            templateUrl: '/html/family_article.html',
-            controller: 'FamilyArticleController'
         }).when('/about', {
             templateUrl: '/html/about.html'
         }).when('/photography', {
@@ -168,4 +148,6 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
             templateUrl: '/html/landing.html',
             controller: 'LandingController'
         });
+
+        $locationProvider.html5Mode(true);
     }]);

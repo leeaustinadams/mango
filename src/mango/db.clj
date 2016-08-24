@@ -12,71 +12,20 @@
 (def conn (mg/connect))
 (def DB (mg/get-db conn config/db-name))
 (def users-collection "users")
-(def family-collection "familyarticles")
-(def family-media-collection "familymedia")
 (def blog-collection "blogarticles")
 (def blog-media-collection "blogmedia")
+;(def blog-collection "familyarticles")
+;(def blog-media-collection "familymedia")
 (def sessions-collection "sessions")
 
-(defn family-articles [& {:keys [page per-page tags]}]
-  (mq/with-collection DB family-collection
-    (mq/find {:status ["published"]})
-    (mq/sort {:created -1})
-    (mq/paginate :page page :per-page per-page)))
-    
-    ;; (let [query {:status ["published"]} ]
-    ;;   (let [query (if tags (assoc query :tags {$in tags}) query)]
-    ;;     (println query)
-    ;;     (mq/find query)
-    ;;     (mq/sort {:created -1})
-    ;;     (mq/paginate :page page :per-page per-page)))))
-
-(defn family-article
-  "Query a single family article by id"
-  [id]
-  (mc/find-map-by-id DB family-collection (ObjectId. id)))
-
-(defn family-drafts
-  "Query all family articles that are drafts"
-  []
-  (mc/find-maps DB family-collection {:status ["draft"]}))
-
-(defn family-draft
-  "Query a single family article by id"
-  [id]
-  (mc/find-map-by-id DB family-collection (ObjectId. id)))
-
-(defn insert-family-article
-  "Adds a single family article"
-  [title content user status tags media]
-  (let [article {:title title :content content :user user :status status :tags tags :media media}]
-    (mc/insert-and-return DB family-collection article)))
-
-(defn family-media [& {:keys [page per-page]}]
-  (mq/with-collection DB family-media-collection
-    (mq/find {:status ["published"]})
-    (mq/paginate :page page :per-page per-page)))
-
-(defn family-media-item [id]
-  (mc/find-map-by-id DB family-media-collection (ObjectId. id)))
-
-(defn family-media-items [ids]
-  (mq/with-collection DB family-media-collection
-    (mq/find {:_id {$in ids}})))
-
-(defn blog-articles [& {:keys [page per-page tags]}]
+(defn blog-articles
+  "Query all blog articles that are published"
+  [& {:keys [page per-page tags]}]
   (mq/with-collection DB blog-collection
-    (mq/find {:status ["published"]})
+    (mq/find {:status "published"})
     (mq/sort {:created -1})
     (mq/paginate :page page :per-page per-page)))
     
-    ;; (let [query {:status ["published"]} ]
-    ;;   (let [query (if tags (assoc query :tags {$in tags}) query)]
-    ;;     (println query)
-    ;;     (mq/find query)
-    ;;     (mq/sort {:created -1})
-    ;;     (mq/paginate :page page :per-page per-page)))))
-
 (defn blog-article
   "Query a single blog article by id"
   [id]
@@ -84,8 +33,11 @@
 
 (defn blog-drafts
   "Query all blog articles that are drafts"
-  []
-  (mc/find-maps DB blog-collection {:status ["draft"]}))
+  [& {:keys [page per-page tags]}]
+  (mq/with-collection DB blog-collection
+    (mq/find {:status "draft"})
+    (mq/sort {:created -1})
+    (mq/paginate :page page :per-page per-page)))
 
 (defn blog-draft
   "Query a single blog article by id"
@@ -102,10 +54,10 @@
     (mq/find {:status ["published"]})
     (mq/paginate :page page :per-page per-page)))
 
-(defn blog-media-item [id]
+(defn blog-media-by-id [id]
   (mc/find-map-by-id DB blog-media-collection (ObjectId. id)))
 
-(defn blog-media-items [ids]
+(defn blog-media-by-ids [ids]
   (mq/with-collection DB blog-media-collection
     (mq/find {:_id {$in ids}})))
 

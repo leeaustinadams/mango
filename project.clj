@@ -1,5 +1,5 @@
 (defproject mango "0.1.0-SNAPSHOT"
-  :description "My blog"
+  :description "Lee's Website"
   :url "http://www.4d4ms.com"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -11,7 +11,6 @@
                  [ring/ring-jetty-adapter "1.4.0"]
                  [ring/ring-defaults "0.1.2"]
                  [compojure "1.4.0"]
-                 [hiccup "1.0.0"]
                  [cheshire "5.5.0"]
                  [crypto-random "1.2.0"]
                  [crypto-password "0.1.3"]

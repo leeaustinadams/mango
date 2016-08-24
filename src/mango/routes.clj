@@ -26,10 +26,10 @@
 
 (defn hydrate-media
   "Hydrates the media collection of x"
-  [source x]
-  (let [media (:media x)]
-    (if (not (nil? media))
-      (assoc x :media media)
+  [x]
+  (let [media-ids (:media x)]
+    (if (not (nil? media-ids))
+      (assoc x :media (db/blog-media-by-ids media-ids))
       x)))
 
 (defn hydrate-user 
@@ -42,98 +42,21 @@
 
 (defn hydrate-articles
   "Hydrates a page worth of articles"
-  [source page per-page hydrate-media-fn]
-  (let [page (if page (Integer. page) 1)
+  [source page per-page]
+  (let [page (if page (Integer. page) 0)
         per-page (if per-page (Integer. per-page) 10)
         articles (source :page page :per-page per-page)]
-        (map hydrate-media-fn (map hydrate-user articles))))
-
-(defn hydrate-family-media
-  "Hydrates the media collection of x"
-  [x]
-  (hydrate-media db/family-media-items x))
-
-(defn hydrate-family-articles
-  "Hydrates a page worth of family articles"
-  [page per-page]
-  (hydrate-articles db/family-articles page per-page hydrate-family-media))
-
-(defn hydrate-blog-media
-  "Hydrates the media collection of x"
-  [x]
-  (hydrate-media db/blog-media-items x))
-
-(defn hydrate-blog-articles
-  "Hydrates a page worth of blog articles"
-  [page per-page]
-  (hydrate-articles db/blog-articles page per-page hydrate-blog-media))
+        (map hydrate-media (map hydrate-user articles))))
        
 (defroutes routes
   (GET "/" [] (pages/index))
-
-  ;; JSON payload for a collection of articles
-  (GET "/family/articles.json" {user :user {:strs [page per-page]} :query-params}
-       (if (auth/authorized user "family")
-         {
-          :status 200
-          :headers {"Content-Type" "application/json"}
-          :body (generate-string (hydrate-family-articles page per-page))}
-         {
-          :status 403
-          :body (pages/not-allowed)
-          }))
-
-  ;; JSON payload for an article e.g. /family/articles/1234.json
-  (GET "/family/articles/:id.json" {user :user {:keys [id]} :params}
-       (if (auth/authorized user "family")
-         {
-          :status 200
-          :headers {"Content-Type" "application/json"}
-          :body (generate-string (hydrate-family-media (hydrate-user (db/family-article id))))}
-         {
-          :status 403
-          :body (pages/not-allowed)
-          }))
-
-  ;; JSON payload for a collection of drafts
-  (GET "/family/drafts.json" {user :user}
-       (if (auth/authorized user "familyeditor")
-         {
-          :status 200
-          :headers {"Content-Type" "application/json"}
-          :body (generate-string (db/family-drafts))}
-         {
-          :status 403
-          :body (pages/not-allowed)
-          }))
-       
-  ;; JSON payload for a draft by id e.g. /family/drafts/1234.json
-  (GET "/family/drafts/:id.json" [id]
-       {
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (generate-string (list (db/family-draft id)))})
-
-  (GET "/family/media.json" {{:strs [page per-page]} :query-params}
-       {
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (let [page (if page (Integer. page) 1)
-                    per-page (if per-page (Integer. per-page) 10)]
-                (generate-string (db/family-media :page page :per-page per-page)))})
-
-  (GET "/family/media/:id.json" [id]
-       {
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (generate-string (list (db/family-media-item id)))})
 
   ;; JSON payload for a collection of articles
   (GET "/blog/articles.json" {user :user {:strs [page per-page]} :query-params}
        {
         :status 200
         :headers {"Content-Type" "application/json"}
-        :body (generate-string (hydrate-blog-articles page per-page))})
+        :body (generate-string (hydrate-articles db/blog-articles page per-page))})
 
   ;; JSON payload for an article e.g. /blog/articles/1234.json
   (GET "/blog/articles/:id.json" {user :user {:keys [id]} :params}
@@ -142,7 +65,7 @@
            {
             :status 200
             :headers {"Content-Type" "application/json"}
-            :body (generate-string (hydrate-blog-media (hydrate-user article)))}
+            :body (generate-string (hydrate-media (hydrate-user article)))}
            {
             :status 404
             :header {"Content-Type" "application/json"}
@@ -152,6 +75,7 @@
   ;; 
   (POST "/blog/articles/post.json" {user :user params :params}
         (println "post user:" (str user))
+        (println "post params:" (str (keywordize-keys params)))
         (let [article (keywordize-keys params)]
           {
            :status 200
@@ -159,11 +83,15 @@
            :body (generate-string (db/insert-blog-article article (:_id user)))}))
 
   ;; JSON payload for a collection of drafts
-  (GET "/blog/drafts.json" {user :user}
-       {
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (generate-string (db/blog-drafts))})
+  (GET "/blog/drafts.json" {user :user {:strs [page per-page]} :query-params}
+       (if (auth/authorized user "editor")
+         {
+          :status 200
+          :headers {"Content-Type" "application/json"}
+          :body (generate-string (hydrate-articles db/blog-drafts page per-page))}
+         {
+          :status 403
+          }))
        
   ;; JSON payload for a draft by id e.g. /blog/drafts/1234.json
   (GET "/blog/drafts/:id.json" [id]
@@ -184,11 +112,11 @@
        {
         :status 200
         :headers {"Content-Type" "application/json"}
-        :body (generate-string (list (db/blog-media-item id)))})
+        :body (generate-string (list (db/blog-media-by-id id)))})
 
   ;; JSON payload of users
   (GET "/users.json" {{:strs [page per-page]} :query-params user :user}
-       (if (auth/authorized user "familyeditor")
+       (if (auth/authorized user "editor")
          {
           :status 200
           :headers {"Content-Type" "application/json"}
@@ -197,7 +125,6 @@
                   (generate-string (map auth/public-user (db/users :page page :per-page per-page))))}
          {
           :status 403
-          :body (pages/not-allowed)
           }))
 
   ;; JSON payload of current authenticated user
@@ -233,12 +160,6 @@
   (POST "/auth/signup" []
         {})
 
-  (GET "/auth/signin" []
-       {
-        :status 200
-        :body (pages/sign-in)
-        })
-
   (POST "/auth/signin" {session :session params :params}
         (println (str params))
         (let [username (params "username")
@@ -253,39 +174,21 @@
                })
             {
              :status 401
-             :body (pages/sign-in)
              }
             )))
 
-  ;; page for signing out the current user
-  (GET "/auth/signout" []
-       {
-        :status 200
-        :body (pages/sign-out)
-        })
 
   (POST "/auth/signout" {user :user session :session}
         (when user
           {
            :status 200
            :session nil;(dissoc session :user)
-           :body (pages/signed-out (:username user))
            }))
   
   (route/resources "/")
 
-  ;; debug page
-  (GET "/auth/test" []
-       ;; for debugging purposes, make sure we have a couple test users
-       (db/update-user (auth/update-user-password (db/user-by-username "atester") "zzxxccvv"))
-       (db/update-user (auth/update-user-password (db/user-by-username "ftester") "zzxxccvv"))
-       {
-        :status 200
-        :body (pages/sign-in)
-        })
-
-  ;; all other requests get a not found error
-  (rfn request (pages/not-found)))
+  ;; all other requests get redirected to index
+  (rfn request (pages/index)))
 
 (defrecord DBSessionStore []
   SessionStore
@@ -308,6 +211,8 @@
   "Log request details"
   [request & [options]]
   (println (request-url request))
+;  (println (str request))
+  (println (get-in request [:headers "user-agent"] ""))
   request)
 
 (defn wrap-logger
