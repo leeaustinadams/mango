@@ -3,7 +3,7 @@
   :url "http://www.4d4ms.com"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/data.json "0.2.6"]
                  [environ "1.0.1"]
                  [com.novemberain/monger "3.0.0"]
