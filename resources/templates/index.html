@@ -15,7 +15,8 @@
 	<!-- <link href="/img/favicon.ico" rel="shortcut icon" type="image/x-icon"> -->
 
 	<!--Application CSS Files-->
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="css/mango.css">
 
 	<!-- HTML5 Shim -->
@@ -26,10 +27,10 @@
 
   <body ng-app="mango" ng-cloak="">
     <div ng-controller="MainController">
-      <div ng-view></div>
-      <div class="pagefooter">
-        <small class="pull-left">&copy; 2014-2016 Lee Adams <a href="mailto:<% adminEmail %>">contact</a></small>
-        <small class="pull-right">v<% version  %></small>
+      <div ng-view class="main-view"></div>
+      <div class="footer">
+        <small class="copyright">&copy; 2014-2016 Lee Adams <a href="mailto:<% adminEmail %>">contact</a></small>
+        <small class="version">v<% version  %></small>
       </div>
     </div>
 
@@ -42,7 +43,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-resource.min.js"></script>
 
     <!-- Angular Material Library -->
-    <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
 
     <script src="js/mango.js"></script>
   </body>

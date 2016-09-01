@@ -1,8 +1,10 @@
 <div class="mango" layout="column" ng-cloak>
-  <h1>{{article.title}}</h1>
-  <h4>Posted By: {{article.user.displayName}}</h4>
-  <p>{{article.content}}</p>
+  <h1 class="article-title">{{article.title}}</h1>
+  <p class="article-byline" ng-if="article.user">Posted By: {{article.user.displayName}}</p>
+  <p>{{article.created_string}}</p>
+  <p class="article-content">{{article.content}}</p>
   <md-grid-list
+     class="article-media-grid"
      md-cols-sm="1" md-cols-gt-sm="4"
      md-row-height="1:1"
      md-gutter="12px" md-gutter-gt-sm="8px">
@@ -11,7 +13,7 @@
                   md-rowspan="1" md-col-span="1" md-colspan-sm="1">
       <img ng-src="{{media.thumbnailSrc}}" class="articleThumbnail"/>
       <md-grid-tile-footer>
-        <h3>{{media.caption}}</h3>
+        <h3 class="media-caption">{{media.caption}}</h3>
       </md-grid-tile-footer>
     </md-grid-tile>
   </md-grid-list>

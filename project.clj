@@ -13,7 +13,7 @@
                  [compojure "1.4.0"]
                  [cheshire "5.5.0"]
                  [crypto-random "1.2.0"]
-                 [crypto-password "0.1.3"]
+                 [crypto-password "0.2.0"]
                  [stencil "0.5.0"]]
   :profiles {:uberjar {:aot :all}}
   :main mango.core)

@@ -2,18 +2,19 @@
 (ns mango.auth
   (:require [mango.db :as db]
             [crypto.random :as random]
-            [crypto.password.pbkdf2 :as pbkdf2]))
+            [crypto.password.pbkdf2 :as password]))
 
 (defn user
-  "Authenticate the user using the given password"
+  "Authenticate the user with username and password"
   [username password]
   (when-let [user (db/user-by-username username)]
-    (when (pbkdf2/check password (:password user)) user)))
+    (let [encrypted-password (:password user)]
+      (when (and (not (nil? encrypted-password)) (password/check password encrypted-password)) user))))
     
 (defn update-user-password
   "Add/replace the :password field with its encrypted form of password"
   [user password]
-  (when user (assoc user :password (pbkdf2/encrypt password)))) 
+  (when user (assoc user :password (password/encrypt password)))) 
 
 (defn public-user
   "Remove fields that should never be visible externally"

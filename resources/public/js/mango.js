@@ -1,4 +1,17 @@
 // https://docs.angularjs.org/api
+function formatArticle(article) {
+    var cleanArticle = {};
+    cleanArtucke._id = article._id;
+    cleanArticle.title = article.title;
+    cleanArticle.content = article.content;
+    var created = new Date(article.created);
+    cleanArticle.created = created;
+    cleanArticle.created_string = created.getDate() + '/' + created.getMonth() + '/' + created.getFullYear();
+    cleanArticle.tags = article.tags;
+    cleanArticle.status = article.status;
+    return cleanArticle;
+}
+
 angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
     .config(['$httpProvider', function($httpProvider) {
         $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
@@ -37,6 +50,10 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
                                      save: {
                                          method: 'POST',
                                          url: '/blog/articles/post.json'
+                                     },
+                                     edit: {
+                                         method: 'POST',
+                                         url: '/blog/articles/:articleId.json'
                                      }
                                  });
 	                         }
@@ -65,46 +82,78 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
     .controller('LandingController', function($scope, $location) {
         $scope.$location = $location;
     })
-    .controller('BlogArticlesController', function($scope, $routeParams, $location, BlogArticles) {
+    .controller('BlogArticlesController', function($scope, $routeParams, $location, BlogArticles, mode) {
         $scope.name = 'BlogArticlesController';
         $scope.params = $routeParams;
-        console.log($location.path());
-        if ($location.path().endsWith("drafts")) {
+
+        if (mode == "drafts") {
             $scope.articles = BlogArticles.drafts();
+            $scope.article_click = function(article_id) {
+                $location.path('/edit/' + article_id);
+            }
+            $scope.subheader = "Drafts";
         } else {
-            $scope.articles = BlogArticles.query();
+            $scope.articles = BlogArticles.query(function(articles) {
+                for(var i = 0; i < articles.length; i++) {
+                    var article = articles[i];
+                    article = formatArticle(article);
+                }
+            });
+            $scope.article_click = function(article_id) {
+                $location.path('/blog/' + article_id);
+            }
+            $scope.subheader = "Posts";
         }
     })
-    .controller('BlogArticleController', function($scope, $routeParams, $location, BlogArticle) {
+    .controller('BlogArticleController', function($scope, $routeParams, $location, BlogArticle, mode) {
         $scope.name = 'BlogArticleController';
         $scope.params = $routeParams;
 
+        $scope.post = function() {
+            var article = new BlogArticle({
+                _id: this.article._id,
+                title: this.article.title,
+                content: this.article.content,
+                created: this.article.created,
+                tags: this.article.tags,
+                status: this.article.status
+            });
+            if (mode == "edit") {
+                article.$edit(function(response) {
+                    $location.path('blog/' + response._id);
+
+                    $scope.resetArticle();
+                }, function(errorResponse) {
+                    $scope.error = errorResponse.data.message;
+                });
+            } else {
+                article.$save(function(response) {
+                    $location.path('blog/' + response._id);
+
+                    $scope.resetArticle();
+                }, function(errorResponse) {
+                    $scope.error = errorResponse.data.message;
+                });
+            }
+        }
+
         $scope.resetArticle = function() {
             $scope.article = {};
-            $scope.article.title = 'Put your title here';
-            $scope.article.content = 'Put your content here';
+            $scope.article.title = '';
+            $scope.article.content = '';
             $scope.article.created = new Date();
-            $scope.article.tags = [];
+            $scope.article.tags = '';
             $scope.article.status = 'draft';
         }
 
         if ($scope.params.id) {
             $scope.article = BlogArticle.get({
                 articleId: $scope.params.id
+            }, function(article) {
+                article = formatArticle(article);
             });
         } else {
             $scope.resetArticle();
-        }
-        
-        $scope.post = function() {
-            var article = new BlogArticle(this.article);
-			article.$save(function(response) {
-				$location.path('blog/' + response._id);
-
-                $scope.resetArticle();
-			}, function(errorResponse) {
-				$scope.error = errorResponse.data.message;
-			});
         }
     })
     .controller('UserController', function($scope, $routeParams, User) {
@@ -121,20 +170,43 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
         }
     })
     .config(['$locationProvider', '$routeProvider', '$mdThemingProvider', function($locationProvider, $routeProvider, $mdThemingProvider) {
-        $mdThemingProvider.theme('default').primaryPalette('brown').accentPalette('red');
+        $mdThemingProvider.theme('default').primaryPalette('blue').accentPalette('red');
         
         $routeProvider.when('/blog', {
             templateUrl: '/html/blog_articles.html',
-            controller: 'BlogArticlesController'
+            controller: 'BlogArticlesController',
+            resolve: {
+                mode: function() {
+                    return 'published';
+                }
+            }
         }).when('/blog/drafts', {
             templateUrl: 'html/blog_articles.html',
-            controller: 'BlogArticlesController'
+            controller: 'BlogArticlesController',
+            resolve: {
+                mode: function() {
+                    return 'drafts';
+                }
+            }
         }).when('/blog/post', {
             templateUrl: '/html/blog_post.html',
             controller: 'BlogArticleController'
         }).when('/blog/:id', {
             templateUrl: '/html/blog_article.html',
-            controller: 'BlogArticleController'
+            controller: 'BlogArticleController',
+            resolve: {
+                mode: function() {
+                    return 'show';
+                }
+            }
+        }).when('/edit/:id', {
+            templateUrl: '/html/blog_post.html',
+            controller: 'BlogArticleController',
+            resolve: {
+                mode: function() {
+                    return 'edit';
+                }
+            }
         }).when('/about', {
             templateUrl: '/html/about.html'
         }).when('/photography', {

@@ -1,0 +1,77 @@
+==================================================================
+https://keybase.io/leeadams
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://www.4d4ms.com
+  * I am leeadams (https://keybase.io/leeadams) on keybase.
+  * I have a public key with fingerprint 68A7 106C 93F7 C572 1959  B7B8 498B 8D77 776A FEEB
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "client": {
+            "name": "keybase.io node.js client",
+            "version": "0.7.7"
+        },
+        "key": {
+            "fingerprint": "68a7106c93f7c5721959b7b8498b8d77776afeeb",
+            "host": "keybase.io",
+            "key_id": "498B8D77776AFEEB",
+            "uid": "3c0555125b5825089d1f1696e10cd819",
+            "username": "leeadams"
+        },
+        "merkle_root": {
+            "ctime": 1429117283,
+            "hash": "1116df83d0e426ccaa20c3902b476e2e08bbd97bf781e0de2bab8adb30c4f458b8dc91e64f21b5d7253cb8f09f18e22e17a67706ff9631a652e0096fe2d5f3bf",
+            "seqno": 202495
+        },
+        "service": {
+            "hostname": "www.4d4ms.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1429117429,
+    "expire_in": 157680000,
+    "prev": "0ce204336cf73c1292ff26b43e3decf19e9fb092d873ac3dc749e17d094b88ee",
+    "seqno": 3,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG/MacGPG2 v2.0.22 (Darwin)
+Comment: GPGTools - https://gpgtools.org
+
+owFVkm2IVUUYx++2JnpzexG2IMLWAybB7Toz52VmVqg0N9diRbAtBNu7Z2ae2T3r
+vedczznuba9stmWrlWkS4UsEfbJwaRGJDJISIUjbIkSkslaCvthuEW32YdGtOZeN
+cj4Mc87ze/7z/J953mhpzuWbNrz2eq02MDfV9OVVkesuHrm20xKRGrLad1qyHECY
+ZqfQr4DVbm2DIeEnUAyitjBSUBxI2uaZgjUIcRJEoaFQkRapNVzI8CxZB2EfxNU4
+yLQsj/kUI09yW1PpUoK5ywUVzOFMMEXN8nwNIIxkf5SkN91qNTRLgTJ/Db+WrWvw
+ax7v6FhrYjsaAVsi13UxcYXLiIsYV1hjj3uAkVQM8wxMIJ63VAbwlV9JsnorEG8r
+QymOooZpmQYZgh3CMaaE2aYiP+k3SRhjT2lmKwQO8aT0fYKkzRERDvWAAGJCKE6F
+pgwDUkCEL5ivhI2kox03Myo5Bs/RBAtXUeLaUjCNuMYMCAFMfY9S5GnNPRv7nmsk
+Efc0EOVqW2hjIYHtYWS1E0Qc7g5n3/FgICGrO2vbvLtarVZ0lFNJijKqmKxqHKWR
+jMom1J+m1fbMdTpUbaAgxkvzKiURhMq82v+fFRv05o6YvWDBc9UghlKQES71GDIr
+uwcGs0mQQJBj257U1JaYcKI18YRjg61AasyBa4E4UYzavrSVpA435hXijmAM4D+f
+pvep32ckk6Av9NMdMVjDrzTdtyDXlM8tvPWWbG5z+cV3/jvMbUcW5U5uXHqss3n0
+zERt4fnB8vG21Ru6moN3To51Xv9i16nPttaXPPXuaO23x/JeKz24YlIear3n/dbC
+ocqJp9ewLfWHx6f393y9tevGtZHq2I2Rr07/1DHz++i5Jz84qJcvgr2F3dOTs/Xu
+05Xe++94aGKJvDLxwPbxfbedX/rL1AWy6fLikQUXTy07+0LnmyO7nz98dN3cjz/v
+md43l+ztvdr998s1euL79Zc3H700u3L1+l316+qu7t4z35z7YfmvuY/7/ujaMvP5
+pWfePpA//OfZlm+frdOB+r2rZg8sa3lP9W9e9eIk+w5gz6dvffjoygsXP3r1ytBf
+K/yeT17af3wTH+Ph1CPwRM/MwLHb9YN3/wM=
+=VA2T
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/leeadams
+
+==================================================================

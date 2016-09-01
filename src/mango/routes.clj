@@ -4,12 +4,14 @@
 ;; http://clojuremongodb.info/
 (ns mango.routes
   (:require [clojure.walk :refer [keywordize-keys]]
+            [clojure.string :as string]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.session.store :refer [SessionStore]]
             [ring.util.request :refer [request-url]]
+            [ring.util.response :refer [file-response]]
             [compojure.core :refer [defroutes rfn GET PUT POST]]
             [compojure.route :as route]
             [cheshire.core :refer :all]
@@ -72,15 +74,46 @@
             :body (generate-string {:msg "Not found"})
             })))
 
+  ;; Twitterbot specific route for an article e.g. /blog/articles/1234
+  (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers}
+       (when (clojure.string/includes? user-agent "Twitterbot")
+         (let [article (db/blog-article id)]
+           (println (pages/article-for-twitter (hydrate-media article)))
+           (if (not (nil? article))
+             {
+              :status 200
+              :headers {"Content-Type" "text/html"}
+              :body (pages/article-for-twitter (hydrate-media article))
+              }
+             {
+              :status 404
+              :header {"Content-Type" "application/json"}
+              :body (generate-string {:msg "Not found"})
+              }))))
+
   ;; 
   (POST "/blog/articles/post.json" {user :user params :params}
-        (println "post user:" (str user))
-        (println "post params:" (str (keywordize-keys params)))
-        (let [article (keywordize-keys params)]
+        (if (auth/authorized user "editor")
+          (let [article (keywordize-keys params)]
+            {
+             :status 200
+             :headers {"Content-Type" "application/json"}
+             :body (generate-string (db/insert-blog-article article (:_id user)))})
           {
-           :status 200
-           :headers {"Content-Type" "application/json"}
-           :body (generate-string (db/insert-blog-article article (:_id user)))}))
+           :status 403
+           }))
+
+  ;; 
+  (POST "/blog/articles/:id.json" {user :user params :params}
+        (if (auth/authorized user "editor")
+          (let [article (keywordize-keys params)]
+            {
+             :status 200
+             :headers {"Content-Type" "application/json"}
+             :body (generate-string (db/update-blog-article article (:_id user)))})
+          {
+           :status 403
+           }))
 
   ;; JSON payload for a collection of drafts
   (GET "/blog/drafts.json" {user :user {:strs [page per-page]} :query-params}
@@ -160,31 +193,26 @@
   (POST "/auth/signup" []
         {})
 
-  (POST "/auth/signin" {session :session params :params}
-        (println (str params))
-        (let [username (params "username")
-              password (params "password")
-              user (auth/user username password)]
-          (if user
-            (let [sess (assoc session :user (str (:_id user)))]
-              {
-               :status 200
-               :session sess
-               :body (generate-string sess)
-               })
+  (POST "/auth/signin" {session :session {:strs [username password]} :params}
+        (if-let [user (auth/user username password)]
+          (let [sess (assoc session :user (str (:_id user)))]
             {
-             :status 401
-             }
-            )))
-
+             :status 200
+             :session sess
+             :body (generate-string sess)
+             })
+          {
+           :status 401
+           }
+          ))
 
   (POST "/auth/signout" {user :user session :session}
         (when user
           {
            :status 200
-           :session nil;(dissoc session :user)
+           :session nil
            }))
-  
+
   (route/resources "/")
 
   ;; all other requests get redirected to index
@@ -210,9 +238,9 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-  (println (request-url request))
-;  (println (str request))
-  (println (get-in request [:headers "user-agent"] ""))
+;  (println (request-url request))
+  (println (str request))
+;  (println (get-in request [:headers "user-agent"] ""))
   request)
 
 (defn wrap-logger
