@@ -1,7 +1,7 @@
 ;; https://github.com/davidsantiago/stencil
 (ns mango.pages
-(:require [mango.config :as config]
-          [stencil.core :as stencil]))
+  (:require [mango.config :as config]
+            [stencil.core :as stencil]))
 
 (defn not-found
   "Render a page for when a URI is not found"
@@ -11,13 +11,14 @@
 
 (defn index
   "Render the root html"
-  []
+  [user]
   (stencil/render-file "templates/index.html"
                        {
                         :title config/site-title
                         :description config/site-description
                         :adminEmail config/admin-email
-                        :version config/version}))
+                        :version config/version
+                        :user user}))
 
 (defn article-for-twitter
   "Render an article stub with metatags for Twitter Cards. Expects media to have been hydrated"
@@ -25,12 +26,12 @@
   (let [media (:media article)]
     (stencil/render-file "templates/article_for_twitter.html"
                          {:card "summary"
-                          :site "@tester_ladams"
-                          :creator "@tester_ladams"
+                          :site config/twitter-site-handle
+                          :creator config/twitter-creator-handle
                           :title (:title article)
                           :description (:content article)
                           :image (if (not (nil? media))
                                    (-> media
                                        first
                                        :src)
-                                   "http://www.4d4ms.com/cards/3.png")})))
+                                   "http://4d4ms.com/img/A.jpg")})))

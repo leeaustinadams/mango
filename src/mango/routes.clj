@@ -3,7 +3,8 @@
 ;; https://github.com/weavejester/compojure
 ;; http://clojuremongodb.info/
 (ns mango.routes
-  (:require [clojure.walk :refer [keywordize-keys]]
+  (:require [clojure.data.json :as json]
+            [clojure.walk :refer [keywordize-keys]]
             [clojure.string :as string]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.middleware.cookies :refer [wrap-cookies]]
@@ -51,7 +52,7 @@
         (map hydrate-media (map hydrate-user articles))))
        
 (defroutes routes
-  (GET "/" [] (pages/index))
+  (GET "/" {user :user session :session} (pages/index (json/write-str(auth/public-user user))))
 
   ;; JSON payload for a collection of articles
   (GET "/blog/articles.json" {user :user {:strs [page per-page]} :query-params}
@@ -216,7 +217,7 @@
   (route/resources "/")
 
   ;; all other requests get redirected to index
-  (rfn request (pages/index)))
+  (rfn {user :user} (pages/index (json/write-str(auth/public-user user)))))
 
 (defrecord DBSessionStore []
   SessionStore

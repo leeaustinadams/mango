@@ -8,26 +8,29 @@
         <img ng-src="{{article.media[0].thumbnailSrc}}" class="article-thumbnail"/>
         <div class="md-list-item-text">
              <h3 class="article-list-title">{{article.title}}</h3>
-             <p class="article-list-date">{{article.created_string}}</p>
+             <p class="article-list-date">{{article.createdString}}</p>
         </div>
       </md-list-item>
 
-      <md-fab-toolbar md-open="toolbar.isOpen" count="toolbar.count" md-direction="left">
+      <md-fab-toolbar ng-if="authentication.user" md-open="toolbar.isOpen" count="3" md-direction="left">
         <md-fab-trigger class="align-with-text">
           <md-button aria-label="menu" class="md-fab md-primary">
-            <md-icon md-font-icon="face"></md-icon>
+            <md-icon><i class="material-icons">settings</i></md-icon>
           </md-button>
         </md-fab-trigger>
         <md-toolbar>
           <md-fab-actions class="md-toolbar-tools">
-            <md-button aria-label="comment" class="md-icon-button">
-              <md-icon md-svg-src="img/icons/ic_comment_24px.svg"></md-icon>
+            <md-button aria-label="new" class="md-icon-button"
+                       ng-click="$location.path('/blog/post')">
+              <md-icon class="material-icons">add-circle</i></md-icon>
             </md-button>
-            <md-button aria-label="label" class="md-icon-button">
-              <md-icon md-svg-src="img/icons/ic_label_24px.svg"></md-icon>
+            <md-button aria-label="label" class="md-icon-button"
+                       ng-click="$location.path('/blog/drafts')">
+              <md-icon class="material-icons">folder-open</md-icon>
             </md-button>
-            <md-button aria-label="photo" class="md-icon-button">
-              <md-icon md-svg-src="img/icons/ic_photo_24px.svg"></md-icon>
+            <md-button aria-label="label" class="md-icon-button"
+                       ng-click="$location.path('/me')">
+              <md-icon class="material-icons">face</md-icon>
             </md-button>
           </md-fab-actions>
         </md-toolbar>

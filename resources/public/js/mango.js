@@ -1,17 +1,4 @@
 // https://docs.angularjs.org/api
-function formatArticle(article) {
-    var cleanArticle = {};
-    cleanArtucke._id = article._id;
-    cleanArticle.title = article.title;
-    cleanArticle.content = article.content;
-    var created = new Date(article.created);
-    cleanArticle.created = created;
-    cleanArticle.created_string = created.getDate() + '/' + created.getMonth() + '/' + created.getFullYear();
-    cleanArticle.tags = article.tags;
-    cleanArticle.status = article.status;
-    return cleanArticle;
-}
-
 angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
     .config(['$httpProvider', function($httpProvider) {
         $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
@@ -69,6 +56,29 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
                               }
                           });
                       }])
+    .factory('Authentication', [function() {
+		var _this = this;
+
+		_this._data = {
+			user: window.user
+		};
+
+		return _this._data;
+	}])
+    .factory('Authorization', [function() {
+        var _this = this;
+
+        _this._data = {
+            canEdit: function(user, item, role) {
+                var itemUserId = item && item.user && item.user._id;
+
+                return user && (user._id === itemUserId) ||
+                    (user.roles && user.roles.indexOf(role) >= 0);
+            }
+        };
+
+        return _this._data;
+    }])
     .controller('MainController', function($scope, $route, $routeParams, $location, $window) {
         $scope.name = 'MainController';
         $scope.$route = $route;
@@ -82,9 +92,12 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
     .controller('LandingController', function($scope, $location) {
         $scope.$location = $location;
     })
-    .controller('BlogArticlesController', function($scope, $routeParams, $location, BlogArticles, mode) {
+    .controller('BlogArticlesController', function($scope, $routeParams, $location, BlogArticles, Authentication, Authorization,  mode) {
         $scope.name = 'BlogArticlesController';
         $scope.params = $routeParams;
+
+        $scope.authentication = Authentication;
+        $scope.authorization = Authorization;
 
         if (mode == "drafts") {
             $scope.articles = BlogArticles.drafts();
@@ -96,7 +109,8 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
             $scope.articles = BlogArticles.query(function(articles) {
                 for(var i = 0; i < articles.length; i++) {
                     var article = articles[i];
-                    article = formatArticle(article);
+                    article.created = new Date(article.created);
+                    article.createdString = article.created.toLocaleDateString();
                 }
             });
             $scope.article_click = function(article_id) {
@@ -127,6 +141,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
                     $scope.error = errorResponse.data.message;
                 });
             } else {
+                delete article._id;
                 article.$save(function(response) {
                     $location.path('blog/' + response._id);
 
@@ -136,7 +151,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
                 });
             }
         }
-
+        
         $scope.resetArticle = function() {
             $scope.article = {};
             $scope.article.title = '';
@@ -150,21 +165,23 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
             $scope.article = BlogArticle.get({
                 articleId: $scope.params.id
             }, function(article) {
-                article = formatArticle(article);
+                article.created = new Date(article.created);
+                article.createdString = article.created.toLocaleDateString();
             });
         } else {
             $scope.resetArticle();
         }
     })
-    .controller('UserController', function($scope, $routeParams, User) {
+    .controller('UserController', function($scope, $routeParams, User, Authentication) {
         $scope.name = 'UserController';
         $scope.params = $routeParams;
 
-        $scope.user = {};
+        $scope.authentication = Authentication;
 
         $scope.signin = function() {
             var user = new User({username: this.user.name, password: this.user.password});
             user.$signin(function(response) {
+                $scope.authentication.user = response;
             }, function(errorResponse) {
             })
         }
@@ -190,7 +207,12 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
             }
         }).when('/blog/post', {
             templateUrl: '/html/blog_post.html',
-            controller: 'BlogArticleController'
+            controller: 'BlogArticleController',
+            resolve: {
+                mode: function() {
+                    return 'new';
+                }
+            }
         }).when('/blog/:id', {
             templateUrl: '/html/blog_article.html',
             controller: 'BlogArticleController',

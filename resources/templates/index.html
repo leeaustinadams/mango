@@ -1,9 +1,8 @@
-{{=<% %>=}}
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <base href="/">
-	<title><% title %></title>
+	<title>{{title}}</title>
 
 	<!-- General META -->
 	<meta charset="utf-8">
@@ -29,10 +28,15 @@
     <div ng-controller="MainController">
       <div ng-view class="main-view"></div>
       <div class="footer">
-        <small class="copyright">&copy; 2014-2016 Lee Adams <a href="mailto:<% adminEmail %>">contact</a></small>
-        <small class="version">v<% version  %></small>
+        <small class="copyright">&copy; 2014-2016 Lee Adams <a href="mailto:{{adminEmail}}">contact</a></small>
+        <small class="version">v{{version }}</small>
       </div>
     </div>
+
+    <!--Embedding The User Object-->
+	<script type="text/javascript">
+	  var user = {{{ user }}};
+	</script>
 
 	<!--Application JavaScript Files-->
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>

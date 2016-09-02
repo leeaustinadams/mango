@@ -16,6 +16,14 @@ html, body {
 .article-title {
 }
 
+.article-byline {
+    margin: 0px 0px 0px 0px;
+}
+
+.article-infoline {
+    margin: 0px 0px 0px 0px;
+}
+
 .article-list md-virtual-repeat-container {
     border: solid 1px grey;
 }

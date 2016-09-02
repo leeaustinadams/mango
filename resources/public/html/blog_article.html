@@ -1,7 +1,7 @@
 <div class="mango" layout="column" ng-cloak>
   <h1 class="article-title">{{article.title}}</h1>
   <p class="article-byline" ng-if="article.user">Posted By: {{article.user.displayName}}</p>
-  <p>{{article.created_string}}</p>
+  <p class="article-infoline">on {{article.createdString}}</p>
   <p class="article-content">{{article.content}}</p>
   <md-grid-list
      class="article-media-grid"
