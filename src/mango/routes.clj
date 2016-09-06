@@ -17,6 +17,7 @@
             [compojure.route :as route]
             [cheshire.core :refer :all]
             [cheshire.generate :refer [add-encoder encode-str]]
+            [markdown.core :as md]
             [mango.auth :as auth]
             [mango.config :as config]
             [mango.db :as db]
@@ -43,13 +44,21 @@
       (assoc x :user (auth/public-user (db/user-by-id user-id)))
       x)))
 
+(defn hydrate-content
+  "Hydrates the content for an article."
+  [article]
+  (let [content (:content article)]
+    (if (not (nil? content))
+      (assoc article :rendered-content (md/md-to-html-string content))
+      article)))
+
 (defn hydrate-articles
   "Hydrates a page worth of articles"
   [source page per-page]
   (let [page (if page (Integer. page) 0)
         per-page (if per-page (Integer. per-page) 10)
         articles (source :page page :per-page per-page)]
-        (map hydrate-media (map hydrate-user articles))))
+        (map hydrate-media (map hydrate-user (map hydrate-content articles)))))
        
 (defroutes routes
   (GET "/" {user :user session :session} (pages/index (json/write-str(auth/public-user user))))
@@ -68,7 +77,7 @@
            {
             :status 200
             :headers {"Content-Type" "application/json"}
-            :body (generate-string (hydrate-media (hydrate-user article)))}
+            :body (generate-string (hydrate-media (hydrate-user (hydrate-content article))))}
            {
             :status 404
             :header {"Content-Type" "application/json"}

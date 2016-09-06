@@ -1,5 +1,5 @@
 // https://docs.angularjs.org/api
-angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
+angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
     .config(['$httpProvider', function($httpProvider) {
         $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
         $httpProvider.defaults.transformRequest.unshift(function (data, headersGetter) {
@@ -111,6 +111,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
                     var article = articles[i];
                     article.created = new Date(article.created);
                     article.createdString = article.created.toLocaleDateString();
+                    article.renderedContent = article["rendered-content"];
                 }
             });
             $scope.article_click = function(article_id) {
@@ -167,6 +168,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource'])
             }, function(article) {
                 article.created = new Date(article.created);
                 article.createdString = article.created.toLocaleDateString();
+                article.renderedContent = article["rendered-content"];
             });
         } else {
             $scope.resetArticle();

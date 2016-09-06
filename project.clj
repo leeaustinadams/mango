@@ -14,6 +14,7 @@
                  [cheshire "5.5.0"]
                  [crypto-random "1.2.0"]
                  [crypto-password "0.2.0"]
-                 [stencil "0.5.0"]]
+                 [stencil "0.5.0"]
+                 [markdown-clj "0.9.89"]]
   :profiles {:uberjar {:aot :all}}
   :main mango.core)
