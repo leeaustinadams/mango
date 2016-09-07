@@ -49,7 +49,7 @@
   [article]
   (let [content (:content article)]
     (if (not (nil? content))
-      (assoc article :rendered-content (md/md-to-html-string content))
+      (assoc article :rendered-content (md/md-to-html-string content :footnotes? true))
       article)))
 
 (defn hydrate-articles
@@ -88,12 +88,11 @@
   (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers}
        (when (clojure.string/includes? user-agent "Twitterbot")
          (let [article (db/blog-article id)]
-           (println (pages/article-for-twitter (hydrate-media article)))
            (if (not (nil? article))
              {
               :status 200
               :headers {"Content-Type" "text/html"}
-              :body (pages/article-for-twitter (hydrate-media article))
+              :body (pages/article-for-twitter (hydrate-media (hydrate-content article)))
               }
              {
               :status 404

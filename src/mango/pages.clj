@@ -29,7 +29,7 @@
                           :site config/twitter-site-handle
                           :creator config/twitter-creator-handle
                           :title (:title article)
-                          :description (:content article)
+                          :description (:rendered-content article)
                           :image (if (not (nil? media))
                                    (-> media
                                        first
