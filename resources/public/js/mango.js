@@ -17,6 +17,24 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
             return response;
         });
     }])
+    .directive('highlight',  function () {
+        return {
+            replace: false,
+            scope: {
+                'ngBindHtml': '='
+            },
+            link: function (scope, element, attrs) {
+                scope.$watch('ngBindHtml', function(newValue, oldValue) {
+                    element.html(newValue);
+                    var items = element[0].querySelectorAll('code,pre');
+                        angular.forEach(items, function (item) {
+                            hljs.highlightBlock(item);
+                        });
+                    }
+                );
+            },
+        };
+    })
     .factory('BlogArticles', ['$resource',
 	                          function($resource) {
 		                          return $resource('/blog/articles.json?per-page=12', {

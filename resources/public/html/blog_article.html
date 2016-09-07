@@ -2,7 +2,7 @@
   <h1 class="article-title">{{article.title}}</h1>
   <p class="article-byline" ng-if="article.user">Posted By: {{article.user.displayName}}</p>
   <p class="article-infoline">on {{article.createdString}}</p>
-  <p class="article-content" ng-bind-html="article.renderedContent"></p>
+  <p class="article-content" highlight ng-bind-html="article.renderedContent"></p>
   <md-grid-list
      class="article-media-grid"
      md-cols-sm="1" md-cols-gt-sm="4"
