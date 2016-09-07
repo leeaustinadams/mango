@@ -5,10 +5,16 @@
       <md-input-container>
         <label>Username</label>
         <input name="username" type="text" ng-model="user.name" required>
+        <div ng-messages="articleForm.title.$error">
+          <div ng-message="required">You <b>must</b> have a username.</div>
+        </div>
       </md-input-container>
 	  <md-input-container>
 	    <label>Password</label>
 	    <input name="password" type="password" ng-model="user.password" required>
+        <div ng-messages="articleForm.title.$error">
+          <div ng-message="required">You <b>must</b> have a password.</div>
+        </div>
 	  </md-input-container>
 
       <md-button class="md-raised" ng-click="signin()">Sign in</md-button>
