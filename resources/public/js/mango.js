@@ -1,23 +1,6 @@
 // https://docs.angularjs.org/api
 angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
-    .config(['$httpProvider', function($httpProvider) {
-        $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-        $httpProvider.defaults.transformRequest.unshift(function (data, headersGetter) {
-            var key, result = [], response;
-            if(typeof data == "string") { //$http support
-                response = data;
-            } else {
-                for (key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        result.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
-                    }
-                }
-                response = result.join("&");
-            }
-            return response;
-        });
-    }])
-    .directive('highlight',  function () {
+    .directive('highlight', function () {
         return {
             replace: false,
             scope: {
@@ -35,6 +18,31 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
             },
         };
     })
+    .directive('tweet', ['$timeout', function($timeout) {
+        return {
+            link: function(scope, element, attr) {
+				var renderTwitterButton = debounce(function() {
+					if (attr.url) {
+						$timeout(function() {
+							element[0].innerHTML = '';
+							twttr.widgets.createShareButton(
+								attr.url,
+								element[0],
+								function() {}, {
+									count: attr.count,
+									text: attr.text,
+									via: attr.via,
+									size: attr.size
+								}
+							);
+						});
+					}
+				}, 75);
+				attr.$observe('url', renderTwitterButton);
+				attr.$observe('text', renderTwitterButton);
+			}
+        }
+    }])
     .factory('BlogArticles', ['$resource',
 	                          function($resource) {
 		                          return $resource('/blog/articles.json?per-page=12', {
@@ -202,13 +210,41 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
             var user = new User({username: this.user.name, password: this.user.password});
             user.$signin(function(response) {
                 $scope.authentication.user = response;
+                $location.path('/');
             }, function(errorResponse) {
-            })
+                $scope.error = errorResponse.data.msg;
+            });
+        }
+
+        $scope.signout = function() {
+            var user = new User($scope.authentication.user);
+            user.$signout(function(response) {
+                $scope.authentication.user = null;
+                $location.path('/');
+            }, function(errorResponse) {
+                $scope.error = errorResponse.data.msg;
+            });
         }
     })
-    .config(['$locationProvider', '$routeProvider', '$mdThemingProvider', function($locationProvider, $routeProvider, $mdThemingProvider) {
+    .config(['$locationProvider', '$routeProvider', '$mdThemingProvider', '$httpProvider', function($locationProvider, $routeProvider, $mdThemingProvider, $httpProvider) {
         $mdThemingProvider.theme('default').primaryPalette('blue').accentPalette('red');
-        
+
+        $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+        $httpProvider.defaults.transformRequest.unshift(function (data, headersGetter) {
+            var key, result = [], response;
+            if(typeof data == "string") { //$http support
+                response = data;
+            } else {
+                for (key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        result.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+                    }
+                }
+                response = result.join("&");
+            }
+            return response;
+        });
+
         $routeProvider.when('/blog', {
             templateUrl: '/html/blog_articles.html',
             controller: 'BlogArticlesController',
@@ -265,3 +301,21 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
 
         $locationProvider.html5Mode(true);
     }]);
+
+//Simple Debounce Implementation
+//http://davidwalsh.name/javascript-debounce-function
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this,
+			args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+};

@@ -1,7 +1,8 @@
 <div class="mango" layout="column" ng-cloak>
   <h1 class="article-title">{{article.title}}</h1>
   <p class="article-byline" ng-if="article.user">Posted By: {{article.user.displayName}}</p>
-  <p class="article-infoline">on {{article.createdString}}</p>
+  <p class="article-infoline">On: {{article.createdString}}</p>
+  <i class="tweet-button" tweet url="http://www.4d4ms.com/blog/{{article._id}}" text="Blog post on 4d4ms.com"></i>
   <p class="article-content" highlight ng-bind-html="article.renderedContent"></p>
   <md-grid-list
      class="article-media-grid"
