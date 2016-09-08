@@ -53,21 +53,25 @@
             :body (generate-string {:msg "Not found"})
             })))
 
-  ;; Twitterbot specific route for an article e.g. /blog/articles/1234
-  (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers}
-       (when (clojure.string/includes? user-agent "Twitterbot")
-         (let [article (db/blog-article id)]
-           (if (not (nil? article))
-             {
-              :status 200
-              :headers {"Content-Type" "text/html"}
-              :body (pages/article-for-twitter (hydrate/media (hydrate/content article)))
-              }
-             {
-              :status 404
-              :header {"Content-Type" "application/json"}
-              :body (generate-string {:msg "Not found"})
-              }))))
+  ;; Crawler specific route for an article e.g. /blog/1234
+  (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
+       (let [article (db/blog-article id)]
+         (when (not (nil? article))
+           (let [hydrated-article (hydrate/media (hydrate/content article))
+                 url (request-url request)]
+             (cond
+               (clojure.string/includes? user-agent "Twitterbot")
+               {
+                :status 200
+                :headers {"Content-Type" "text/html"}
+                :body (pages/article-for-twitter hydrated-article url)
+                }
+               (clojure.string/includes? user-agent "facebookexternalhit/1.1")
+               {
+                :status 200
+                :headers {"Content-Type" "text/html"}
+                :body (pages/article-for-facebook hydrated-article url)
+                })))))
 
   ;; 
   (POST "/blog/articles/post.json" {user :user params :params}

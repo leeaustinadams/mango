@@ -158,6 +158,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
             var article = new BlogArticle({
                 _id: this.article._id,
                 title: this.article.title,
+                description: this.article.description,
                 content: this.article.content,
                 created: this.article.created,
                 tags: this.article.tags,
@@ -186,6 +187,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
         $scope.resetArticle = function() {
             $scope.article = {};
             $scope.article.title = '';
+            $scope.article.description = '';
             $scope.article.content = '';
             $scope.article.created = new Date();
             $scope.article.tags = '';

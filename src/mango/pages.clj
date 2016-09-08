@@ -20,18 +20,28 @@
                         :version config/version
                         :user user}))
 
+(defn tags
+  [url article media]
+  {:url url
+   :card "summary"
+   :site config/twitter-site-handle
+   :creator config/twitter-creator-handle
+   :title (:title article)
+   :description (:description article)
+   :image (if (not (nil? media))
+            (-> media
+                first
+                :src)
+            "http://cdn.4d4ms.com/img/A.jpg")})
+
 (defn article-for-twitter
   "Render an article stub with metatags for Twitter Cards. Expects media to have been hydrated"
-  [article]
+  [article url]
   (let [media (:media article)]
-    (stencil/render-file "templates/article_for_twitter.html"
-                         {:card "summary"
-                          :site config/twitter-site-handle
-                          :creator config/twitter-creator-handle
-                          :title (:title article)
-                          :description (:rendered-content article)
-                          :image (if (not (nil? media))
-                                   (-> media
-                                       first
-                                       :src)
-                                   "http://4d4ms.com/img/A.jpg")})))
+    (stencil/render-file "templates/article_for_twitter.html" (tags url article media))))
+
+(defn article-for-facebook
+  "Render an article stub with open graph tags. Expects media to have been hydrated"
+  [article url]
+  (let [media (:media article)]
+    (stencil/render-file "templates/article_for_facebook.html" (tags url article media))))

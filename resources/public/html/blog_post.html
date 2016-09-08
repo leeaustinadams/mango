@@ -9,6 +9,10 @@
         </div>
 	  </md-input-container>
 	  <md-input-container class="md-block">
+	    <label>Description</label>
+	    <textarea name="description" ng-model="article.description"></textarea>
+	  </md-input-container>
+	  <md-input-container class="md-block">
 	    <label>Content</label>
 	    <textarea name="content" ng-model="article.content" rows="10" required></textarea>
         <div ng-messages="articleForm.content.$error">
