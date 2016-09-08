@@ -181,6 +181,8 @@
              })
           {
            :status 401
+           :header {"Content-Type" "application/json"}
+           :body (generate-string {:msg "Invalid login"})
            }
           ))
 

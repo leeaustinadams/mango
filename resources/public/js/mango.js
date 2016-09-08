@@ -79,6 +79,10 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
                               signin: {
                                   method: 'POST',
                                   url: '/auth/signin'
+                              },
+                              signout: {
+                                  method: 'POST',
+                                  url: '/auth/signout'
                               }
                           });
                       }])
@@ -165,7 +169,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
 
                     $scope.resetArticle();
                 }, function(errorResponse) {
-                    $scope.error = errorResponse.data.message;
+                    $scope.error = errorResponse.data.msg;
                 });
             } else {
                 delete article._id;
@@ -174,7 +178,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
 
                     $scope.resetArticle();
                 }, function(errorResponse) {
-                    $scope.error = errorResponse.data.message;
+                    $scope.error = errorResponse.data.msg;
                 });
             }
         }
@@ -200,7 +204,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
             $scope.resetArticle();
         }
     })
-    .controller('UserController', function($scope, $routeParams, User, Authentication) {
+    .controller('UserController', function($scope, $routeParams, $location, User, Authentication) {
         $scope.name = 'UserController';
         $scope.params = $routeParams;
 
@@ -291,6 +295,9 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize'])
             templateUrl: '/html/photography.html'
         }).when('/signin', {
             templateUrl: '/html/signin.html',
+            controller: 'UserController'
+        }).when('/signout', {
+            templateUrl: '/html/signout.html',
             controller: 'UserController'
         }).when('/unauthorized', {
             templateUrl: '/html/unauthorized.html'
