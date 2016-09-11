@@ -1,0 +1,18 @@
+<div class="mango" layout="column" ng-cloak>
+  <md-card md-theme="default" md-theme-watch="">
+    <md-card-title>
+      <md-card-title-text>
+        <span class="md-headline">{{user.username}}</span>
+        <p class="user-displayname">{{user.displayName}}</p>
+      </md-card-title-text>
+      <md-card-title-media>
+        <div class="md-media-sm card-media"></div>
+      </md-card-title-media>
+    </md-card-title>
+    <md-chips ng-model="user.roles" name="roles" readonly="true" md-removable="false">
+      <md-chip-template>
+        <strong>{{$chip}}</strong>
+      </md-chip-template>
+    </md-chips>
+  </md-card>
+</div>
