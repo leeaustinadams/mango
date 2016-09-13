@@ -53,25 +53,7 @@
             :body (generate-string {:msg "Not found"})
             })))
 
-  ;; Crawler specific route for an article e.g. /blog/1234
-  (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
-       (let [article (db/blog-article id)]
-         (when (not (nil? article))
-           (let [hydrated-article (hydrate/media (hydrate/content article))
-                 url (request-url request)]
-             (cond
-               (clojure.string/includes? user-agent "Twitterbot")
-               {
-                :status 200
-                :headers {"Content-Type" "text/html"}
-                :body (pages/article-for-twitter hydrated-article url)
-                }
-               (clojure.string/includes? user-agent "facebookexternalhit/1.1")
-               {
-                :status 200
-                :headers {"Content-Type" "text/html"}
-                :body (pages/article-for-facebook hydrated-article url)
-                })))))
+  (GET "/blog/drafts"  {user :user} (pages/index (json/write-str(auth/public-user user))))
 
   ;; 
   (POST "/blog/articles/post.json" {user :user params :params}
@@ -107,7 +89,27 @@
          {
           :status 403
           }))
-       
+
+    ;; Crawler specific route for an article e.g. /blog/1234
+  (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
+       (let [article (db/blog-article id)]
+         (when (not (nil? article))
+           (let [hydrated-article (hydrate/media (hydrate/content article))
+                 url (request-url request)]
+             (cond
+               (clojure.string/includes? user-agent "Twitterbot")
+               {
+                :status 200
+                :headers {"Content-Type" "text/html"}
+                :body (pages/article-for-twitter hydrated-article url)
+                }
+               (clojure.string/includes? user-agent "facebookexternalhit/1.1")
+               {
+                :status 200
+                :headers {"Content-Type" "text/html"}
+                :body (pages/article-for-facebook hydrated-article url)
+                })))))
+
   ;; JSON payload for a draft by id e.g. /blog/drafts/1234.json
   (GET "/blog/drafts/:id.json" [id]
        {
