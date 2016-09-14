@@ -83,7 +83,7 @@ html, body {
 
 code.hljs {
     display: inline;
-    background-color: #fafafa;
+    background-color: transparent;
 }
 
 pre.hljs {
