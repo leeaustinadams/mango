@@ -11,6 +11,7 @@
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.session.store :refer [SessionStore]]
+            [ring.middleware.multipart-params :refer [wrap-multipart-params]]
             [ring.util.request :refer [request-url]]
             [ring.util.response :refer [file-response]]
             [compojure.core :refer [defroutes rfn GET PUT POST]]
@@ -22,73 +23,135 @@
             [mango.config :as config]
             [mango.db :as db]
             [mango.hydrate :as hydrate]
-            [mango.pages :as pages])
+            [mango.dehydrate :as dehydrate]
+            [mango.pages :as pages]
+            [mango.storage :as storage])
   (:import [com.mongodb MongoOptions ServerAddress])
   (:import org.bson.types.ObjectId)
   (:gen-class))
 
 (add-encoder org.bson.types.ObjectId encode-str)
 
+(defn sanitize-article
+  "Cleans and prepares an article from parameters posted"
+  [params]
+  (let [article (select-keys (keywordize-keys params) [:_id :title :description :content :media :created :tags :status])]
+    (dehydrate/media article)))
+
+(defn accum-media
+  "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
+  [files user-id]
+  (loop [files files
+         media '()]
+    (let [file (first files)]
+      (if (nil? file)
+        media
+        (let [m (db/insert-blog-media {:src (:filename file)} user-id)]
+          (recur (rest files) (conj media (:_id m))))))))
+
+(defn json-success
+  "Response for a success (200). Generates JSON for the obj passed in"
+  [obj & rest]
+  (reduce merge {
+                 :status 200
+                 :headers {"Content-Type" "application/json"}
+                 :body (generate-string obj)}
+          rest))
+
+(defn json-failure
+  "Response for a failure. Generates JSON for the obj passed in"
+  [code obj]
+  {
+   :status code
+   :headers {"Content-Type" "application/json"}
+   :body (generate-string obj)})
+
+(defn html-success
+  "Response for a success (200)."
+  [body]
+  {
+   :status 200
+   :headers {"Content-Type" "text/html"}
+   :body body})
+
+(defn parse-file-keys
+  "Returns a collection of keys for files"
+  [params]
+  (filter (fn [x]
+            (and (string? x)
+                 (not (nil? (re-matches #"files\[[0-9]+\]" x))))) (keys params)))
+
+(defn parse-files
+  "Returns a collection of files from params"
+  [params]
+  (let [file-keys (parse-file-keys params)]
+    (vals (select-keys params file-keys))))
+
+(defn parse-media-keys
+  "Returns a collection of keys for media"
+  [params]
+  (filter (fn [x]
+            (and (string? x)
+                 (not (nil? (re-matches #"media\[[0-9]+\]\[_id\]" x))))) (keys params)))
+
+(defn parse-media
+  "Returns a collection of media ids from params"
+  [params]
+  (let [media-keys (parse-media-keys params)]
+    (vals (select-keys params media-keys))))
+
+(defn upload-files
+  "Uploads files to storage"
+  [files]
+  (doseq [file files]
+    (storage/upload (:filename file) (:tempfile file) (:content-type file))))
+
 (defroutes routes
   (GET "/" {user :user session :session} (pages/index (json/write-str(auth/public-user user))))
 
   ;; JSON payload for a collection of articles
   (GET "/blog/articles.json" {user :user {:strs [page per-page]} :query-params}
-       {
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (generate-string (hydrate/articles db/blog-articles page per-page))})
+       (json-success (hydrate/articles db/blog-articles page per-page)))
 
   ;; JSON payload for an article e.g. /blog/articles/1234.json
   (GET "/blog/articles/:id.json" {user :user {:keys [id]} :params}
        (let [article (db/blog-article id)]
          (if (not (nil? article))
-           {
-            :status 200
-            :headers {"Content-Type" "application/json"}
-            :body (generate-string (hydrate/media (hydrate/user (hydrate/content article))))}
-           {
-            :status 404
-            :header {"Content-Type" "application/json"}
-            :body (generate-string {:msg "Not found"})
-            })))
+           (json-success (hydrate/media (hydrate/user (hydrate/content article))))
+           (json-failure 404 {:msg "Not found"}))))
 
   (GET "/blog/drafts"  {user :user} (pages/index (json/write-str(auth/public-user user))))
+  (GET "/blog/post"  {user :user} (pages/index (json/write-str(auth/public-user user))))
 
-  ;; 
+  ;; Posting a new article
   (POST "/blog/articles/post.json" {user :user params :params}
-        (if (auth/authorized user "editor")
-          (let [article (keywordize-keys params)]
-            {
-             :status 200
-             :headers {"Content-Type" "application/json"}
-             :body (generate-string (db/insert-blog-article article (:_id user)))})
-          {
-           :status 403
-           }))
+        (if (auth/editor? user)
+          (let [files (parse-files params)
+                media-ids (map #(ObjectId. %)(parse-media params))
+                user-id (:_id user)
+                article (sanitize-article params)
+                new-media-ids (concat media-ids (accum-media files user-id))]
+            (upload-files files)
+            (json-success (db/insert-blog-article (assoc article :media new-media-ids) user-id)))
+          (json-failure 403 nil)))
 
-  ;; 
+  ;; Updating an existing article
   (POST "/blog/articles/:id.json" {user :user params :params}
-        (if (auth/authorized user "editor")
-          (let [article (keywordize-keys params)]
-            {
-             :status 200
-             :headers {"Content-Type" "application/json"}
-             :body (generate-string (db/update-blog-article article (:_id user)))})
-          {
-           :status 403
-           }))
+        (if (auth/editor? user)
+          (let [files (parse-files params)
+                media-ids (map #(ObjectId. %)(parse-media params))
+                user-id (:_id user)
+                article (sanitize-article params)
+                new-media-ids (accum-media files user-id)]
+            (upload-files files)
+            (json-success (db/update-blog-article (assoc article :media (concat media-ids new-media-ids)) user-id)))
+          (json-failure 403 nil)))
 
   ;; JSON payload for a collection of drafts
   (GET "/blog/drafts.json" {user :user {:strs [page per-page]} :query-params}
-       (if (auth/authorized user "editor")
-         {
-          :status 200
-          :headers {"Content-Type" "application/json"}
-          :body (generate-string (hydrate/articles db/blog-drafts page per-page))}
-         {
-          :status 403
-          }))
+       (if (auth/editor? user)
+         (json-success (hydrate/articles db/blog-drafts page per-page))
+         (json-failure 403 nil)))
 
     ;; Crawler specific route for an article e.g. /blog/1234
   (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
@@ -98,66 +161,37 @@
                  url (request-url request)]
              (cond
                (clojure.string/includes? user-agent "Twitterbot")
-               {
-                :status 200
-                :headers {"Content-Type" "text/html"}
-                :body (pages/article-for-twitter hydrated-article url)
-                }
+               (html-success (pages/article-for-twitter hydrated-article url))
                (clojure.string/includes? user-agent "facebookexternalhit/1.1")
-               {
-                :status 200
-                :headers {"Content-Type" "text/html"}
-                :body (pages/article-for-facebook hydrated-article url)
-                })))))
+               (html-success (pages/article-for-facebook hydrated-article url)))))))
 
   ;; JSON payload for a draft by id e.g. /blog/drafts/1234.json
   (GET "/blog/drafts/:id.json" [id]
-       {
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (generate-string (list (db/blog-draft id)))})
+       (json-success (list (db/blog-draft id))))
 
   (GET "/blog/media.json" {{:strs [page per-page]} :query-params}
-       {
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (let [page (if page (Integer. page) 1)
-                    per-page (if per-page (Integer. per-page) 10)]
-                (generate-string (db/blog-media :page page :per-page per-page)))})
+       (let [page (if page (Integer. page) 1)
+             per-page (if per-page (Integer. per-page) 10)]
+         (json-success (db/blog-media :page page :per-page per-page))))
 
   (GET "/blog/media/:id.json" [id]
-       {
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (generate-string (list (db/blog-media-by-id id)))})
+       (json-success (list (db/blog-media-by-id id))))
 
   ;; JSON payload of users
   (GET "/users.json" {{:strs [page per-page]} :query-params user :user}
-       (if (auth/authorized user "editor")
-         {
-          :status 200
-          :headers {"Content-Type" "application/json"}
-          :body (let [page (if page (Integer. page) 1)
-                      per-page (if per-page (Integer. per-page) 10)]
-                  (generate-string (map auth/public-user (db/users :page page :per-page per-page))))}
-         {
-          :status 403
-          }))
+       (if (auth/editor? user)
+         (let [page (if page (Integer. page) 1)
+               per-page (if per-page (Integer. per-page) 10)]
+           (json-success (map auth/public-user (db/users :page page :per-page per-page))))
+         (json-failure 403 nil)))
 
   ;; JSON payload of current authenticated user
   (GET "/users/me.json" {user :user}
-        {
-         :status 200
-         :headers {"Content-Type" "application/json"}
-         :body (generate-string user)
-         })
+       (json-success user))
 
   ;; JSON payload of a user by id
   (GET "/users/:id.json" [id]
-       { 
-        :status 200
-        :headers {"Content-Type" "application/json"}
-        :body (generate-string (list (db/user id)))})
+       (json-success (list (db/user id))))
 
   (GET "/admin/users/:id.json" [id]
        {})
@@ -180,24 +214,14 @@
   (POST "/auth/signin" {session :session {:strs [username password]} :params}
         (if-let [user (auth/user username password)]
           (let [sess (assoc session :user (str (:_id user)))]
-            {
-             :status 200
-             :session sess
-             :body (generate-string sess)
-             })
-          {
-           :status 401
-           :header {"Content-Type" "application/json"}
-           :body (generate-string {:msg "Invalid login"})
-           }
-          ))
+            (json-success sess {:session sess}))
+          (json-failure 401  {:msg "Invalid login"})))
 
   (POST "/auth/signout" {user :user session :session}
-        (when user
-          {
-           :status 200
-           :session nil
-           }))
+        {
+         :status 200
+         :session nil
+         })
 
   (route/resources "/")
 
@@ -224,9 +248,7 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-;  (println (request-url request))
-  (println (str request))
-;  (println (get-in request [:headers "user-agent"] ""))
+;  (println (str request))
   request)
 
 (defn wrap-logger
@@ -240,5 +262,6 @@
                      (wrap-session {:store (DBSessionStore.)})
                      wrap-cookies
                      wrap-params
+                     wrap-multipart-params
                      wrap-logger))
 

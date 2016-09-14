@@ -29,6 +29,9 @@
         <input name="tags" type="text" ng-model="article.tags" placeholder="separate multiple tags with commas">
       </md-input-container>
       <md-input-container class="md-block">
+        <md-button class="md-raised" name="files" type="file" ngf-select ng-model="files" ngf-multiple="true">Media</md-button>
+      </md-input-container>
+      <md-input-container class="md-block">
         <md-select name="status" ng-model="article.status">
           <md-option value="draft">Draft</md-option>
           <md-option value="published">Published</md-option>

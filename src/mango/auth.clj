@@ -29,5 +29,9 @@
 (defn authorized
   "Return true if the user has role specified by permission"
   [user permission]
-  (println permission " ? " (:roles user))
   (some #(= permission %) (:roles user)))
+
+(defn editor?
+  "Returns true if the user has the editor role"
+  [user]
+  (authorized user "editor"))

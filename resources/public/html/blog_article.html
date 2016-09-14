@@ -5,18 +5,10 @@
   <p class="article-infoline">On: {{article.createdString}}</p>
   <i class="tweet-button" tweet url="http://www.4d4ms.com/blog/{{article._id}}" text="{{article.description}}"></i>
   <p class="article-content" highlight ng-bind-html="article.renderedContent"></p>
-  <md-grid-list
-     class="article-media-grid"
-     md-cols-sm="1" md-cols-gt-sm="4"
-     md-row-height="1:1"
-     md-gutter="12px" md-gutter-gt-sm="8px">
-    <md-grid-tile ng-repeat="media in article.media"
-                  class="gray"
-                  md-rowspan="1" md-col-span="1" md-colspan-sm="1">
-      <img ng-src="{{media.thumbnailSrc}}" class="articleThumbnail"/>
-      <md-grid-tile-footer>
-        <h3 class="media-caption">{{media.caption}}</h3>
-      </md-grid-tile-footer>
-    </md-grid-tile>
-  </md-grid-list>
+
+  <div layout="column" layout-gt-md="row">
+    <div ng-repeat="media in article.media" flex>
+      <img ng-src="http://cdn.4d4ms.com/blog/{{media.src}}" class="media-thumbnail"/>
+    </div>
+  </div>
 </div>

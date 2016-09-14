@@ -57,6 +57,11 @@
     (mq/find {:status ["published"]})
     (mq/paginate :page page :per-page per-page)))
 
+(defn insert-blog-media
+  "Adds a media item"
+  [media user-id]
+  (mc/insert-and-return DB config/db-media-collection (conj media {:user user-id})))
+
 (defn blog-media-by-id [id]
   (mc/find-map-by-id DB config/db-media-collection (ObjectId. id)))
 
@@ -100,9 +105,7 @@
   "Read a session from the database"
   [id]
   (when id
-    (let [data (mc/find-one-as-map DB config/db-sessions-collection {:_id (ObjectId. id)})]
-      (println data)
-      data)))
+    (mc/find-one-as-map DB config/db-sessions-collection {:_id (ObjectId. id)})))
 
 (defn add-session
   "Add a session to the database and return its id"
@@ -113,6 +116,5 @@
 (defn write-session
   "Write a session to the database and return its id"
   [id data]
-  (println "write-session" id data)
   (mc/update-by-id DB config/db-sessions-collection id data)
   id)

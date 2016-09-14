@@ -36,6 +36,10 @@ html, body {
     height: 128px;
 }
 
+.media-thumbnail {
+    height:128px;
+}
+
 .repeated-item img {
     height: 64px;
 }

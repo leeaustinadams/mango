@@ -12,7 +12,7 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // https://docs.angularjs.org/api
-angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'angulartics', 'angulartics.google.analytics', 'angular-google-adsense'])
+angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'angulartics', 'angulartics.google.analytics', 'angular-google-adsense', 'ngFileUpload'])
     .directive('highlight', function () {
         return {
             replace: false,
@@ -163,7 +163,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
             $scope.subheader = "Posts";
         }
     })
-    .controller('BlogArticleController', function($scope, $routeParams, $location, BlogArticle, mode) {
+    .controller('BlogArticleController', function($scope, $routeParams, $location, BlogArticle, Upload, mode) {
         $scope.name = 'BlogArticleController';
         $scope.params = $routeParams;
 
@@ -174,27 +174,51 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
                 description: this.article.description,
                 content: this.article.content,
                 created: this.article.created,
+                media: this.article.media,
                 tags: this.article.tags,
                 status: this.article.status
             });
+            $scope.uploadFiles(article, $scope.files);
+        }
+
+        $scope.uploadFiles = function (article, files) {
+            if (files && files.length) {
+                if (mode != 'edit') {
+                    delete article._id;
+                }
+                article.files = files;
+                Upload.upload({
+                    url: mode == 'edit' ? 'blog/articles/' + article._id + '.json' : 'blog/articles/post.json',
+                    data: article
+                }).then(function (response) {
+                    console.log('Success Response: ' + response.data);
+                    $scope.resetArticle();
+                    $location.path('blog/' + response.data._id);
+                }, function (response) {
+                    $scope.error = response.status;
+                    console.log('Error status: ' + response.status);
+                }, function (event) {
+                    var progressPercentage = parseInt(100.0 * event.loaded / event.total);
+                    console.log('progress: ' + progressPercentage + '%');
+                });
+            } else {
             if (mode == "edit") {
                 article.$edit(function(response) {
+                        $scope.resetArticle();
                     $location.path('blog/' + response._id);
-
-                    $scope.resetArticle();
                 }, function(errorResponse) {
                     $scope.error = errorResponse.data.msg;
                 });
             } else {
                 delete article._id;
                 article.$save(function(response) {
+                        $scope.resetArticle();
                     $location.path('blog/' + response._id);
-
-                    $scope.resetArticle();
                 }, function(errorResponse) {
                     $scope.error = errorResponse.data.msg;
                 });
             }
+        }
         }
         
         $scope.resetArticle = function() {
