@@ -173,7 +173,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
                 title: this.article.title,
                 description: this.article.description,
                 content: this.article.content,
-                created: this.article.created,
+                created: this.article.created.toISOString(),
                 media: this.article.media,
                 tags: this.article.tags,
                 status: this.article.status

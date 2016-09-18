@@ -25,7 +25,8 @@
             [mango.hydrate :as hydrate]
             [mango.dehydrate :as dehydrate]
             [mango.pages :as pages]
-            [mango.storage :as storage])
+            [mango.storage :as storage]
+            [clj-time.format :as time-format])
   (:import [com.mongodb MongoOptions ServerAddress])
   (:import org.bson.types.ObjectId)
   (:gen-class))
@@ -35,8 +36,8 @@
 (defn sanitize-article
   "Cleans and prepares an article from parameters posted"
   [params]
-  (let [article (select-keys (keywordize-keys params) [:_id :title :description :content :media :created :tags :status])]
-    (dehydrate/media article)))
+  (let [article (select-keys (keywordize-keys params) [:_id :title :description :content :created :tags :status])]
+    (dehydrate/media (assoc article :created (time-format/parse (time-format/formatters :date-time) (:created article))))))
 
 (defn accum-media
   "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
