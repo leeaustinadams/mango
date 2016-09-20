@@ -110,6 +110,14 @@
 (defroutes routes
   (GET "/" {user :user session :session} (pages/index (json/write-str(auth/public-user user))))
 
+  (GET "/sitemap.txt" {}
+       (let [urls (mapv #(str (:_id %)) (db/blog-articles :page 1 :per-page 100))]
+         {
+          :status 200
+          :headers {"Content-Type" "text/plain"}
+          :body (pages/sitemap urls)
+          }))
+
   ;; JSON payload for a collection of articles
   (GET "/blog/articles.json" {user :user {:strs [page per-page]} :query-params}
        (json-success (hydrate/articles db/blog-articles page per-page)))

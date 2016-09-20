@@ -45,3 +45,9 @@
   [article url]
   (let [media (:media article)]
     (stencil/render-file "templates/article_for_facebook.html" (tags url article media))))
+
+(defn sitemap
+  "Render a sitemap for indexing"
+  [urls]
+  (let [url-list (for [u urls] (hash-map :url u))]
+    (stencil/render-file "templates/sitemap.txt" {:urls url-list})))

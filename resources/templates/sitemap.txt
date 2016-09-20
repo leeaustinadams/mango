@@ -1,0 +1,5 @@
+https://www.4d4ms.com/photography
+https://www.4d4ms.com/about
+{{#urls}}
+https://www.4d4ms.com/{{url}}
+{{/urls}}
