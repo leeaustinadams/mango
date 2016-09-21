@@ -1,7 +1,6 @@
 ;; http://ring-clojure.github.io/ring/
 ;; https://github.com/dakrone/cheshire
 ;; https://github.com/weavejester/compojure
-;; http://clojuremongodb.info/
 (ns mango.routes
   (:require [clojure.data.json :as json]
             [clojure.walk :refer [keywordize-keys]]
@@ -27,7 +26,6 @@
             [mango.pages :as pages]
             [mango.storage :as storage]
             [clj-time.format :as time-format])
-  (:import [com.mongodb MongoOptions ServerAddress])
   (:import org.bson.types.ObjectId)
   (:gen-class))
 
