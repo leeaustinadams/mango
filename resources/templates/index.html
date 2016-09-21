@@ -33,16 +33,16 @@
   </script>
 
   <!--Application JavaScript Files-->
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-resource.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-sanitize.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-animate.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-aria.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-messages.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-resource.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-sanitize.min.js"></script>
   <!-- Angular Material Library -->
   <script src="//ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
-
+  <script src="//npmcdn.com/angular-ui-router/release/angular-ui-router.min.js"></script>
+  <script src="/js/angular-breadcrumb.min.js"></script>
   <!-- Google Analytics -->
   <script src="js/angulartics.min.js"></script>
   <script src="js/angulartics-ga.min.js"></script>
@@ -61,7 +61,7 @@
 
   <body ng-cloak="">
     <div ng-controller="MainController">
-      <div ng-view class="main-view"></div>
+      <ui-view></ui-view>
       <div class="footer">
         <small class="copyright">&copy; 2014-2016 Lee Adams <a href="mailto:{{adminEmail}}">contact</a></small>
         <small class="version">v{{version}}</small>

@@ -1,15 +1,18 @@
 <div class="mango" layout="column" ng-cloak>
+  <div ncy-breadcrumb></div>
   <adsense ad-client="ca-pub-8004927313720287" ad-slot="5968146561" inline-style="display:block;" ad-format="auto"></adsense>
   <page-title>{{article.title}}</page-title>
-  <h1 class="article-title">{{article.title}}</h1>
-  <p class="article-byline" ng-if="article.user">Posted By: {{article.user.displayName}}</p>
-  <p class="article-infoline">On: {{article.createdString}}</p>
-  <i class="tweet-button" tweet url="http://www.4d4ms.com/blog/{{article._id}}" text="{{article.description}}"></i>
-  <p class="article-content" highlight ng-bind-html="article.renderedContent"></p>
+  <md-content>
+    <h1 class="article-title">{{article.title}}</h1>
+    <p class="article-byline" ng-if="article.user">Posted By: {{article.user.displayName}}</p>
+    <p class="article-infoline">On: {{article.createdString}}</p>
+    <i class="tweet-button" tweet url="http://www.4d4ms.com/blog/{{article._id}}" text="{{article.description}}"></i>
+    <p class="article-content" highlight ng-bind-html="article.renderedContent"></p>
 
-  <div layout="column" layout-gt-md="row">
-    <div ng-repeat="media in article.media" flex>
-      <img ng-src="http://cdn.4d4ms.com/blog/{{media.src}}" class="media-thumbnail"/>
+    <div layout="column" layout-gt-md="row">
+      <div ng-repeat="media in article.media" flex>
+        <img ng-src="http://cdn.4d4ms.com/blog/{{media.src}}" class="media-thumbnail"/>
+      </div>
     </div>
-  </div>
+  </md-content>
 </div>

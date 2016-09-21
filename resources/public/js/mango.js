@@ -12,7 +12,15 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // https://docs.angularjs.org/api
-angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'angulartics', 'angulartics.google.analytics', 'angular-google-adsense', 'ngFileUpload'])
+angular.module('mango', ['ui.router',
+                         'ngMaterial',
+                         'ngResource',
+                         'ngSanitize',
+                         'angulartics',
+                         'angulartics.google.analytics',
+                         'angular-google-adsense',
+                         'ngFileUpload',
+                         'ncy-angular-breadcrumb'])
     .directive('highlight', function () {
         return {
             replace: false,
@@ -139,10 +147,8 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
 
         return _this._data;
     }])
-    .controller('MainController', function($scope, $route, $routeParams, $location, $window) {
+    .controller('MainController', function($scope, $location, $window) {
         $scope.name = 'MainController';
-        $scope.$route = $route;
-        $scope.$routeParams = $routeParams;
         $scope.$location = $location;
 
         $scope.go = function(url) {
@@ -152,14 +158,13 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
     .controller('LandingController', function($scope, $location) {
         $scope.$location = $location;
     })
-    .controller('BlogArticlesController', function($scope, $routeParams, $location, BlogArticles, Authentication, Authorization,  mode) {
+    .controller('BlogArticlesController', function($scope, $location, BlogArticles, Authentication, Authorization, params) {
         $scope.name = 'BlogArticlesController';
-        $scope.params = $routeParams;
 
         $scope.authentication = Authentication;
         $scope.authorization = Authorization;
 
-        if (mode == "drafts") {
+        if (params.mode == "drafts") {
             $scope.articles = BlogArticles.drafts();
             $scope.article_click = function(article_id) {
                 $location.path('/edit/' + article_id);
@@ -180,9 +185,8 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
             $scope.subheader = "Posts";
         }
     })
-    .controller('BlogArticleController', function($scope, $routeParams, $location, BlogArticle, Upload, mode) {
+    .controller('BlogArticleController', function($scope, $location, BlogArticle, Upload, params) {
         $scope.name = 'BlogArticleController';
-        $scope.params = $routeParams;
 
         $scope.post = function() {
             var article = new BlogArticle({
@@ -200,12 +204,12 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
 
         $scope.uploadFiles = function (article, files) {
             if (files && files.length) {
-                if (mode != 'edit') {
+                if (params.mode != 'edit') {
                     delete article._id;
                 }
                 article.files = files;
                 Upload.upload({
-                    url: mode == 'edit' ? 'blog/articles/' + article._id + '.json' : 'blog/articles/post.json',
+                    url: params.mode == 'edit' ? 'blog/articles/' + article._id + '.json' : 'blog/articles/post.json',
                     data: article
                 }).then(function (response) {
                     console.log('Success Response: ' + response.data);
@@ -219,7 +223,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
                     console.log('progress: ' + progressPercentage + '%');
                 });
             } else {
-            if (mode == "edit") {
+            if (params.mode == "edit") {
                 article.$edit(function(response) {
                         $scope.resetArticle();
                     $location.path('blog/' + response._id);
@@ -248,9 +252,9 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
             $scope.article.status = 'draft';
         }
 
-        if ($scope.params.id) {
+        if (params.id) {
             $scope.article = BlogArticle.get({
-                articleId: $scope.params.id
+                articleId: params.id
             }, function(article) {
                 article.created = new Date(article.created);
                 article.createdString = article.created.toLocaleDateString();
@@ -260,12 +264,11 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
             $scope.resetArticle();
         }
     })
-    .controller('UserController', function($scope, $routeParams, $location, User, Authentication, mode) {
+    .controller('UserController', function($scope, $location, User, Authentication, params) {
         $scope.name = 'UserController';
-        $scope.params = $routeParams;
 
         $scope.authentication = Authentication;
-        if (mode == 'me') {
+        if (params.mode == 'me') {
             $scope.user = Authentication.user;
         }
 
@@ -289,7 +292,7 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
             });
         }
     })
-    .config(['$locationProvider', '$routeProvider', '$mdThemingProvider', '$httpProvider', function($locationProvider, $routeProvider, $mdThemingProvider, $httpProvider) {
+    .config(['$locationProvider', '$urlRouterProvider', '$stateProvider', '$mdThemingProvider', '$httpProvider', '$breadcrumbProvider', function($locationProvider, $urlRouterProvider, $stateProvider, $mdThemingProvider, $httpProvider, $breadcrumbProvider) {
         $mdThemingProvider.theme('default').primaryPalette('blue').accentPalette('red');
 
         $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
@@ -308,82 +311,173 @@ angular.module('mango', ['ngRoute', 'ngMaterial', 'ngResource', 'ngSanitize', 'a
             return response;
         });
 
-        $routeProvider.when('/blog', {
+        $urlRouterProvider.otherwise('/')
+
+        $stateProvider.state({
+            name: 'landing',
+            url: '/',
+            templateUrl: '/html/landing.html',
+            controller: 'LandingController',
+            ncyBreadcrumb: {
+                label: 'Home'
+            }
+        }).state({
+            name: 'blog',
+            url: '/blog',
             templateUrl: '/html/blog_articles.html',
             controller: 'BlogArticlesController',
             resolve: {
-                mode: function() {
-                    return 'published';
+                params: function() {
+                    return {
+                        mode: 'published'
+                    };
                 }
+            },
+            ncyBreadcrumb: {
+                label: 'Blog',
+                parent: 'landing'
             }
-        }).when('/blog/drafts', {
+        }).state({
+            name: 'drafts',
+            url: '/blog/drafts',
             templateUrl: 'html/blog_articles.html',
             controller: 'BlogArticlesController',
             resolve: {
-                mode: function() {
-                    return 'drafts';
+                params: function() {
+                    return {
+                        mode: 'drafts'
+                    };
                 }
+            },
+            ncyBreadcrumb: {
+                label: 'Drafts',
+                parent: 'blog'
             }
-        }).when('/blog/post', {
+        }).state({
+            name: 'post',
+            url: '/blog/post',
             templateUrl: '/html/blog_post.html',
             controller: 'BlogArticleController',
             resolve: {
-                mode: function() {
-                    return 'new';
+                params: function($transition$) {
+                    return {
+                        mode: 'new'
+                    };
                 }
+            },
+            ncyBreadcrumb: {
+                label: 'New Article',
+                parent: 'blog'
             }
-        }).when('/blog/:id', {
+        }).state({
+            name: 'article',
+            url: '/blog/{id}',
             templateUrl: '/html/blog_article.html',
             controller: 'BlogArticleController',
             resolve: {
-                mode: function() {
-                    return 'show';
+                params: function($transition$) {
+                    return {
+                        id: $transition$.params().id,
+                        mode: 'show'
+                    };
                 }
+            },
+            ncyBreadcrumb: {
+                label: '{{article.title}}',
+                parent: 'blog'
             }
-        }).when('/edit/:id', {
+        }).state({
+            name: 'edit',
+            url: '/edit/{id}',
             templateUrl: '/html/blog_post.html',
             controller: 'BlogArticleController',
             resolve: {
-                mode: function() {
-                    return 'edit';
+                params: function($transition$) {
+                    return {
+                        id: $transition$.params().id,
+                        mode: 'edit'
+                    };
                 }
+            },
+            ncyBreadcrumb: {
+                label: 'Edit Article',
+                parent: 'article'
             }
-        }).when('/about', {
-            templateUrl: '/html/about.html'
-        }).when('/photography', {
-            templateUrl: '/html/photography.html'
-        }).when('/me', {
+        }).state({
+            name: 'about',
+            url: '/about',
+            templateUrl: '/html/about.html',
+            ncyBreadcrumb: {
+                label: 'About',
+                parent: 'landing'
+            }
+        }).state({
+            name: 'photography',
+            url:'/photography',
+            templateUrl: '/html/photography.html',
+            ncyBreadcrumb: {
+                label: 'Photography',
+                parent: 'landing'
+            }
+        }).state({
+            name: 'me',
+            url: '/me',
             templateUrl: '/html/user.html',
             controller: 'UserController',
             resolve: {
-                mode: function() {
-                    return 'me';
+                params: function() {
+                    return {
+                        mode: 'me'
+                    };
                 }
+            },
+            ncyBreadcrumb: {
+                label: 'Me',
+                parent: 'landing'
             }
-        }).when('/signin', {
+        }).state({
+            name: 'signin',
+            url: '/signin',
             templateUrl: '/html/signin.html',
             controller: 'UserController',
             resolve: {
-                mode: function() {
-                    return 'signin';
+                params: function() {
+                    return {
+                        mode: 'signin'
+                    };
                 }
+            },
+            ncyBreadcrumb: {
+                label: 'Sign In',
+                parent: 'landing'
             }
-        }).when('/signout', {
+        }).state({
+            name: 'signout',
+            url: '/signout',
             templateUrl: '/html/signout.html',
             controller: 'UserController',
             resolve: {
-                mode: function() {
-                    return 'signout';
+                params: function() {
+                    return {
+                        mode: 'signout'
+                    };
                 }
+            },
+            ncyBreadcrumb: {
+                label: 'Sign Out',
+                parent: 'landing'
             }
-        }).when('/unauthorized', {
+        }).state({
+            name: 'unauthorized',
+            url: '/unauthorized',
             templateUrl: '/html/unauthorized.html'
-        }).otherwise({
-            templateUrl: '/html/landing.html',
-            controller: 'LandingController'
         });
 
         $locationProvider.html5Mode(true);
+
+        $breadcrumbProvider.setOptions({
+            template: 'bootstrap2'
+        });
     }]);
 
 //Simple Debounce Implementation
