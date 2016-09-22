@@ -28,7 +28,7 @@
    :creator config/twitter-creator-handle
    :title (:title article)
    :description (:description article)
-   :image (if (not (nil? media))
+   :image (if (not (nil? (first media)))
             (-> media
                 first
                 :src)
