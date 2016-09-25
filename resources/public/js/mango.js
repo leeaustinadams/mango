@@ -155,11 +155,11 @@ angular.module('mango', ['ui.router',
             $window.location.href = url;
         };
     })
-    .controller('LandingController', function($scope, $location) {
-        $scope.$location = $location;
+    .controller('LandingController', function($scope, $state) {
+        $scope.$state = $state;
     })
-    .controller('BlogArticlesController', function($scope, $location, BlogArticles, Authentication, Authorization, params) {
-        $scope.name = 'BlogArticlesController';
+    .controller('BlogArticlesController', function($scope, $state, $location, BlogArticles, Authentication, Authorization, params) {
+        $scope.$state = $state;
 
         $scope.authentication = Authentication;
         $scope.authorization = Authorization;
@@ -167,7 +167,7 @@ angular.module('mango', ['ui.router',
         if (params.mode == "drafts") {
             $scope.articles = BlogArticles.drafts();
             $scope.article_click = function(article_id) {
-                $location.path('/edit/' + article_id);
+                $state.go('edit', {id: article_id});
             }
             $scope.subheader = "Drafts";
         } else {
@@ -180,7 +180,7 @@ angular.module('mango', ['ui.router',
                 }
             });
             $scope.article_click = function(article_id) {
-                $location.path('/blog/' + article_id);
+                $state.go('article', {id: article_id});
             }
             $scope.subheader = "Posts";
         }
@@ -292,7 +292,8 @@ angular.module('mango', ['ui.router',
             });
         }
     })
-    .config(['$locationProvider', '$urlRouterProvider', '$stateProvider', '$mdThemingProvider', '$httpProvider', '$breadcrumbProvider', function($locationProvider, $urlRouterProvider, $stateProvider, $mdThemingProvider, $httpProvider, $breadcrumbProvider) {
+    .config(['$locationProvider', '$urlRouterProvider', '$stateProvider', '$mdThemingProvider', '$httpProvider', '$breadcrumbProvider',
+             function($locationProvider, $urlRouterProvider, $stateProvider, $mdThemingProvider, $httpProvider, $breadcrumbProvider) {
         $mdThemingProvider.theme('default').primaryPalette('blue').accentPalette('red');
 
         $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
@@ -359,7 +360,7 @@ angular.module('mango', ['ui.router',
             templateUrl: '/html/blog_post.html',
             controller: 'BlogArticleController',
             resolve: {
-                params: function($transition$) {
+                params: function() {
                     return {
                         mode: 'new'
                     };
@@ -375,9 +376,9 @@ angular.module('mango', ['ui.router',
             templateUrl: '/html/blog_article.html',
             controller: 'BlogArticleController',
             resolve: {
-                params: function($transition$) {
+                params: function($stateParams) {
                     return {
-                        id: $transition$.params().id,
+                        id: $stateParams.id,
                         mode: 'show'
                     };
                 }
@@ -392,9 +393,9 @@ angular.module('mango', ['ui.router',
             templateUrl: '/html/blog_post.html',
             controller: 'BlogArticleController',
             resolve: {
-                params: function($transition$) {
+                params: function($stateParams) {
                     return {
-                        id: $transition$.params().id,
+                        id: $stateParams.id,
                         mode: 'edit'
                     };
                 }

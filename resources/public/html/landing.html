@@ -8,7 +8,7 @@
        class="red"
        md-rowspan="2" colspan="1"
        analytics-on="click" analytics-event="blog"
-       ng-click="$location.path('blog')">
+       ng-click="$state.go('blog')">
       <md-grid-tile-footer>
         <h3>Blog</h3>
       </md-grid-tile-footer>
@@ -17,7 +17,7 @@
        class="blue"
        md-rowspan="1" colspan="1"
        analytics-on="click" analytics-event="photography"
-       ng-click="$location.path('photography')">
+       ng-click="$state.go('photography')">
       <md-grid-tile-footer>
         <h3>Photography</h3>
       </md-grid-tile-footer>
@@ -26,7 +26,7 @@
        class="gray"
        md-rowspan="1" colspan="1"
        analytics-on="click" analytics-event="about"
-       ng-click="$location.path('about')">
+       ng-click="$state.go('about')">
       <md-grid-tile-footer>
         <h3>About</h3>
       </md-grid-tile-footer>
