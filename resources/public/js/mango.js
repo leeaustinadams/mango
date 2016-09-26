@@ -42,26 +42,26 @@ angular.module('mango', ['ui.router',
     .directive('tweet', ['$timeout', function($timeout) {
         return {
             link: function(scope, element, attr) {
-				var renderTwitterButton = debounce(function() {
-					if (attr.url) {
-						$timeout(function() {
-							element[0].innerHTML = '';
-							twttr.widgets.createShareButton(
-								attr.url,
-								element[0],
-								function() {}, {
-									count: attr.count,
-									text: attr.text,
-									via: attr.via,
-									size: attr.size
-								}
-							);
-						});
-					}
-				}, 75);
-				attr.$observe('url', renderTwitterButton);
-				attr.$observe('text', renderTwitterButton);
-			}
+                var renderTwitterButton = debounce(function() {
+                    if (attr.url) {
+                        $timeout(function() {
+                            element[0].innerHTML = '';
+                            twttr.widgets.createShareButton(
+                                attr.url,
+                                element[0],
+                                function() {}, {
+                                    count: attr.count,
+                                    text: attr.text,
+                                    via: attr.via,
+                                    size: attr.size
+                                }
+                            );
+                        });
+                    }
+                }, 75);
+                attr.$observe('url', renderTwitterButton);
+                attr.$observe('text', renderTwitterButton);
+            }
         }
     }])
     .directive('pageTitle', function() {
@@ -82,8 +82,8 @@ angular.module('mango', ['ui.router',
         };
     })
     .factory('BlogArticles', ['$resource',
-	                          function($resource) {
-		                          return $resource('/blog/articles.json?per-page=12', {
+                              function($resource) {
+                                  return $resource('/blog/articles.json?per-page=12', {
                                   }, {
                                       drafts: {
                                           method: 'GET',
@@ -94,8 +94,8 @@ angular.module('mango', ['ui.router',
                               }
                              ])
     .factory('BlogArticle', ['$resource',
-	                         function($resource) {
-		                         return $resource('/blog/articles/:articleId.json', {
+                             function($resource) {
+                                 return $resource('/blog/articles/:articleId.json', {
                                      articleId: '@_id'
                                  }, {
                                      save: {
@@ -107,7 +107,7 @@ angular.module('mango', ['ui.router',
                                          url: '/blog/articles/:articleId.json'
                                      }
                                  });
-	                         }
+                             }
                             ])
     .factory('User', ['$resource',
                       function($resource) {
@@ -125,14 +125,14 @@ angular.module('mango', ['ui.router',
                           });
                       }])
     .factory('Authentication', [function() {
-		var _this = this;
+        var _this = this;
 
-		_this._data = {
-			user: window.user
-		};
+        _this._data = {
+            user: window.user
+        };
 
-		return _this._data;
-	}])
+        return _this._data;
+    }])
     .factory('Authorization', [function() {
         var _this = this;
 
@@ -147,18 +147,12 @@ angular.module('mango', ['ui.router',
 
         return _this._data;
     }])
-    .controller('MainController', function($scope, $location, $window) {
-        $scope.name = 'MainController';
-        $scope.$location = $location;
-
-        $scope.go = function(url) {
-            $window.location.href = url;
-        };
+    .controller('MainController', function($scope) {
     })
     .controller('LandingController', function($scope, $state) {
         $scope.$state = $state;
     })
-    .controller('BlogArticlesController', function($scope, $state, $location, BlogArticles, Authentication, Authorization, params) {
+    .controller('BlogArticlesController', function($scope, $state, BlogArticles, Authentication, Authorization, params) {
         $scope.$state = $state;
 
         $scope.authentication = Authentication;
@@ -185,8 +179,13 @@ angular.module('mango', ['ui.router',
             $scope.subheader = "Posts";
         }
     })
-    .controller('BlogArticleController', function($scope, $location, BlogArticle, Upload, params) {
-        $scope.name = 'BlogArticleController';
+    .controller('BlogArticleController', function($scope, $state, Authentication, BlogArticle, Upload, params) {
+        $scope.$state = $state;
+        $scope.authentication = Authentication;
+
+        $scope.edit = function() {
+            $state.go('edit', {id: params.id});
+        }
 
         $scope.post = function() {
             var article = new BlogArticle({
@@ -199,22 +198,27 @@ angular.module('mango', ['ui.router',
                 tags: this.article.tags,
                 status: this.article.status
             });
-            $scope.uploadFiles(article, $scope.files);
-        }
 
-        $scope.uploadFiles = function (article, files) {
-            if (files && files.length) {
-                if (params.mode != 'edit') {
-                    delete article._id;
+            if (!article.media) { delete article.media; }
+            if (!article.tags) { delete article.tags; }
+
+            if (article.media) {
+                for (m = 0; m < article.media.length; m++) {
+                    article.media[m] = article.media[m]._id;
                 }
-                article.files = files;
+            }
+
+            if ($scope.files && $scope.files.length) {
                 Upload.upload({
-                    url: params.mode == 'edit' ? 'blog/articles/' + article._id + '.json' : 'blog/articles/post.json',
-                    data: article
+                    url: 'blog/media',
+                    data: {files: $scope.files}
                 }).then(function (response) {
                     console.log('Success Response: ' + response.data);
-                    $scope.resetArticle();
-                    $location.path('blog/' + response.data._id);
+                    article.media = article.media || [];
+                    for (i = 0; i < response.data.length; i++) {
+                        article.media[article.media.length] = response.data[i];
+                    }
+                    $scope.postArticle(article);
                 }, function (response) {
                     $scope.error = response.status;
                     console.log('Error status: ' + response.status);
@@ -223,23 +227,28 @@ angular.module('mango', ['ui.router',
                     console.log('progress: ' + progressPercentage + '%');
                 });
             } else {
+                $scope.postArticle(article);
+            }
+        }
+
+        $scope.postArticle = function(article) {
             if (params.mode == "edit") {
                 article.$edit(function(response) {
-                        $scope.resetArticle();
-                    $location.path('blog/' + response._id);
+                    $scope.resetArticle();
+                    $state.go('article', {id: response._id});
                 }, function(errorResponse) {
                     $scope.error = errorResponse.data.msg;
                 });
             } else {
                 delete article._id;
                 article.$save(function(response) {
-                        $scope.resetArticle();
-                    $location.path('blog/' + response._id);
+                    $scope.resetArticle();
+                    $state.go('article', {id: response._id});
                 }, function(errorResponse) {
                     $scope.error = errorResponse.data.msg;
                 });
             }
-        }
+
         }
         
         $scope.resetArticle = function() {
@@ -264,7 +273,7 @@ angular.module('mango', ['ui.router',
             $scope.resetArticle();
         }
     })
-    .controller('UserController', function($scope, $location, User, Authentication, params) {
+    .controller('UserController', function($scope, $state, User, Authentication, params) {
         $scope.name = 'UserController';
 
         $scope.authentication = Authentication;
@@ -276,7 +285,7 @@ angular.module('mango', ['ui.router',
             var user = new User({username: this.user.name, password: this.user.password});
             user.$signin(function(response) {
                 $scope.authentication.user = response;
-                $location.path('/');
+                $state.go('landing');
             }, function(errorResponse) {
                 $scope.error = errorResponse.data.msg;
             });
@@ -286,7 +295,7 @@ angular.module('mango', ['ui.router',
             var user = new User($scope.authentication.user);
             user.$signout(function(response) {
                 $scope.authentication.user = null;
-                $location.path('/');
+                $state.go('landing');
             }, function(errorResponse) {
                 $scope.error = errorResponse.data.msg;
             });
@@ -484,17 +493,17 @@ angular.module('mango', ['ui.router',
 //Simple Debounce Implementation
 //http://davidwalsh.name/javascript-debounce-function
 function debounce(func, wait, immediate) {
-	var timeout;
-	return function() {
-		var context = this,
-			args = arguments;
-		var later = function() {
-			timeout = null;
-			if (!immediate) func.apply(context, args);
-		};
-		var callNow = immediate && !timeout;
-		clearTimeout(timeout);
-		timeout = setTimeout(later, wait);
-		if (callNow) func.apply(context, args);
-	};
+    var timeout;
+    return function() {
+        var context = this,
+            args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
 };

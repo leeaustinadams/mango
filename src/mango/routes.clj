@@ -4,7 +4,7 @@
 (ns mango.routes
   (:require [clojure.data.json :as json]
             [clojure.walk :refer [keywordize-keys]]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.params :refer [wrap-params]]
@@ -22,7 +22,6 @@
             [mango.config :as config]
             [mango.db :as db]
             [mango.hydrate :as hydrate]
-            [mango.dehydrate :as dehydrate]
             [mango.pages :as pages]
             [mango.storage :as storage]
             [clj-time.format :as time-format])
@@ -31,11 +30,27 @@
 
 (add-encoder org.bson.types.ObjectId encode-str)
 
+(defn xform-ids
+  "Transforms a comma seperated string of ids to a collection of ObjectIds"
+  [ids]
+  (when (not (empty? ids)) (map #(ObjectId. %) (map str/trim (str/split ids #",")))))
+
+(defn xform-time
+  "Transforms a timestring into a time object"
+  [time]
+  (time-format/parse (time-format/formatters :date-time) time))
+
 (defn sanitize-article
   "Cleans and prepares an article from parameters posted"
   [params]
-  (let [article (select-keys (keywordize-keys params) [:_id :title :description :content :created :tags :status])]
-    (dehydrate/media (assoc article :created (time-format/parse (time-format/formatters :date-time) (:created article))))))
+  (let [article (-> params
+                    keywordize-keys
+                    (select-keys [:_id :title :description :content :created :media :tags :status]))
+        media (xform-ids (:media article))
+        created (xform-time (:created article))]
+    (merge article
+           (when (not (nil? media)) {:media media})
+           (when (not (nil? created)) {:created created}))))
 
 (defn accum-media
   "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
@@ -133,26 +148,28 @@
   ;; Posting a new article
   (POST "/blog/articles/post.json" {user :user params :params}
         (if (auth/editor? user)
-          (let [files (parse-files params)
-                media-ids (map #(ObjectId. %)(parse-media params))
-                user-id (:_id user)
-                article (sanitize-article params)
-                new-media-ids (concat media-ids (accum-media files user-id))]
-            (upload-files files)
-            (json-success (db/insert-blog-article (assoc article :media new-media-ids) user-id)))
+          (let [user-id (:_id user)
+                article (sanitize-article params)]
+            (json-success (db/insert-blog-article article user-id)))
           (json-failure 403 nil)))
 
   ;; Updating an existing article
   (POST "/blog/articles/:id.json" {user :user params :params}
         (if (auth/editor? user)
-          (let [files (parse-files params)
-                media-ids (map #(ObjectId. %)(parse-media params))
-                user-id (:_id user)
-                article (sanitize-article params)
-                new-media-ids (accum-media files user-id)]
-            (upload-files files)
-            (json-success (db/update-blog-article (assoc article :media (concat media-ids new-media-ids)) user-id)))
+          (let [user-id (:_id user)
+                article (sanitize-article params)]
+            (json-success (db/update-blog-article article user-id)))
           (json-failure 403 nil)))
+
+  (POST "/blog/media" {user :user params :params}
+        (if (auth/editor? user)
+          (let [files (parse-files params)
+                user-id (:_id user)
+                media-ids (accum-media files user-id)]
+            (println "files" files)
+            (println "media-ids" media-ids)
+            (upload-files files)
+            (json-success media-ids))))
 
   ;; JSON payload for a collection of drafts
   (GET "/blog/drafts.json" {user :user {:strs [page per-page]} :query-params}
@@ -162,15 +179,12 @@
 
     ;; Crawler specific route for an article e.g. /blog/1234
   (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
-       (let [article (db/blog-article id)]
-         (when (not (nil? article))
-           (let [hydrated-article (hydrate/media (hydrate/content article))
-                 url (request-url request)]
-             (cond
-               (clojure.string/includes? user-agent "Twitterbot")
-               (html-success (pages/article-for-twitter hydrated-article url))
-               (clojure.string/includes? user-agent "facebookexternalhit/1.1")
-               (html-success (pages/article-for-facebook hydrated-article url)))))))
+       (when-let [article (db/blog-article id)]
+         (let [hydrated-article (hydrate/media (hydrate/content article))
+               url (request-url request)]
+           (cond
+             (str/includes? user-agent "Twitterbot") (html-success (pages/article-for-twitter hydrated-article url))
+             (str/includes? user-agent "facebookexternalhit/1.1") (html-success (pages/article-for-facebook hydrated-article url))))))
 
   ;; JSON payload for a draft by id e.g. /blog/drafts/1234.json
   (GET "/blog/drafts/:id.json" [id]
@@ -255,7 +269,7 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-;  (println (str request))
+  (println (str request))
   request)
 
 (defn wrap-logger

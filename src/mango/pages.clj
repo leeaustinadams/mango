@@ -28,11 +28,10 @@
    :creator config/twitter-creator-handle
    :title (:title article)
    :description (:description article)
-   :image (if (not (nil? (first media)))
-            (-> media
-                first
-                :src)
-            "http://cdn.4d4ms.com/img/A.jpg")})
+   :image (let [img_src (get (first media) :src)]
+            (if (empty? img_src)
+              "http://cdn.4d4ms.com/img/A.jpg"
+              (str "http://cdn.4d4ms.com/blog/" img_src)))})
 
 (defn article-for-twitter
   "Render an article stub with metatags for Twitter Cards. Expects media to have been hydrated"
