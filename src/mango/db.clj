@@ -22,8 +22,8 @@
     
 (defn blog-article
   "Query a single blog article by id"
-  [id]
-  (mc/find-map-by-id DB config/db-article-collection (ObjectId. id)))
+  [id & {:keys [status]}]
+  (mc/find-one-as-map DB config/db-article-collection {$and [{:_id (ObjectId. id)}, {:status {$in status}}]}))
 
 (defn blog-drafts
   "Query all blog articles that are drafts"
@@ -34,9 +34,9 @@
     (mq/paginate :page page :per-page per-page)))
 
 (defn blog-draft
-  "Query a single blog article by id"
+  "Query a single draft blog article by id"
   [id]
-  (mc/find-map-by-id DB config/db-article-collection (ObjectId. id)))
+  (mc/find-one-as-map DB config/db-article-collection {$and [ {:_id (ObjectId. id)} {:status "draft"} ] }))
 
 (defn insert-blog-article
   "Adds a single blog article"

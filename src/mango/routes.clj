@@ -88,6 +88,14 @@
    :headers {"Content-Type" "text/html"}
    :body body})
 
+(defn html-failure
+  "Response for a success (200)."
+  [code body]
+  {
+   :status code
+   :headers {"Content-Type" "text/html"}
+   :body body})
+
 (defn parse-file-keys
   "Returns a collection of keys for files"
   [params]
@@ -137,8 +145,9 @@
 
   ;; JSON payload for an article e.g. /blog/articles/1234.json
   (GET "/blog/articles/:id.json" {user :user {:keys [id]} :params}
-       (let [article (db/blog-article id)]
-         (if (not (nil? article))
+       (let [status ["published" (when (auth/editor? user) "draft")]
+             article (db/blog-article id :status status)]
+         (if (not (empty? article))
            (json-success (hydrate/media (hydrate/user (hydrate/content article))))
            (json-failure 404 {:msg "Not found"}))))
 
@@ -179,7 +188,7 @@
 
     ;; Crawler specific route for an article e.g. /blog/1234
   (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
-       (when-let [article (db/blog-article id)]
+       (when-let [article (db/blog-article id :status ["published"])]
          (let [hydrated-article (hydrate/media (hydrate/content article))
                url (request-url request)]
            (cond
@@ -187,8 +196,11 @@
              (str/includes? user-agent "facebookexternalhit/1.1") (html-success (pages/article-for-facebook hydrated-article url))))))
 
   ;; JSON payload for a draft by id e.g. /blog/drafts/1234.json
-  (GET "/blog/drafts/:id.json" [id]
-       (json-success (list (db/blog-draft id))))
+  (GET "/blog/drafts/:id.json" {user :user {:keys [id]} :params}
+       (let [article (db/blog-draft id)]
+         (if (not (empty? article))
+           (json-success (hydrate/media (hydrate/user (hydrate/content article))))
+           (json-failure 404 {:msg "Not found"}))))
 
   (GET "/blog/media.json" {{:strs [page per-page]} :query-params}
        (let [page (if page (Integer. page) 1)

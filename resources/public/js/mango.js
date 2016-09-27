@@ -268,6 +268,8 @@ angular.module('mango', ['ui.router',
                 article.created = new Date(article.created);
                 article.createdString = article.created.toLocaleDateString();
                 article.renderedContent = article["rendered-content"];
+            }, function(error) {
+                $state.go('blog');
             });
         } else {
             $scope.resetArticle();
