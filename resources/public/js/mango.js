@@ -69,7 +69,7 @@ angular.module('mango', ['ui.router',
             restrict: 'EA',
             link: function($scope, $element) {
                 var el = $element[0];
-                el.hidden = true; // So the text not actually visible on the page
+                el.hidden = true;
 
                 var text = function() {
                     return el.innerHTML;
@@ -303,9 +303,10 @@ angular.module('mango', ['ui.router',
             });
         }
     })
-    .config(['$locationProvider', '$urlRouterProvider', '$stateProvider', '$mdThemingProvider', '$httpProvider', '$breadcrumbProvider',
-             function($locationProvider, $urlRouterProvider, $stateProvider, $mdThemingProvider, $httpProvider, $breadcrumbProvider) {
+    .config(['$locationProvider', '$urlRouterProvider', '$stateProvider', '$mdThemingProvider', '$httpProvider', '$breadcrumbProvider', function($locationProvider, $urlRouterProvider, $stateProvider, $mdThemingProvider, $httpProvider, $breadcrumbProvider) {
         $mdThemingProvider.theme('default').primaryPalette('blue').accentPalette('red');
+
+        hljs.configure({languages: ["clj", "c", "java", "html", "js"]});
 
         $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
         $httpProvider.defaults.transformRequest.unshift(function (data, headersGetter) {
