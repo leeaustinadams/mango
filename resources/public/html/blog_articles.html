@@ -29,13 +29,14 @@
   <md-content>
     <md-list>
       <md-subheader class="md-no-sticky">{{subheader}}</md-subheader>
-      <md-list-item class="md-2-line gray"
+      <md-list-item class="md-3-line gray"
                     ng-repeat="article in articles"
                     ng-click="article_click(article._id)">
         <img ng-src="{{article.media[0].thumbnailSrc}}" class="article-thumbnail"/>
         <div class="md-list-item-text">
              <h3 class="article-list-title">{{article.title}}</h3>
              <p class="article-list-date">{{article.createdString}}</p>
+             <p class="article-list-description">{{article.description}}</p>
         </div>
       </md-list-item>
   </md-content>
