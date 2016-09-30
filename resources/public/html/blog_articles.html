@@ -31,7 +31,7 @@
       <md-subheader class="md-no-sticky">{{subheader}}</md-subheader>
       <md-list-item class="md-3-line gray"
                     ng-repeat="article in articles"
-                    ng-click="article_click(article._id)">
+                    ng-click="article_click(article.slug || article._id)">
         <img ng-src="{{article.media[0].thumbnailSrc}}" class="article-thumbnail"/>
         <div class="md-list-item-text">
              <h3 class="article-list-title">{{article.title}}</h3>

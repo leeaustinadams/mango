@@ -25,6 +25,11 @@
   [id & {:keys [status]}]
   (mc/find-one-as-map DB config/db-article-collection {$and [{:_id (ObjectId. id)}, {:status {$in status}}]}))
 
+(defn blog-article-by-slug
+  "Query a single blog article by slug"
+  [slug & {:keys [status]}]
+  (mc/find-one-as-map DB config/db-article-collection {$and [{:slug slug}, {:status {$in status}}]}))
+
 (defn blog-drafts
   "Query all blog articles that are drafts"
   [& {:keys [page per-page tags]}]
@@ -41,7 +46,7 @@
 (defn insert-blog-article
   "Adds a single blog article"
   [article user-id]
-  (mc/insert-and-return DB config/db-article-collection (conj article {:user user-id})))
+  (mc/insert-and-return DB config/db-article-collection (merge article {:user user-id})))
 
 (defn update-blog-article
   "Updates a single blog article"

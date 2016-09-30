@@ -24,6 +24,7 @@
             [mango.hydrate :as hydrate]
             [mango.pages :as pages]
             [mango.storage :as storage]
+            [mango.util :refer [slugify]]
             [clj-time.format :as time-format])
   (:import org.bson.types.ObjectId)
   (:gen-class))
@@ -128,6 +129,21 @@
   (doseq [file files]
     (storage/upload (:filename file) (:tempfile file) (:content-type file))))
 
+(defn article-response
+  ""
+  [article]
+  (if (not (empty? article))
+    (json-success (hydrate/media (hydrate/user (hydrate/content article))))
+    (json-failure 404 {:msg "Not found"})))
+
+(defn crawler-article-response
+  ""
+  [article user-agent url]
+  (let [hydrated-article (hydrate/media (hydrate/content article))]
+    (cond
+      (str/includes? user-agent "Twitterbot") (html-success (pages/article-for-twitter hydrated-article url))
+      (str/includes? user-agent "facebookexternalhit/1.1") (html-success (pages/article-for-facebook hydrated-article url)))))
+
 (defroutes routes
   (GET "/" {user :user session :session} (pages/index (json/write-str(auth/public-user user))))
 
@@ -144,12 +160,16 @@
        (json-success (hydrate/articles db/blog-articles page per-page)))
 
   ;; JSON payload for an article e.g. /blog/articles/1234.json
-  (GET "/blog/articles/:id.json" {user :user {:keys [id]} :params}
+  (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params}
        (let [status ["published" (when (auth/editor? user) "draft")]
              article (db/blog-article id :status status)]
-         (if (not (empty? article))
-           (json-success (hydrate/media (hydrate/user (hydrate/content article))))
-           (json-failure 404 {:msg "Not found"}))))
+         (article-response article)))
+
+  ;; e.g. /blog/articles/unce-upon-a-time.json
+  (GET "/blog/articles/:slug{[a-z-]+}.json" {user :user {:keys [slug]} :params}
+       (let [status ["published" (when (auth/editor? user) "draft")]
+             article (db/blog-article-by-slug slug :status status)]
+         (article-response article)))
 
   (GET "/blog/drafts"  {user :user} (pages/index (json/write-str(auth/public-user user))))
   (GET "/blog/post"  {user :user} (pages/index (json/write-str(auth/public-user user))))
@@ -159,7 +179,7 @@
         (if (auth/editor? user)
           (let [user-id (:_id user)
                 article (sanitize-article params)]
-            (json-success (db/insert-blog-article article user-id)))
+            (json-success (db/insert-blog-article (merge article {:slug (slugify (:title article) :limit 5)}) user-id)))
           (json-failure 403 nil)))
 
   ;; Updating an existing article
@@ -186,14 +206,15 @@
          (json-success (hydrate/articles db/blog-drafts page per-page))
          (json-failure 403 nil)))
 
-    ;; Crawler specific route for an article e.g. /blog/1234
-  (GET "/blog/:id" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
+  ;; Crawler specific route for an article e.g. /blog/1234
+  (GET "/blog/:id{[0-9a-f]+}" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
        (when-let [article (db/blog-article id :status ["published"])]
-         (let [hydrated-article (hydrate/media (hydrate/content article))
-               url (request-url request)]
-           (cond
-             (str/includes? user-agent "Twitterbot") (html-success (pages/article-for-twitter hydrated-article url))
-             (str/includes? user-agent "facebookexternalhit/1.1") (html-success (pages/article-for-facebook hydrated-article url))))))
+         (crawler-article-response article user-agent (request-url request))))
+
+  (GET "/blog/:slug{[a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+       (println slug)
+       (when-let [article (db/blog-article-by-slug slug :status ["published"])]
+         (crawler-article-response article user-agent (request-url request))))
 
   ;; JSON payload for a draft by id e.g. /blog/drafts/1234.json
   (GET "/blog/drafts/:id.json" {user :user {:keys [id]} :params}
