@@ -148,7 +148,7 @@
   (GET "/" {user :user session :session} (pages/index (json/write-str(auth/public-user user))))
 
   (GET "/sitemap.txt" {}
-       (let [urls (mapv #(str (:_id %)) (db/blog-articles :page 1 :per-page 100))]
+       (let [urls (mapv #(str (or (:slug %) (:_id %))) (db/blog-articles :page 1 :per-page 100))]
          {
           :status 200
           :headers {"Content-Type" "text/plain"}
