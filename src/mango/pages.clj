@@ -31,19 +31,14 @@
    :image (let [img_src (get (first media) :src)]
             (if (empty? img_src)
               "http://cdn.4d4ms.com/img/A.jpg"
-              (str "http://cdn.4d4ms.com/blog/" img_src)))})
+              (str "http://cdn.4d4ms.com/blog/" img_src)))
+   :content (:rendered-content article)})
 
-(defn article-for-twitter
-  "Render an article stub with metatags for Twitter Cards. Expects media to have been hydrated"
+(defn article-for-bots
+  "Render an article. Expects media to have been hydrated"
   [article url]
   (let [media (:media article)]
-    (stencil/render-file "templates/article_for_twitter.html" (tags url article media))))
-
-(defn article-for-facebook
-  "Render an article stub with open graph tags. Expects media to have been hydrated"
-  [article url]
-  (let [media (:media article)]
-    (stencil/render-file "templates/article_for_facebook.html" (tags url article media))))
+    (stencil/render-file "templates/article_for_bots.html" (tags url article media))))
 
 (defn sitemap
   "Render a sitemap for indexing"

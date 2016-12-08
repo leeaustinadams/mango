@@ -3,7 +3,7 @@
   (:gen-class))
 
 (defn slugify
-  "Make a slug from a title with an option limit on the number of words"
+  "Make a slug from a title with an optional limit on the number of words"
   [title & {:keys [limit]}]
   (let [clean (str/join (filter #(re-matches #"[a-zA-Z0-9\s]" (str %)) title))
         tokens (map #(str/lower-case %) (str/split clean #"\s"))

@@ -17,7 +17,6 @@
             [compojure.route :as route]
             [cheshire.core :refer :all]
             [cheshire.generate :refer [add-encoder encode-str]]
-            [markdown.core :as md]
             [mango.auth :as auth]
             [mango.config :as config]
             [mango.db :as db]
@@ -65,7 +64,7 @@
           (recur (rest files) (conj media (:_id m))))))))
 
 (defn json-success
-  "Response for a success (200). Generates JSON for the obj passed in"
+  "A JSON response for a success (200). Generates JSON from the obj passed in"
   [obj & rest]
   (reduce merge {
                  :status 200
@@ -74,7 +73,7 @@
           rest))
 
 (defn json-failure
-  "Response for a failure. Generates JSON for the obj passed in"
+  "A JSON response for a failure. Generates JSON from the obj passed in"
   [code obj]
   {
    :status code
@@ -82,7 +81,7 @@
    :body (generate-string obj)})
 
 (defn html-success
-  "Response for a success (200)."
+  "An HTML response for a success (200)."
   [body]
   {
    :status 200
@@ -90,7 +89,7 @@
    :body body})
 
 (defn html-failure
-  "Response for a success (200)."
+  "An HTML response for a failure."
   [code body]
   {
    :status code
@@ -130,19 +129,20 @@
     (storage/upload (:filename file) (:tempfile file) (:content-type file))))
 
 (defn article-response
-  ""
+  "Renders a response for a hydrated article"
   [article]
   (if (not (empty? article))
     (json-success (hydrate/media (hydrate/user (hydrate/content article))))
     (json-failure 404 {:msg "Not found"})))
 
 (defn crawler-article-response
-  ""
+  "If the user-agent is a crawler, renders an appropriate response for a hydrated article"
   [article user-agent url]
   (let [hydrated-article (hydrate/media (hydrate/content article))]
     (cond
-      (str/includes? user-agent "Twitterbot") (html-success (pages/article-for-twitter hydrated-article url))
-      (str/includes? user-agent "facebookexternalhit/1.1") (html-success (pages/article-for-facebook hydrated-article url)))))
+      (str/includes? user-agent "Twitterbot") (html-success (pages/article-for-bots hydrated-article url))
+      (str/includes? user-agent "facebookexternalhit/1.1") (html-success (pages/article-for-bots hydrated-article url))
+      (str/includes? user-agent "Googlebot") (html-success (pages/article-for-bots hydrated-article url)))))
 
 (defroutes routes
   (GET "/" {user :user session :session} (pages/index (json/write-str(auth/public-user user))))
@@ -247,23 +247,23 @@
   (GET "/users/:id.json" [id]
        (json-success (list (db/user id))))
 
-  (GET "/admin/users/:id.json" [id]
-       {})
+  ;; (GET "/admin/users/:id.json" [id]
+  ;;      {})
 
-  (POST "/users/password" [request]
-        {})
+  ;; (POST "/users/password" [request]
+  ;;       {})
 
-  (POST "/users/forgot" []
-        {})
+  ;; (POST "/users/forgot" []
+  ;;       {})
 
-  (GET "/users/reset/:token" [token]
-        {})
+  ;; (GET "/users/reset/:token" [token]
+  ;;       {})
 
-  (POST "/users/reset/:token" [token]
-        {})
+  ;; (POST "/users/reset/:token" [token]
+  ;;       {})
 
-  (POST "/auth/signup" []
-        {})
+  ;; (POST "/auth/signup" []
+  ;;       {})
 
   (POST "/auth/signin" {session :session {:strs [username password]} :params}
         (if-let [user (auth/user username password)]
@@ -302,7 +302,7 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-  (println (str request))
+  (println (str (select-keys request [:uri :request-method]) "\n"))
   request)
 
 (defn wrap-logger
