@@ -34,6 +34,16 @@ html, body {
 
 .article-thumbnail {
     height: 128px;
+    padding-right: 12px;
+}
+
+.article-list-item {
+    padding:8px;
+}
+
+.left-thumbnail  {
+    float: left;
+    margin: 4px 0 4px 8px;
 }
 
 .media-thumbnail {
