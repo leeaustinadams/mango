@@ -65,7 +65,7 @@
 (defn insert-blog-media
   "Adds a media item"
   [media user-id]
-  (mc/insert-and-return DB config/db-media-collection (conj media {:user user-id})))
+  (mc/insert-and-return DB config/db-media-collection (assoc media :user user-id)))
 
 (defn blog-media-by-id [id]
   (mc/find-map-by-id DB config/db-media-collection (ObjectId. id)))

@@ -187,7 +187,7 @@
         (if (auth/editor? user)
           (let [user-id (:_id user)
                 article (sanitize-article params)]
-            (json-success (db/update-blog-article article user-id)))
+            (json-success (db/update-blog-article (merge article {:slug (slugify (:title article) :limit 5)}) user-id)))
           (json-failure 403 nil)))
 
   (POST "/blog/media" {user :user params :params}
