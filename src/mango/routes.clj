@@ -166,7 +166,7 @@
          (article-response article)))
 
   ;; e.g. /blog/articles/unce-upon-a-time.json
-  (GET "/blog/articles/:slug{[a-z-]+}.json" {user :user {:keys [slug]} :params}
+  (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params}
        (let [status ["published" (when (auth/editor? user) "draft")]
              article (db/blog-article-by-slug slug :status status)]
          (article-response article)))
@@ -211,7 +211,7 @@
        (when-let [article (db/blog-article id :status ["published"])]
          (crawler-article-response article user-agent (request-url request))))
 
-  (GET "/blog/:slug{[a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
        (println slug)
        (when-let [article (db/blog-article-by-slug slug :status ["published"])]
          (crawler-article-response article user-agent (request-url request))))
