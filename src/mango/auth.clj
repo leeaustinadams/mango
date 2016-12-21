@@ -26,7 +26,7 @@
   [user]
   (dissoc user :password :salt))
 
-(defn authorized
+(defn authorized?
   "Return true if the user has role specified by permission"
   [user permission]
   (some #(= permission %) (:roles user)))
@@ -34,4 +34,9 @@
 (defn editor?
   "Returns true if the user has the editor role"
   [user]
-  (authorized user "editor"))
+  (authorized? user "editor"))
+
+(defn admin?
+  "Returns true if the user has the admin role"
+  [user]
+  (authorized? user "admin"))

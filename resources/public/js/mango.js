@@ -159,7 +159,10 @@ angular.module('mango', ['ui.router',
         $scope.authorization = Authorization;
 
         if (params.mode == "drafts") {
-            $scope.articles = BlogArticles.drafts();
+            $scope.articles = BlogArticles.drafts(function(articles) {
+            }, function(errorResponse) {
+                $state.go('landing');
+            });
             $scope.article_click = function(article_id) {
                 $state.go('edit', {id: article_id});
             }

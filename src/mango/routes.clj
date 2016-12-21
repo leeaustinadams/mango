@@ -144,8 +144,14 @@
       (str/includes? user-agent "facebookexternalhit/1.1") (html-success (pages/article-for-bots hydrated-article url))
       (str/includes? user-agent "Googlebot") (html-success (pages/article-for-bots hydrated-article url)))))
 
+(defn html-index
+  [user]
+  (pages/index (json/write-str (auth/public-user user))))
+
 (defroutes routes
-  (GET "/" {user :user session :session} (pages/index (json/write-str(auth/public-user user))))
+  (GET "/" {user :user} (html-index user))
+  (GET "/blog/drafts" {user :user} (html-index user))
+  (GET "/blog/post" {user :user} (html-index user))
 
   (GET "/sitemap.txt" {}
        (let [urls (mapv #(str (or (:slug %) (:_id %))) (db/blog-articles :page 1 :per-page 100))]
@@ -170,9 +176,6 @@
        (let [status ["published" (when (auth/editor? user) "draft")]
              article (db/blog-article-by-slug slug :status status)]
          (article-response article)))
-
-  (GET "/blog/drafts"  {user :user} (pages/index (json/write-str(auth/public-user user))))
-  (GET "/blog/post"  {user :user} (pages/index (json/write-str(auth/public-user user))))
 
   ;; Posting a new article
   (POST "/blog/articles/post.json" {user :user params :params}
@@ -218,10 +221,11 @@
 
   ;; JSON payload for a draft by id e.g. /blog/drafts/1234.json
   (GET "/blog/drafts/:id.json" {user :user {:keys [id]} :params}
-       (let [article (db/blog-draft id)]
-         (if (not (empty? article))
-           (json-success (hydrate/media (hydrate/user (hydrate/content article))))
-           (json-failure 404 {:msg "Not found"}))))
+       (when (auth/editor? user)
+         (let [article (db/blog-draft id)]
+           (if (not (empty? article))
+             (json-success (hydrate/media (hydrate/user (hydrate/content article))))
+             (json-failure 404 {:msg "Not found"})))))
 
   (GET "/blog/media.json" {{:strs [page per-page]} :query-params}
        (let [page (if page (Integer. page) 1)
@@ -244,8 +248,9 @@
        (json-success user))
 
   ;; JSON payload of a user by id
-  (GET "/users/:id.json" [id]
-       (json-success (list (db/user id))))
+  (GET "/users/:id.json" {user :user {:keys [id]} :params}
+       (when (auth/admin? user)
+         (json-success (list (db/user id)))))
 
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})
