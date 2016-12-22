@@ -19,4 +19,8 @@
                  [clj-time "0.12.0"]
                  [amazonica "0.3.76"]]
   :profiles {:uberjar {:aot :all}}
+  :release-tasks [["vcs" "assert-committed"]
+                  ["change" "version" "leiningen.release/bump-version" "release"]
+                  ["vcs" "commit"]
+                  ["vcs" "tag"]]
   :main mango.core)
