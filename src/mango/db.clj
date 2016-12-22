@@ -14,7 +14,7 @@
 
 (defn blog-articles
   "Query all blog articles that are published"
-  [& {:keys [page per-page tags]}]
+  [& {:keys [page per-page]}]
   (mq/with-collection DB config/db-article-collection
     (mq/find {:status "published"})
     (mq/sort {:created -1})
@@ -31,9 +31,18 @@
   [slug & {:keys [status]}]
   (mc/find-one-as-map DB config/db-article-collection {$and [{:slug slug}, {:status {$in status}}]}))
 
+(defn blog-articles-by-tag
+  "Query for articles tagged with tag"
+  [tag & {:keys [page per-page]}]
+  (println (str "tag: " tag " page: " page " per-page: " per-page))
+  (mq/with-collection DB config/db-article-collection
+    (mq/find {:status "published" :tags {$in [tag]}})
+    (mq/sort {:created -1})
+    (mq/paginate :page page :per-page per-page)))
+  
 (defn blog-drafts
   "Query all blog articles that are drafts"
-  [& {:keys [page per-page tags]}]
+  [& {:keys [page per-page]}]
   (mq/with-collection DB config/db-article-collection
     (mq/find {:status "draft"})
     (mq/sort {:created -1})

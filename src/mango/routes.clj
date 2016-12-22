@@ -16,29 +16,14 @@
             [compojure.core :refer [defroutes rfn GET PUT POST]]
             [compojure.route :as route]
             [cheshire.core :refer :all]
-            [cheshire.generate :refer [add-encoder encode-str]]
             [mango.auth :as auth]
             [mango.config :as config]
             [mango.db :as db]
             [mango.hydrate :as hydrate]
             [mango.pages :as pages]
             [mango.storage :as storage]
-            [mango.util :refer [slugify]]
-            [clj-time.format :as time-format])
-  (:import org.bson.types.ObjectId)
+            [mango.util :refer [slugify xform-ids xform-tags xform-time]])
   (:gen-class))
-
-(add-encoder org.bson.types.ObjectId encode-str)
-
-(defn xform-ids
-  "Transforms a comma seperated string of ids to a collection of ObjectIds"
-  [ids]
-  (when (not (empty? ids)) (map #(ObjectId. %) (map str/trim (str/split ids #",")))))
-
-(defn xform-time
-  "Transforms a timestring into a time object"
-  [time]
-  (time-format/parse (time-format/formatters :date-time) time))
 
 (defn sanitize-article
   "Cleans and prepares an article from parameters posted"
@@ -47,11 +32,13 @@
                     keywordize-keys
                     (select-keys [:_id :title :description :content :created :media :tags :status]))
         media (xform-ids (:media article))
-        created (xform-time (:created article))]
+        created (xform-time (:created article))
+        tags (xform-tags (:tags article))]
     (merge article
            (when (not (nil? media)) {:media media})
            (when (not (nil? created)) {:created created})
-           {:slug (slugify (:title article) :limit 5)})))
+           {:slug (slugify (:title article) :limit 5)}
+           {:tags tags})))
 
 (defn accum-media
   "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
@@ -165,6 +152,10 @@
   ;; JSON payload for a collection of articles
   (GET "/blog/articles.json" {user :user {:strs [page per-page]} :query-params}
        (json-success (hydrate/articles db/blog-articles page per-page)))
+
+  ;; JSON payload for a collection of articles with specified tag
+  (GET "/blog/tagged/:tag.json" {user :user {:keys [tag]} :params {:strs [ page per-page]} :query-params}
+       (json-success (hydrate/articles (partial db/blog-articles-by-tag tag) page per-page)))
 
   ;; JSON payload for an article e.g. /blog/articles/1234.json
   (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params}
