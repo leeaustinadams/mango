@@ -18,7 +18,8 @@
   (mq/with-collection DB config/db-article-collection
     (mq/find {:status "published"})
     (mq/sort {:created -1})
-    (mq/paginate :page page :per-page per-page)))
+    (mq/paginate :page page :per-page per-page)
+))
     
 (defn blog-article
   "Query a single blog article by id"

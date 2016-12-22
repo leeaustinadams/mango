@@ -297,10 +297,32 @@
       (handler (assoc request :user (auth/private-user (db/user user-id))))
       (handler request))))
 
+;; Example request
+;; {:ssl-client-cert nil,
+;;  :protocol "HTTP/1.1",
+;;  :remote-addr "0:0:0:0:0:0:0:1",
+;;  :headers {"cookie" "__utma=111872281.651807314.1472234250.1472241506.1472252459.3; __utmz=111872281.1472234250.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); ring-session=585b6bdaada47034e19d68df; _ga=GA1.1.651807314.1472234250; _gat=1",
+;;            "cache-control" "max-age=0",
+;;            "accept" "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+;;            "upgrade-insecure-requests" "1",
+;;            "connection" "keep-alive",
+;;            "user-agent" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36",
+;;            "host" "localhost:8080",
+;;            "accept-encoding" "gzip, deflate, sdch, br",
+;;            "accept-language" "en-US,en;q=0.8"},
+;;  :server-port 8080,
+;;  :content-length nil,
+;;  :content-type nil,
+;;  :character-encoding nil,
+;;  :uri "/blog/articles.json",
+;;  :server-name "localhost",
+;;  :query-string "page=2&per-page=9",
+;;  :body #object[org.eclipse.jetty.server.HttpInputOverHTTP 0x508bb9d6 "HttpInputOverHTTP@508bb9d6"],
+;;  :scheme :http, :request-method :get}
 (defn log-request
   "Log request details"
   [request & [options]]
-  (println (str (select-keys request [:uri :request-method]) "\n"))
+  (println (str (select-keys request [:uri :request-method :query-string]) "\n"))
   request)
 
 (defn wrap-logger
