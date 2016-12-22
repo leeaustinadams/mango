@@ -50,7 +50,8 @@
         created (xform-time (:created article))]
     (merge article
            (when (not (nil? media)) {:media media})
-           (when (not (nil? created)) {:created created}))))
+           (when (not (nil? created)) {:created created})
+           {:slug (slugify (:title article) :limit 5)})))
 
 (defn accum-media
   "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
@@ -182,7 +183,7 @@
         (if (auth/editor? user)
           (let [user-id (:_id user)
                 article (sanitize-article params)]
-            (json-success (db/insert-blog-article (merge article {:slug (slugify (:title article) :limit 5)}) user-id)))
+            (json-success (db/insert-blog-article article user-id)))
           (json-failure 403 nil)))
 
   ;; Updating an existing article
@@ -190,7 +191,7 @@
         (if (auth/editor? user)
           (let [user-id (:_id user)
                 article (sanitize-article params)]
-            (json-success (db/update-blog-article (merge article {:slug (slugify (:title article) :limit 5)}) user-id)))
+            (json-success (db/update-blog-article article user-id)))
           (json-failure 403 nil)))
 
   (POST "/blog/media" {user :user params :params}
@@ -218,14 +219,6 @@
        (println slug)
        (when-let [article (db/blog-article-by-slug slug :status ["published"])]
          (crawler-article-response article user-agent (request-url request))))
-
-  ;; JSON payload for a draft by id e.g. /blog/drafts/1234.json
-  (GET "/blog/drafts/:id.json" {user :user {:keys [id]} :params}
-       (when (auth/editor? user)
-         (let [article (db/blog-draft id)]
-           (if (not (empty? article))
-             (json-success (hydrate/media (hydrate/user (hydrate/content article))))
-             (json-failure 404 {:msg "Not found"})))))
 
   (GET "/blog/media.json" {{:strs [page per-page]} :query-params}
        (let [page (if page (Integer. page) 1)
