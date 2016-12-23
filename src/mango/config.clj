@@ -1,4 +1,5 @@
-(ns mango.config)
+(ns mango.config
+  (:require [environ.core :refer [env]]))
 
 (def db-name "4d4ms-mean")
 (def db-article-collection "blogarticles")
@@ -10,7 +11,7 @@
 (def twitter-site-handle "@beamjack")
 (def twitter-creator-handle "@beamjack")
 (def admin-email "admin@4d4ms.com")
-(def version "0.1")
+(def version (:mango-version env))
 (def port 8080)
 (def aws-credentials {:access-key "AKIAJBCNLKTIY3RNQUKA"
                       :secret-key "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"
