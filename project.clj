@@ -1,4 +1,4 @@
-(defproject mango "0.1.0"
+(defproject mango "0.1.1-SNAPSHOT"
   :description "Lee's Website"
   :url "http://www.4d4ms.com"
   :license {:name "Eclipse Public License"
@@ -22,5 +22,7 @@
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
-                  ["vcs" "tag"]]
+                  ["vcs" "tag"]
+                  ["change" "version" "leiningen.release/bump-version"]
+                  ["vcs" "commit"]]
   :main mango.core)
