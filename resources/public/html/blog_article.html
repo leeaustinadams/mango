@@ -7,7 +7,7 @@
 
     <p class="article-byline" ng-if="article.user"><span>Posted By:</span> {{article.user.displayName}}</p>
     <p class="article-infoline">On: {{article.createdString}}</p>
-    <ul class="tags">Tagged: <li ng-repeat="tag in article.tags" ng-click="tag_click(tag)"><a ng-href="/blog/tagged/{{tag}}">{{tag}} </a></li></ul>
+    <ul class="tags">Tagged: <li ng-repeat="tag in article.tags" ng-click="tag_click(tag)"><a ng-href="/blog/tagged/{{tag}}">{{tag}}</a><span class="divider" ng-hide="$last">-</span></li></ul>
 
     <i class="tweet-button" tweet url="http://www.4d4ms.com/blog/{{article.slug || article._id}}" text="{{article.description}}"></i>
 
