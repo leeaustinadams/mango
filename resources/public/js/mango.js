@@ -58,7 +58,7 @@ angular.module('mango', ['ui.router',
                             );
                         });
                     }
-                }, 75);
+                }, 150);
                 attr.$observe('url', renderTwitterButton);
                 attr.$observe('text', renderTwitterButton);
             }
@@ -81,6 +81,12 @@ angular.module('mango', ['ui.router',
             }
         };
     })
+    .factory('$exceptionHandler', ['$log'/*, 'logErrorsToBackend'*/, function($log/*, logErrorsToBackend*/) {
+        return function myExceptionHandler(exception, cause) {
+            //logErrorsToBackend(exception, cause);
+            $log.warn(exception, cause);
+        };
+    }])
     .factory('BlogArticles', ['$resource',
                               function($resource) {
                                   return $resource('/blog/articles.json?per-page=12', {
@@ -88,6 +94,11 @@ angular.module('mango', ['ui.router',
                                       drafts: {
                                           method: 'GET',
                                           url: '/blog/drafts.json?per-page=12',
+                                          isArray: true
+                                      },
+                                      tagged: {
+                                          method: 'GET',
+                                          url: '/blog/tagged/:tag.json?per-page=12',
                                           isArray: true
                                       }
                                   });
@@ -158,28 +169,37 @@ angular.module('mango', ['ui.router',
         $scope.authentication = Authentication;
         $scope.authorization = Authorization;
 
+        var errorHandler = function(errorResponse) {
+            $state.go('landing');
+        };
+
         if (params.mode == "drafts") {
             $scope.articles = BlogArticles.drafts(function(articles) {
-            }, function(errorResponse) {
-                $state.go('landing');
-            });
+            }, errorHandler);
             $scope.article_click = function(article_id) {
                 $state.go('edit', {id: article_id});
             }
             $scope.subheader = "Drafts";
         } else {
-            $scope.articles = BlogArticles.query(function(articles) {
-                for(var i = 0; i < articles.length; i++) {
-                    var article = articles[i];
-                    article.created = new Date(article.created);
-                    article.createdString = article.created.toLocaleDateString();
-                    article.renderedContent = article["rendered-content"];
-                }
-            });
+            if (params.mode == "tagged") {
+                $scope.articles = BlogArticles.tagged({tag: params.tag}, function(articles) {
+                }, errorHandler);
+                $scope.subheader = "Tagged \"" + params.tag + "\"";
+            } else {
+                $scope.articles = BlogArticles.query(function(articles) {
+                    for(var i = 0; i < articles.length; i++) {
+                        var article = articles[i];
+                        article.created = new Date(article.created);
+                        article.createdString = article.created.toLocaleDateString();
+                        article.renderedContent = article["rendered-content"];
+                    }
+                }, errorHandler);
+                $scope.subheader = "Posts";
+            }
+
             $scope.article_click = function(article_id) {
                 $state.go('article', {id: article_id});
             }
-            $scope.subheader = "Posts";
         }
     })
     .controller('BlogArticleController', function($scope, $state, Authentication, BlogArticle, Upload, params) {
@@ -188,6 +208,10 @@ angular.module('mango', ['ui.router',
 
         $scope.edit = function() {
             $state.go('edit', {id: params.id});
+        }
+
+        $scope.tag_click = function(tag) {
+            $state.go('tagged', {tag: tag});
         }
 
         $scope.post = function() {
@@ -367,6 +391,23 @@ angular.module('mango', ['ui.router',
             },
             ncyBreadcrumb: {
                 label: 'Drafts',
+                parent: 'blog'
+            }
+        }).state({
+            name: 'tagged',
+            url: '/blog/tagged/{tag}',
+            templateUrl: 'html/blog_articles.html',
+            controller: 'BlogArticlesController',
+            resolve: {
+                params: function($stateParams) {
+                    return {
+                        tag: $stateParams.tag,
+                        mode: 'tagged'
+                    };
+                }
+            },
+            ncyBreadcrumb: {
+                label: 'Tagged',
                 parent: 'blog'
             }
         }).state({

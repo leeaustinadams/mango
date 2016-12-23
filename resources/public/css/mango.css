@@ -17,11 +17,35 @@ html, body {
 }
 
 .article-byline {
-    margin: 0px 0px 0px 0px;
+    margin: 2px 0px 2px 0px;
 }
 
 .article-infoline {
-    margin: 0px 0px 0px 0px;
+    margin: 2px 0px 2px 0px;
+}
+
+.article-tagsline {
+    margin: 2px 0px 2px 0px;
+}
+
+.tags {
+  margin: 2px 0 2px 0;
+  list-style: none;
+  -webkit-padding-start: 0;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+}
+
+.tags > li {
+  display: inline-block;
+  *display: inline;
+  text-shadow: 0 1px 0 #ffffff;
+  *zoom: 1;
+}
+
+.tweet-button {
+    margin: 2px 0px 2px 0px;
 }
 
 .article-list md-virtual-repeat-container {
