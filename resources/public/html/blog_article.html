@@ -9,7 +9,10 @@
     <p class="article-infoline">On: {{article.createdString}}</p>
     <ul class="tags">Tagged: <li ng-repeat="tag in article.tags" ng-click="tag_click(tag)"><a ng-href="/blog/tagged/{{tag}}">{{tag}}</a><span class="divider" ng-hide="$last">-</span></li></ul>
 
-    <i class="tweet-button" tweet url="http://www.4d4ms.com/blog/{{article.slug || article._id}}" text="{{article.description}}"></i>
+    <i class="tweet-button" tweet
+       url="http://www.4d4ms.com/blog/{{article.slug || article._id}}"
+       text="{{article.description}}"
+       analytics-on="click" analytics-event="tweet" analytics-event="{{article.slug}}"></i>
 
     <p class="article-content" highlight ng-bind-html="article.renderedContent"></p>
   </md-content>
