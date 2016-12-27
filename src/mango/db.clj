@@ -133,3 +133,8 @@
   [id data]
   (mc/update-by-id DB config/db-sessions-collection id data)
   id)
+
+(defn insert-log-event
+  "Adds a single log event"
+  [event]
+  (mc/insert-and-return DB config/db-log-collection event))

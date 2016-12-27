@@ -81,11 +81,23 @@ angular.module('mango', ['ui.router',
             }
         };
     })
-    .factory('$exceptionHandler', ['$log'/*, 'logErrorsToBackend'*/, function($log/*, logErrorsToBackend*/) {
+    .factory('LogEvent', ['$resource',
+                          function($resource) {
+                              return $resource('/log/event');
+                          }
+                         ])
+    .factory('$exceptionHandler', ['$log', '$window', '$injector', function($log, $window, $injector) {
         return function myExceptionHandler(exception, cause) {
-            //logErrorsToBackend(exception, cause);
             $log.warn(exception, cause);
-        };
+
+            $injector.get('$http').post("/log/event",
+                       {
+                           errorUrl: $window.location.href,
+                           category: "exception",
+                           event: exception,
+                           cause: ( cause || "" )
+                       });
+        }
     }])
     .factory('BlogArticles', ['$resource',
                               function($resource) {

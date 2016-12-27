@@ -6,6 +6,7 @@
 (def db-media-collection "blogmedia")
 (def db-users-collection "users")
 (def db-sessions-collection "sessions")
+(def db-log-collection "logevents")
 (def site-title "Lee Austin Adams")
 (def site-description "Lee's Website")
 (def twitter-site-handle "@beamjack")

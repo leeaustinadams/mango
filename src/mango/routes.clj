@@ -266,6 +266,9 @@
          :session nil
          })
 
+  (POST "/log/event" {user :user {:strs [errorUrl category event]} :params}
+        (json-success (db/insert-log-event {:user user :error-url errorUrl :category category :event event})))
+
   (route/resources "/")
 
   ;; all other requests get redirected to index
