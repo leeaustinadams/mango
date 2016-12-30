@@ -1,42 +1,21 @@
-<div class="mango" layout="column" ng-cloak>
+<div class="mango" layout="column" layout-align="center" layout-margin="18px" layout-padding="8px" ng-cloak>
   <page-title>Photography</page-title>
   <div ncy-breadcrumb></div>
-  <md-grid-list
-     md-cols="1" md-cols-xs="1" md-cols-gt-xs="2"
-     md-row-height="4:1" md-row-height-gt-xs="2:1"
-     md-gutter="12px" md-gutter-gt-md="8px" md-gutter-sm="4px">
-    <md-grid-tile
-       class="red"
-       md-rowspan="1" md-colspan="1"
-       ng-click="go('http://www.flickr.com/photos/beamjack/tags/animals/')">
-      <md-grid-tile-footer>
-        <h3>Animals</h3>
-      </md-grid-tile-footer>
-    </md-grid-tile>
-    <md-grid-tile
-       class="green"
-       md-rowspan="1" md-colspan="1"
-       ng-click="go('http://www.flickr.com/photos/beamjack/tags/buildings/')">
-      <md-grid-tile-footer>
-        <h3>Buildings</h3>
-      </md-grid-tile-footer>
-    </md-grid-tile>
-    <md-grid-tile
-       class="blue"
-       md-rowspan="1" md-colspan="1"
-       ng-click="go('http://www.flickr.com/photos/beamjack/tags/places/')">
-      <md-grid-tile-footer>
-        <h3>Places</h3>
-      </md-grid-tile-footer>
-    </md-grid-tile>
-    <md-grid-tile
-       class="gray"
-       md-rowspan="1" md-colspan="1"
-       ng-click="go('http://www.flickr.com/photos/beamjack')">
-      <md-grid-tile-footer>
-        <h3>Everything Else</h3>
-      </md-grid-tile-footer>
-    </md-grid-tile>
-  </md-grid-list>
+  <div class="red"
+     ng-click="navigate('http://www.flickr.com/photos/beamjack/tags/animals/')">
+    <h3 class="md-headline">Animals</h3>
+  </div>
+  <div class="green"
+     ng-click="navigate('http://www.flickr.com/photos/beamjack/tags/buildings/')">
+    <h3 class="md-headline">Buildings</h3>
+  </div>
+  <div class="blue"
+     ng-click="navigate('http://www.flickr.com/photos/beamjack/tags/places/')">
+    <h3 class="md-headline">Places</h3>
+  </div>
+  <div class="gray"
+     ng-click="navigate('http://www.flickr.com/photos/beamjack/')">
+    <h3 class="md-headline">Everything Else</h3>
+  </div>
 </div>
 

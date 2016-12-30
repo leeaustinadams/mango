@@ -170,7 +170,10 @@ angular.module('mango', ['ui.router',
 
         return _this._data;
     }])
-    .controller('MainController', function($scope) {
+    .controller('MainController', function($scope, $window) {
+        $scope.navigate = function(url) {
+            $window.location.href = url;
+        };
     })
     .controller('LandingController', function($scope, $state) {
         $scope.$state = $state;
@@ -484,6 +487,7 @@ angular.module('mango', ['ui.router',
             name: 'photography',
             url:'/photography',
             templateUrl: '/html/photography.html',
+            controller: 'MainController',
             ncyBreadcrumb: {
                 label: 'Photography',
                 parent: 'landing'

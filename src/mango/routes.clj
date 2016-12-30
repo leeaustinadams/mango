@@ -141,6 +141,7 @@
   (GET "/blog/drafts" {user :user} (html-index user))
   (GET "/blog/post" {user :user} (html-index user))
 
+  ;; Generates sitemap from articles
   (GET "/sitemap.txt" {}
        (let [urls (mapv #(str (or (:slug %) (:_id %))) (db/blog-articles :page 1 :per-page 100))]
          {
@@ -269,10 +270,10 @@
   (POST "/log/event" {user :user {:strs [errorUrl category event]} :params}
         (json-success (db/insert-log-event {:user user :error-url errorUrl :category category :event event})))
 
-  (route/resources "/")
+  (route/resources "/" :root "public")
 
   ;; all other requests get redirected to index
-  (rfn {user :user} (pages/index (json/write-str(auth/public-user user)))))
+  (rfn {user :user} (html-index user)))
 
 (defrecord DBSessionStore []
   SessionStore
