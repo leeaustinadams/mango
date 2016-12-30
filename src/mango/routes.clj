@@ -327,7 +327,8 @@
 
 (def application (-> routes
                      wrap-user
-                     (wrap-session {:store (DBSessionStore.)})
+;                     (wrap-session {:store (DBSessionStore.)})
+                     wrap-session
                      wrap-cookies
                      wrap-params
                      wrap-multipart-params
