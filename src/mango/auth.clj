@@ -19,7 +19,7 @@
 (defn public-user
   "Remove fields that should never be visible externally"
   [user]
-  (dissoc user :_id :password :salt :provider :email))
+  (dissoc user :_id :password :salt :provider :email :resetPasswordToken :resetPasswordExpires))
 
 (defn private-user
   "Remove fields that should usually not be necessary internally"
