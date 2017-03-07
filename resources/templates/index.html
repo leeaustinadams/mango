@@ -52,6 +52,25 @@
     <!-- Google AdSense -->
     <script src="js/angular-google-adsense.min.js"></script>
 
+    <!-- Twitter Widgets -->
+    <script>window.twttr = (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0],
+      t = window.twttr || {};
+      if (d.getElementById(id)) return t;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "https://platform.twitter.com/widgets.js";
+      fjs.parentNode.insertBefore(js, fjs);
+
+      t._e = [];
+      t.ready = function(f) {
+      t._e.push(f);
+      };
+
+      return t;
+      }(document, "script", "twitter-wjs"));
+    </script>
+
   </head>
 
   <!--Embedding The User Object-->
@@ -70,8 +89,7 @@
 
     <!-- Highlight.js -->
     <script src="js/highlight.pack.js"></script>
-    <!-- Twitter Widgets -->
-    <script src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+    <!-- File uploading -->
     <script src="js/ng-file-upload.min.js"></script>
     <!-- Application -->
     <script src="js/mango.js"></script>

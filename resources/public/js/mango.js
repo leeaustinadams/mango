@@ -43,7 +43,7 @@ angular.module('mango', ['ui.router',
         return {
             link: function(scope, element, attr) {
                 var renderTwitterButton = debounce(function() {
-                    if (attr.url) {
+                    if (attr.url && attr.text) {
                         $timeout(function() {
                             element[0].innerHTML = '';
                             twttr.widgets.createShareButton(
@@ -61,6 +61,24 @@ angular.module('mango', ['ui.router',
                 }, 150);
                 attr.$observe('url', renderTwitterButton);
                 attr.$observe('text', renderTwitterButton);
+            }
+        }
+    }])
+    .directive('follow', ['$timeout', function($timeout) {
+        return {
+            link: function(scope, element, attr) {
+                var renderTwitterFollow = debounce(function() {
+                    if (attr.text) {
+                        $timeout(function() {
+                            element[0].innerHTML = '';
+                            twttr.widgets.createFollowButton(
+                                attr.text,
+                                element[0],
+                                {});
+                        });
+                    }
+                }, 150);
+                attr.$observe('text', renderTwitterFollow);
             }
         }
     }])
