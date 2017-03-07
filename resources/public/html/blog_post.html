@@ -1,6 +1,6 @@
 <md-content class="md-padding">
   <div ncy-breadcrumb></div>
-  <div flex layout="column" layout-align="space-around center">
+  <div flex layout="column">
     <form name="articleForm" action="/blog/post" enctype="multipart/form-data">
 	  <md-input-container class="md-block">
 	    <label>Title</label>
@@ -13,6 +13,10 @@
 	    <label>Description</label>
 	    <textarea name="description" ng-model="article.description"></textarea>
 	  </md-input-container>
+      <md-input-container class="md-block">
+        <label>Tags</label>
+        <input name="tags" type="text" ng-model="article.tags" placeholder="separate multiple tags with commas">
+      </md-input-container>
 	  <md-input-container class="md-block">
 	    <label>Content</label>
 	    <textarea name="content" ng-model="article.content" rows="10" required></textarea>
@@ -21,23 +25,22 @@
         </div>
         <div class="md-resize-handle" style="touch-action: pan-y;"></div>
 	  </md-input-container>
-      <md-input-container class="md-block">
-        <label>Created</label>
-        <input name="created" type="datetime-local" ng-model="article.created">
-      </md-input-container>
-      <md-input-container class="md-block">
-        <label>Tags</label>
-        <input name="tags" type="text" ng-model="article.tags" placeholder="separate multiple tags with commas">
-      </md-input-container>
+      <div layout-gt-sm="row">
+        <md-input-container class="md-block">
+          <label>Created</label>
+          <input name="created" type="datetime-local" ng-model="article.created">
+        </md-input-container>
+        <md-input-container class="md-block">
+          <label>Status</label>
+          <md-select name="status" ng-model="article.status">
+            <md-option value="draft">Draft</md-option>
+            <md-option value="published">Published</md-option>
+            <md-option value="trash">Delete</md-option>
+          </md-select>
+        </md-input-container>
+      </div>
       <md-input-container class="md-block">
         <md-button class="md-raised" name="files" type="file" ngf-select ng-model="files" ngf-multiple="true">Media</md-button>
-      </md-input-container>
-      <md-input-container class="md-block">
-        <md-select name="status" ng-model="article.status">
-          <md-option value="draft">Draft</md-option>
-          <md-option value="published">Published</md-option>
-          <md-option value="trash">Delete</md-option>
-        </md-select>
       </md-input-container>
       <md-button class="md-raised" ng-click="post()">Submit</md-button>
       <div ng-show="error" class="text-danger">
