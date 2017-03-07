@@ -21,7 +21,7 @@ angular.module('mango', ['ui.router',
                          'angular-google-adsense',
                          'ngFileUpload',
                          'ncy-angular-breadcrumb'])
-    .directive('highlight', function () {
+    .directive('articleContent', function () {
         return {
             replace: false,
             scope: {
@@ -31,11 +31,11 @@ angular.module('mango', ['ui.router',
                 scope.$watch('ngBindHtml', function(newValue, oldValue) {
                     element.html(newValue);
                     var items = element[0].querySelectorAll('code,pre');
-                        angular.forEach(items, function (item) {
-                            hljs.highlightBlock(item);
-                        });
-                    }
-                );
+                    angular.forEach(items, function (item) {
+                        hljs.highlightBlock(item);
+                    });
+                    twttr.widgets.load(element);
+                });
             },
         };
     })
