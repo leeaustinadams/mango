@@ -15,7 +15,7 @@
                  [crypto-random "1.2.0"]
                  [crypto-password "0.2.0"]
                  [stencil "0.5.0"]
-                 [markdown-clj "0.9.89"]
+                 [markdown-clj "0.9.97"]
                  [clj-time "0.12.0"]
                  [amazonica "0.3.76"]]
   :profiles {:uberjar {:aot :all}}
