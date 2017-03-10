@@ -100,8 +100,15 @@
 
 (defn insert-user
   "Add a new user record"
-  [username first-name last-name display-name email password roles]
-  (let [user {:username username :first-name first-name :last-name last-name :display-name display-name :email email :password password :roles roles}]
+  [username first-name last-name display-name email twitter-handle password roles]
+  (let [user {:username username
+              :first-name first-name
+              :last-name last-name
+              :display-name display-name
+              :email email
+              :twitter-handle twitter-handle
+              :password password
+              :roles roles}]
     (mc/insert-and-return DB config/db-users-collection user)))
 
 (defn update-user

@@ -17,19 +17,19 @@ html, body {
 }
 
 .article-byline {
-    margin: 2px 0px 2px 0px;
+    margin: 12px 0px 12px 0px;
 }
 
 .article-infoline {
-    margin: 2px 0px 2px 0px;
+    margin: 12px 0px 12px 0px;
 }
 
 .article-tagsline {
-    margin: 2px 0px 2px 0px;
+    margin: 12px 0px 12px 0px;
 }
 
 .tags {
-  margin: 2px 0 2px 0;
+  margin: 12px 0 12px 0;
   list-style: none;
   -webkit-padding-start: 0;
   -webkit-border-radius: 4px;

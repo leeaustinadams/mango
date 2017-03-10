@@ -513,7 +513,7 @@ angular.module('mango', ['ui.router',
         }).state({
             name: 'me',
             url: '/me',
-            templateUrl: '/html/user.html',
+            templateUrl: '/html/user_view.html',
             controller: 'UserController',
             resolve: {
                 params: function() {
