@@ -25,4 +25,4 @@ Built with
 
 ## License
 
-Copyright © 2016 Lee Austin Adams
+Copyright © 2016-2017 Lee Austin Adams
