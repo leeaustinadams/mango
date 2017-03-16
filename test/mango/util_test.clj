@@ -1,6 +1,7 @@
 (ns mango.util-test
   (:require [clojure.test :refer :all]
-            [mango.util :refer :all]))
+            [mango.util :refer :all])
+  (:import org.bson.types.ObjectId))
 
 (deftest slugify-without-limits-test
   (is (= "test" (slugify "test")))

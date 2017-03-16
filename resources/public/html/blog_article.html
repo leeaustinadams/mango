@@ -1,6 +1,6 @@
 <div class="mango" layout="column" layout-align="space-around" ng-cloak>
   <div ncy-breadcrumb></div>
-  <adsense ng-cloak ad-client="ca-pub-8004927313720287" ad-slot="5968146561" inline-style="display:block;" ad-format="auto"></adsense>
+  <adsense ng-if="article.status != 'draft'" ng-cloak ad-client="ca-pub-8004927313720287" ad-slot="5968146561" inline-style="display:block;" ad-format="auto"></adsense>
   <page-title>{{article.title}}</page-title>
   <md-content>
     <h1 class="md-headline">{{article.title}}</h1>

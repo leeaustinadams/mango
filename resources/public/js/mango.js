@@ -198,6 +198,7 @@ angular.module('mango', ['ui.router',
     })
     .controller('BlogArticlesController', function($scope, $state, BlogArticles, Authentication, Authorization, params) {
         $scope.$state = $state;
+        $scope.mode = params.mode;
 
         $scope.authentication = Authentication;
         $scope.authorization = Authorization;
@@ -206,7 +207,7 @@ angular.module('mango', ['ui.router',
             $state.go('landing');
         };
 
-        if (params.mode == "drafts") {
+        if ($scope.mode == "drafts") {
             $scope.articles = BlogArticles.drafts(function(articles) {
             }, errorHandler);
             $scope.article_click = function(article_id) {
@@ -214,7 +215,7 @@ angular.module('mango', ['ui.router',
             }
             $scope.subheader = "Drafts";
         } else {
-            if (params.mode == "tagged") {
+            if ($scope.mode == "tagged") {
                 $scope.articles = BlogArticles.tagged({tag: params.tag}, function(articles) {
                 }, errorHandler);
                 $scope.subheader = "Tagged \"" + params.tag + "\"";
@@ -238,6 +239,7 @@ angular.module('mango', ['ui.router',
     .controller('BlogArticleController', function($scope, $state, Authentication, BlogArticle, Upload, params) {
         $scope.$state = $state;
         $scope.authentication = Authentication;
+        $scope.mode = params.mode;
 
         $scope.edit = function() {
             $state.go('edit', {id: params.id});
@@ -292,7 +294,7 @@ angular.module('mango', ['ui.router',
         }
 
         $scope.postArticle = function(article) {
-            if (params.mode == "edit") {
+            if ($scope.mode == "edit") {
                 article.$edit(function(response) {
                     $scope.resetArticle();
                     $state.go('article', {id: response._id});
@@ -337,9 +339,10 @@ angular.module('mango', ['ui.router',
     })
     .controller('UserController', function($scope, $state, User, Authentication, params) {
         $scope.name = 'UserController';
+        $scope.mode = params.mode;
 
         $scope.authentication = Authentication;
-        if (params.mode == 'me') {
+        if ($scope.mode == 'me') {
             $scope.user = Authentication.user;
         }
 
