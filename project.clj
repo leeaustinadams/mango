@@ -17,8 +17,12 @@
                  [stencil "0.5.0"]
                  [markdown-clj "0.9.97"]
                  [clj-time "0.12.0"]
-                 [amazonica "0.3.76"]]
-  :profiles {:uberjar {:aot :all}}
+                 [amazonica "0.3.76"]
+                 [yogthos/config "0.8"]]
+  :profiles {
+             :dev {:resource-paths ["config/dev"]}
+             :prod {:resource-paths ["config/prod"]}
+             :uberjar {:aot :all}}
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
