@@ -62,27 +62,25 @@
 
 (defn json-failure
   "A JSON response for a failure. Generates JSON from the obj passed in"
-  [code obj]
-  {
-   :status code
-   :headers {"Content-Type" "application/json"}
-   :body (generate-string obj)})
+  [code obj & rest]
+  (reduce merge {
+                 :status code
+                 :headers {"Content-Type" "application/json"}
+                 :body (generate-string obj)}
+          rest))
 
-(defn html-success
-  "An HTML response for a success (200)."
-  [body]
-  {
-   :status 200
-   :headers {"Content-Type" "text/html"}
-   :body body})
-
-(defn html-failure
-  "An HTML response for a failure."
+(defn html-response
+  "An HTML response with code."
   [code body]
   {
    :status code
    :headers {"Content-Type" "text/html"}
    :body body})
+
+(defn html-success
+  "An HTML response for a success (200)."
+  [body]
+  (html-response 200 body))
 
 (defn parse-file-keys
   "Returns a collection of keys for files"
@@ -127,10 +125,8 @@
   "If the user-agent is a crawler, renders an appropriate response for a hydrated article"
   [article user-agent url]
   (let [hydrated-article (hydrate/media (hydrate/content article))]
-    (cond
-      (str/includes? user-agent "Twitterbot") (html-success (pages/article-for-bots hydrated-article url))
-      (str/includes? user-agent "facebookexternalhit/1.1") (html-success (pages/article-for-bots hydrated-article url))
-      (str/includes? user-agent "Googlebot") (html-success (pages/article-for-bots hydrated-article url)))))
+    (when (some (partial str/includes? user-agent) '("Twitterbot" "facebookexternalhit/1.1" "Googlebot"))
+      (html-success (pages/article-for-bots hydrated-article url)))))
 
 (defn html-index
   [user]
