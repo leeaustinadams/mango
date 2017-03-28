@@ -1,5 +1,5 @@
 {
- :db-name "4d4ms-mean"
+ :db-name "4d4ms"
  :db-article-collection "blogarticles"
  :db-media-collection "blogmedia"
  :db-users-collection "users"

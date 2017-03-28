@@ -9,8 +9,6 @@
   (:import [com.mongodb MongoOptions ServerAddress])
   (:import org.bson.types.ObjectId))
 
-;; (def conn (mg/connect))
-;; (def DB (mg/get-db conn config/db-name))
 (def conn (atom ()))
 (def DB (atom ()))
 
