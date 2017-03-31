@@ -22,7 +22,9 @@
   :profiles {
              :dev {:resource-paths ["config/dev"]}
              :prod {:resource-paths ["config/prod"]}
-             :uberjar {:aot :all}}
+             :uberjar {:aot :all}
+             :repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}
+             }
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
