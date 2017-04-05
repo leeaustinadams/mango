@@ -172,7 +172,7 @@
           (let [user-id (:_id user)
                 article (sanitize-article params)]
             (json-success (db/insert-blog-article article user-id)))
-          (json-failure 403 nil)))
+          (json-failure 403 {:message "Forbidden"})))
 
   ;; Updating an existing article
   (POST "/blog/articles/:id.json" {user :user params :params}
@@ -222,7 +222,7 @@
          (let [page (if page (Integer. page) 1)
                per-page (if per-page (Integer. per-page) 10)]
            (json-success (map auth/public-user (db/users :page page :per-page per-page))))
-         (json-failure 403 nil)))
+         (json-failure 403 {:message "Forbidden"})))
 
   ;; JSON payload of current authenticated user
   (GET "/users/me.json" {user :user}
