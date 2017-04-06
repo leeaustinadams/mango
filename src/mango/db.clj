@@ -18,15 +18,20 @@
   (reset! conn (mg/connect))
   (reset! DB (mg/get-db @conn config/db-name)))
 
+(defn blog-articles-count
+  "Query the number of articles that are published"
+  [status]
+  (mc/count @DB config/db-article-collection {:status status}))
+
 (defn blog-articles
   "Query all blog articles that are published"
-  [& {:keys [page per-page]}]
-  (mq/with-collection @DB config/db-article-collection
-    (mq/find {:status "published"})
-    (mq/sort {:created -1})
-    (mq/paginate :page page :per-page per-page)
-))
-    
+  [status & {:keys [page per-page tagged]}]
+  (let [query (merge {:status status} (when (not (nil? tagged)) {:tags {$in [tagged]}}))]
+    (mq/with-collection @DB config/db-article-collection
+      (mq/find query)
+      (mq/sort {:created -1})
+      (mq/paginate :page page :per-page per-page))))
+
 (defn blog-article
   "Query a single blog article by id"
   [id & {:keys [status]}]
@@ -36,23 +41,6 @@
   "Query a single blog article by slug"
   [slug & {:keys [status]}]
   (mc/find-one-as-map @DB config/db-article-collection {$and [{:slug slug}, {:status {$in status}}]}))
-
-(defn blog-articles-by-tag
-  "Query for articles tagged with tag"
-  [tag & {:keys [page per-page]}]
-  (println (str "tag: " tag " page: " page " per-page: " per-page))
-  (mq/with-collection @DB config/db-article-collection
-    (mq/find {:status "published" :tags {$in [tag]}})
-    (mq/sort {:created -1})
-    (mq/paginate :page page :per-page per-page)))
-  
-(defn blog-drafts
-  "Query all blog articles that are drafts"
-  [& {:keys [page per-page]}]
-  (mq/with-collection @DB config/db-article-collection
-    (mq/find {:status "draft"})
-    (mq/sort {:created -1})
-    (mq/paginate :page page :per-page per-page)))
 
 (defn blog-draft
   "Query a single draft blog article by id"

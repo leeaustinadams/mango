@@ -139,20 +139,26 @@
 
   ;; Generates sitemap from articles
   (GET "/sitemap.txt" {}
-       (let [urls (mapv #(str (or (:slug %) (:_id %))) (db/blog-articles :page 1 :per-page 100))]
+       (let [urls (mapv #(str (or (:slug %) (:_id %))) (db/blog-articles "published" :page 1 :per-page 100))]
          {
           :status 200
           :headers {"Content-Type" "text/plain"}
           :body (pages/sitemap urls)
           }))
 
-  ;; JSON payload for a collection of articles
-  (GET "/blog/articles.json" {user :user {:strs [page per-page]} :query-params}
-       (json-success (hydrate/articles db/blog-articles page per-page)))
+  (GET "/blog/count.json" {user :user}
+       (json-success {:count (db/blog-articles-count "published")}))
 
-  ;; JSON payload for a collection of articles with specified tag
-  (GET "/blog/tagged/:tag.json" {user :user {:keys [tag]} :params {:strs [ page per-page]} :query-params}
-       (json-success (hydrate/articles (partial db/blog-articles-by-tag tag) page per-page)))
+  (GET "/blog/drafts/count.json" {user :user}
+       (if (auth/editor? user)
+         (json-success {:count (db/blog-articles-count "draft")})
+         (json-failure 403 {:message "Forbidden"})))
+
+  ;; JSON payload for a collection of articles
+  (GET "/blog/articles.json" {user :user {:strs [page per-page tagged]} :query-params}
+       (let [page (if page (Integer. page) 1)
+             per-page (if per-page (Integer. per-page) 10)]
+         (json-success (hydrate/articles (db/blog-articles "published" :page page :per-page per-page :tagged tagged)))))
 
   ;; JSON payload for an article e.g. /blog/articles/1234.json
   (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params}
@@ -180,9 +186,9 @@
           (let [user-id (:_id user)
                 article (sanitize-article params)]
             (json-success (db/update-blog-article article user-id)))
-          (json-failure 403 nil)))
+          (json-failure 403 {:message "Forbidden"})))
 
-  (POST "/blog/media" {user :user params :params}
+  (POST "/blog/media.json" {user :user params :params}
         (if (auth/editor? user)
           (let [files (parse-files params)
                 user-id (:_id user)
@@ -193,10 +199,12 @@
             (json-success media-ids))))
 
   ;; JSON payload for a collection of drafts
-  (GET "/blog/drafts.json" {user :user {:strs [page per-page]} :query-params}
+  (GET "/blog/drafts/articles.json" {user :user {:strs [page per-page tagged]} :query-params}
        (if (auth/editor? user)
-         (json-success (hydrate/articles db/blog-drafts page per-page))
-         (json-failure 403 nil)))
+         (let [page (if page (Integer. page) 1)
+               per-page (if per-page (Integer. per-page) 10)]
+           (json-success (hydrate/articles (db/blog-articles "draft" :page page :per-page per-page :tagged tagged))))
+         (json-failure 403 {:message "Forbidden"})))
 
   ;; Crawler specific route for an article e.g. /blog/1234
   (GET "/blog/:id{[0-9a-f]+}" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}

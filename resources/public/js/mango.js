@@ -137,12 +137,12 @@ angular.module('mango', ['ui.router',
                                   }, {
                                       drafts: {
                                           method: 'GET',
-                                          url: '/blog/drafts.json?per-page=12',
+                                          url: '/blog/drafts/articles.json?per-page=12',
                                           isArray: true
                                       },
                                       tagged: {
                                           method: 'GET',
-                                          url: '/blog/tagged/:tag.json?per-page=12',
+                                          url: '/blog/articles.json?tagged=:tag&per-page=12',
                                           isArray: true
                                       }
                                   });
