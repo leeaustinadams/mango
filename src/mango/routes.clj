@@ -35,8 +35,8 @@
         created (xform-time (:created article))
         tags (xform-tags (:tags article))]
     (merge article
-           (when (not (nil? media)) {:media media})
-           (when (not (nil? created)) {:created created})
+           (when media {:media media})
+           (when created {:created created})
            {:slug (slugify (:title article) :limit 5)}
            {:tags tags})))
 

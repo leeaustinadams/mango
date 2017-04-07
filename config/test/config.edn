@@ -1,0 +1,18 @@
+{
+ :db-name "4d4ms-test"
+ :db-article-collection "blogarticles"
+ :db-media-collection "blogmedia"
+ :db-users-collection "users"
+ :db-sessions-collection "sessions"
+ :db-log-collection "logevents"
+ :site-title "TEST - Lee Austin Adams - TEST"
+ :site-description "TEST - Lee's Website - TEST"
+ :twitter-site-handle "@test"
+ :twitter-creator-handle "@test"
+ :admin-email "admin@4d4ms.com"
+ :mango-version "0.1.9-test"
+ :port 8080
+ ;; :aws-credentials {:access-key (:aws-access-key env)
+ ;;                   :secret-key (:aws-secret-key env)
+ ;;                   :endpoint (:aws-endpoint env)}
+ :aws-media-bucket "4d4ms-test"}

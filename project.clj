@@ -22,6 +22,7 @@
   :profiles {
              :dev {:resource-paths ["config/dev"]}
              :prod {:resource-paths ["config/prod"]}
+             :test {:resource-paths ["config/test"]}
              :uberjar {:aot :all}
              :repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}
              }

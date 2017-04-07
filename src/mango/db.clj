@@ -18,6 +18,13 @@
   (reset! conn (mg/connect))
   (reset! DB (mg/get-db @conn config/db-name)))
 
+(defn terminate
+  "Terminate the database"
+  []
+  (mg/disconnect @conn)
+  (reset! DB nil)
+  (reset! conn nil))
+
 (defn blog-articles-count
   "Query the number of articles that are published"
   [status]
@@ -26,7 +33,7 @@
 (defn blog-articles
   "Query all blog articles that are published"
   [status & {:keys [page per-page tagged]}]
-  (let [query (merge {:status status} (when (not (nil? tagged)) {:tags {$in [tagged]}}))]
+  (let [query (merge {:status status} (when tagged {:tags {$in [tagged]}}))]
     (mq/with-collection @DB config/db-article-collection
       (mq/find query)
       (mq/sort {:created -1})
@@ -41,11 +48,6 @@
   "Query a single blog article by slug"
   [slug & {:keys [status]}]
   (mc/find-one-as-map @DB config/db-article-collection {$and [{:slug slug}, {:status {$in status}}]}))
-
-(defn blog-draft
-  "Query a single draft blog article by id"
-  [id]
-  (mc/find-one-as-map @DB config/db-article-collection {$and [ {:_id (ObjectId. id)} {:status "draft"} ] }))
 
 (defn insert-blog-article
   "Adds a single blog article"
