@@ -44,7 +44,7 @@ angular.module('mango', ['ui.router',
             link: function (scope, element, attrs) {
                 scope.$watch('ngBindHtml', function(newValue, oldValue) {
                     element.html(newValue);
-                    var items = element[0].querySelectorAll('code,pre');
+                    var items = element[0].querySelectorAll('code');
                     angular.forEach(items, function (item) {
                         hljs.highlightBlock(item);
                     });
