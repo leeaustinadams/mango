@@ -287,7 +287,7 @@ angular.module('mango', ['ui.router',
 
             if ($scope.files && $scope.files.length) {
                 Upload.upload({
-                    url: 'blog/media',
+                    url: 'blog/media.json',
                     data: {files: $scope.files}
                 }).then(function (response) {
                     console.log('Success Response: ' + response.data);

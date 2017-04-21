@@ -18,3 +18,4 @@
                       :secret-key (:aws-secret-key env)
                       :endpoint (:aws-endpoint env)})
 (def aws-media-bucket (:aws-media-bucket env))
+(def aws-media-bucket-region (:aws-region env))

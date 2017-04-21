@@ -1,18 +1,17 @@
 {
- :db-name "4d4ms-dev"
- :db-article-collection "blogarticles"
- :db-media-collection "blogmedia"
- :db-users-collection "users"
- :db-sessions-collection "sessions"
- :db-log-collection "logevents"
- :site-title "DEV - Lee Austin Adams - DEV"
- :site-description "DEV - Lee's Website - DEV"
- :twitter-site-handle "@beamjack"
- :twitter-creator-handle "@beamjack"
- :admin-email "admin@4d4ms.com"
- :mango-version "0.1.9-dev"
- :port 8080
- ;; :aws-credentials {:access-key (:aws-access-key env)
- ;;                   :secret-key (:aws-secret-key env)
- ;;                   :endpoint (:aws-endpoint env)}
- :aws-media-bucket "4d4ms-dev"}
+    :db-name "4d4ms-dev"
+    :db-article-collection "blogarticles"
+    :db-media-collection "blogmedia"
+    :db-users-collection "users"
+    :db-sessions-collection "sessions"
+    :db-log-collection "logevents"
+    :site-title "DEV - Lee Austin Adams - DEV"
+    :site-description "DEV - Lee's Website - DEV"
+    :twitter-site-handle "@beamjack"
+    :twitter-creator-handle "@beamjack"
+    :admin-email "admin@4d4ms.com"
+    :mango-version "0.1.9-dev"
+    :port 8080
+    :aws-media-bucket "4d4ms-dev"
+    :aws-region "us-west-1"
+}

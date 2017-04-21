@@ -112,7 +112,7 @@
   "Uploads files to storage"
   [files]
   (doseq [file files]
-    (storage/upload (:filename file) (:tempfile file) (:content-type file))))
+    (storage/upload config/aws-media-bucket (str "blog/" (:filename file)) (:tempfile file) (:content-type file))))
 
 (defn article-response
   "Renders a response for a hydrated article"
