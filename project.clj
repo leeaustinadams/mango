@@ -1,4 +1,4 @@
-(defproject mango "0.1.11"
+(defproject mango "0.1.12-SNAPSHOT"
   :description "Lee's Website"
   :url "http://www.4d4ms.com"
   :license {:name "Eclipse Public License"
