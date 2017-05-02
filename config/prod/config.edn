@@ -10,7 +10,7 @@
     :twitter-site-handle "@beamjack"
     :twitter-creator-handle "@beamjack"
     :admin-email "admin@4d4ms.com"
-    :mango-version "0.1.9"
+    :mango-version "0.1.13"
     :port 8080
     :aws-media-bucket "4d4ms"
     :aws-region "us-west-1"
