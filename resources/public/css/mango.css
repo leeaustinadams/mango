@@ -173,3 +173,8 @@ blockquote:before {
 blockquote p {
   display: inline;
 }
+
+img[src*="cdn.4d4ms.com"] {
+    max-width: 100%;
+    height: auto;
+}
