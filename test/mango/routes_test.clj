@@ -5,13 +5,28 @@
 (def json-headers {"Content-Type" "application/json"})
 
 (deftest test-json-success
-  (is (= (json-success nil) {:status 200 :headers json-headers :body "null"}))
-  (is (= (json-success {:foo "bar"}) {:status 200 :headers json-headers :body "{\"foo\":\"bar\"}"}))
-  (is (= (json-success {:foo "bar"} {:other "thing"}) {:status 200 :headers json-headers :body "{\"foo\":\"bar\"}" :other "thing"})))
+  (is (= (json-success nil)
+         {:status 200 :headers json-headers :body "null"}))
+  (is (= (json-success {:foo "bar"})
+         {:status 200
+          :headers json-headers
+          :body "{\"foo\":\"bar\"}"}))
+  (is (= (json-success {:foo "bar"} {:other "thing"})
+         {:status 200
+          :headers json-headers
+          :body "{\"foo\":\"bar\"}"
+          :other "thing"})))
 
 (deftest test-json-failure
-  (is (= (json-failure 404 {:message "not found"}) {:status 404 :headers json-headers :body "{\"message\":\"not found\"}"}))
-  (is (= (json-failure 401 {:message "unauthorized"} {:other "thing"}) {:status 401 :headers json-headers :body "{\"message\":\"unauthorized\"}" :other "thing"})))
+  (is (= (json-failure 404 {:message "not found"})
+         {:status 404
+          :headers json-headers
+          :body "{\"message\":\"not found\"}"}))
+  (is (= (json-failure 401 {:message "unauthorized"} {:other "thing"})
+         {:status 401
+          :headers json-headers
+          :body "{\"message\":\"unauthorized\"}"
+          :other "thing"})))
 
 (def html-headers {"Content-Type" "text/html"})
 

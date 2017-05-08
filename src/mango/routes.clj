@@ -25,6 +25,13 @@
             [mango.util :refer [slugify xform-ids xform-tags xform-time]])
   (:gen-class))
 
+(deftype DBDataProvider []
+  mango.hydrate/DataProvider
+  (media-by-ids [this ids] (db/blog-media-by-ids ids))
+  (user-by-id [this id] (db/user-by-id id)))
+
+(def db-data-provider (DBDataProvider.))
+
 (defn sanitize-article
   "Cleans and prepares an article from parameters posted"
   [params]
@@ -118,13 +125,13 @@
   "Renders a response for a hydrated article"
   [article]
   (if (not (empty? article))
-    (json-success (hydrate/media (hydrate/user (hydrate/content article))))
+    (json-success (hydrate/article db-data-provider article))
     (json-failure 404 {:msg "Not found"})))
 
 (defn crawler-article-response
   "If the user-agent is a crawler, renders an appropriate response for a hydrated article"
   [article user-agent url]
-  (let [hydrated-article (hydrate/media (hydrate/content article))]
+  (let [hydrated-article (hydrate/article db-data-provider article)]
     (when (some (partial str/includes? user-agent) '("Twitterbot" "facebookexternalhit/1.1" "Googlebot"))
       (html-success (pages/article-for-bots hydrated-article url)))))
 
@@ -158,7 +165,7 @@
   (GET "/blog/articles.json" {user :user {:strs [page per-page tagged]} :query-params}
        (let [page (if page (Integer. page) 1)
              per-page (if per-page (Integer. per-page) 10)]
-         (json-success (hydrate/articles (db/blog-articles "published" :page page :per-page per-page :tagged tagged)))))
+         (json-success (hydrate/articles db-data-provider (db/blog-articles "published" :page page :per-page per-page :tagged tagged)))))
 
   ;; JSON payload for an article e.g. /blog/articles/1234.json
   (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params}
@@ -203,7 +210,7 @@
        (if (auth/editor? user)
          (let [page (if page (Integer. page) 1)
                per-page (if per-page (Integer. per-page) 10)]
-           (json-success (hydrate/articles (db/blog-articles "draft" :page page :per-page per-page :tagged tagged))))
+           (json-success (hydrate/articles db-data-provider (db/blog-articles "draft" :page page :per-page per-page :tagged tagged))))
          (json-failure 403 {:message "Forbidden"})))
 
   ;; Crawler specific route for an article e.g. /blog/1234

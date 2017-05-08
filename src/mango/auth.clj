@@ -10,7 +10,7 @@
   (when-let [user (db/user-by-username username)]
     (let [encrypted-password (:password user)]
       (when (and (not (nil? encrypted-password)) (password/check password encrypted-password)) user))))
-    
+
 (defn update-user-password
   "Add/replace the :password field with its encrypted form of password"
   [user password]

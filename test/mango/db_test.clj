@@ -1,4 +1,4 @@
-(ns mango.db-test
+(ns ^:integration mango.db-test
   (:require [clojure.test :refer :all]
             [monger.db :as mdb]
             [mango.db :as db]

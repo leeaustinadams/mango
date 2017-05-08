@@ -32,4 +32,6 @@
                   ["vcs" "tag"]
                   ["change" "version" "leiningen.release/bump-version"]
                   ["vcs" "commit"]]
+  :test-selectors {:default (complement :integration)
+                   :integration :integration}
   :main mango.core)
