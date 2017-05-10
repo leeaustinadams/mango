@@ -2,19 +2,15 @@
   (:require
             [markdown.core :as md]
             [mango.auth :as auth]
-            [mango.db :as db])
+            [mango.dataprovider :as dp])
   (:gen-class))
-
-(defprotocol DataProvider
-  (media-by-ids [this ids])
-  (user-by-id [this id]))
 
 (defn media
   "Hydrates the media collection of x"
   [data-provider x]
   (let [media-ids (:media x)]
     (if (not (nil? media-ids))
-      (assoc x :media (media-by-ids data-provider media-ids))
+      (assoc x :media (dp/media-by-ids data-provider media-ids))
       x)))
 
 (defn user
@@ -22,7 +18,7 @@
   [data-provider x]
   (let [user-id (:user x)]
     (if (not (nil? user-id))
-      (assoc x :user (auth/public-user (user-by-id data-provider user-id)))
+      (assoc x :user (auth/public-user (dp/user-by-id data-provider user-id)))
       x)))
 
 (defn content

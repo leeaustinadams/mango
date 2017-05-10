@@ -19,18 +19,12 @@
             [mango.auth :as auth]
             [mango.config :as config]
             [mango.db :as db]
+            [mango.dataprovider :as dp]
             [mango.hydrate :as hydrate]
             [mango.pages :as pages]
             [mango.storage :as storage]
             [mango.util :refer [slugify xform-ids xform-tags xform-time]])
   (:gen-class))
-
-(deftype DBDataProvider []
-  mango.hydrate/DataProvider
-  (media-by-ids [this ids] (db/blog-media-by-ids ids))
-  (user-by-id [this id] (db/user-by-id id)))
-
-(def db-data-provider (DBDataProvider.))
 
 (defn sanitize-article
   "Cleans and prepares an article from parameters posted"
@@ -49,13 +43,13 @@
 
 (defn accum-media
   "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
-  [files user-id]
+  [data-provider files user-id]
   (loop [files files
          media '()]
     (let [file (first files)]
       (if (nil? file)
         media
-        (let [m (db/insert-blog-media {:src (:filename file)} user-id)]
+        (let [m (dp/insert-blog-media data-provider {:src (:filename file)} user-id)]
           (recur (rest files) (conj media (:_id m))))))))
 
 (defn json-success
@@ -123,130 +117,200 @@
 
 (defn article-response
   "Renders a response for a hydrated article"
-  [article]
+  [data-provider article]
   (if (not (empty? article))
-    (json-success (hydrate/article db-data-provider article))
+    (json-success (hydrate/article data-provider article))
     (json-failure 404 {:msg "Not found"})))
-
-(defn crawler-article-response
-  "If the user-agent is a crawler, renders an appropriate response for a hydrated article"
-  [article user-agent url]
-  (let [hydrated-article (hydrate/article db-data-provider article)]
-    (when (some (partial str/includes? user-agent) '("Twitterbot" "facebookexternalhit/1.1" "Googlebot"))
-      (html-success (pages/article-for-bots hydrated-article url)))))
 
 (defn html-index
   [user]
   (pages/index (json/write-str (auth/public-user user))))
+
+(defn sitemap
+  "Route handler for the sitemap.txt response"
+  [data-provider]
+  (let [urls (mapv #(str (or (:slug %) (:_id %))) (dp/blog-articles data-provider "published" {:page 1 :per-page 100}))]
+    {
+     :status 200
+     :headers {"Content-Type" "text/plain"}
+     :body (pages/sitemap urls)
+     }))
+
+(defn article-count
+  "Route handler for total published article count"
+  [data-provider ]
+  (json-success {:count (dp/blog-articles-count data-provider "published")}))
+
+(defn draft-article-count
+  "Route handler for total draft article count"
+  [data-provider user]
+  (if (auth/editor? user)
+    (json-success {:count (dp/blog-articles-count data-provider "draft")})
+    (json-failure 403 {:message "Forbidden"})))
+
+(defn published
+  "Route handler for a page worth of articles"
+  [data-provider user page per-page tagged]
+  (let [page (if page (Integer. page) 1)
+        per-page (if per-page (Integer. per-page) 10)]
+    (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "published" {:page page :per-page per-page :tagged tagged})))))
+
+(defn drafts
+  "Route handler for a page worth of drafts"
+  [data-provider user page per-page tagged]
+  (if (auth/editor? user)
+    (let [page (if page (Integer. page) 1)
+          per-page (if per-page (Integer. per-page) 10)]
+      (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "draft" {:page page :per-page per-page :tagged tagged}))))
+    (json-failure 403 {:message "Forbidden"})))
+
+(defn article-by-id
+  "Route handler for a single article by its id"
+  [data-provider user id]
+  (let [status ["published" (when (auth/editor? user) "draft")]
+        article (dp/blog-article-by-id data-provider id {:status status})]
+    (article-response data-provider  article)))
+
+(defn article-by-slug
+  "Route handler for a single article by slug"
+  [data-provider user slug]
+  (let [status ["published" (when (auth/editor? user) "draft")]
+        article (dp/blog-article-by-slug data-provider slug {:status status})]
+    (article-response data-provider article)))
+
+(defn post-article
+  "Route handler for posting an article"
+  [data-provider user params]
+  (if (auth/editor? user)
+    (let [user-id (:_id user)
+          article (sanitize-article params)]
+      (json-success (dp/insert-blog-article data-provider article user-id)))
+    (json-failure 403 {:message "Forbidden"})))
+
+(defn update-article
+  "Route handler for updating an existing article"
+  [data-provider user params]
+  (if (auth/editor? user)
+    (let [user-id (:_id user)
+          article (sanitize-article params)]
+      (json-success (dp/update-blog-article data-provider article user-id)))
+    (json-failure 403 {:message "Forbidden"})))
+
+(defn post-media
+  "Route handler for uploading media"
+  [data-provider user params]
+  (if (auth/editor? user)
+    (let [files (parse-files params)
+          user-id (:_id user)
+          media-ids (accum-media data-provider files user-id)]
+      (println "files" files)
+      (println "media-ids" media-ids)
+      (let [result (upload-files files)]
+        (if @result
+          (json-success media-ids)
+          (json-failure 500 {:message "Media upload failed"}))))
+    (json-failure 403 {:message "Forbidden"})))
+
+(defn crawler-article-response
+  "If the user-agent is a crawler, renders an appropriate response for a hydrated article"
+  [data-provider article user-agent url]
+  (let [hydrated-article (hydrate/article data-provider article)]
+    (when (some (partial str/includes? user-agent) '("Twitterbot" "facebookexternalhit/1.1" "Googlebot"))
+      (html-success (pages/article-for-bots hydrated-article url)))))
+
+(defn crawler-article-by-id
+  "Route handler for crawlers to get an article by id"
+  [data-provider user id user-agent request]
+  (when-let [article (dp/blog-article-by-id data-provider id {:status ["published"]})]
+    (crawler-article-response data-provider article user-agent (request-url request))))
+
+(defn crawler-article-by-slug
+  "Route handler for crawlers to get an article by slug"
+  [data-provider user slug user-agent request]
+  (when-let [article (dp/blog-article-by-slug data-provider slug {:status ["published"]})]
+    (crawler-article-response data-provider article user-agent (request-url request))))
+
+(defn list-media
+  "Route handler to list media"
+  [data-provider page per-page]
+  (let [page (if page (Integer. page) 1)
+        per-page (if per-page (Integer. per-page) 10)]
+    (json-success (dp/blog-media data-provider {:page page :per-page per-page}))))
+
+(defn media-by-id
+  "Route handler for a single media description by id"
+  [data-provider id]
+  (json-success (list (dp/blog-media-by-id data-provider id))))
+
+(defn list-users
+  "Route handler for a list of all users"
+  [data-provider user page per-page]
+  (if (auth/admin? user)
+    (let [page (if page (Integer. page) 1)
+          per-page (if per-page (Integer. per-page) 10)]
+      (json-success (map auth/public-user (dp/users data-provider {:page page :per-page per-page}))))
+    (json-failure 403 {:message "Forbidden"})))
+
+(defn me
+  "Route handler for currently logged in user"
+  [user]
+  (json-success user))
+
+(defn user-by-id
+  "Route handler for a single user by id"
+  [data-provider user id]
+  (when (auth/admin? user)
+    (json-success (list (dp/user-by-id data-provider id)))))
+
+(defn signin
+  "Route handler for signing in"
+  [data-provider session username password]
+  (if-let [user (auth/user username password)]
+    (let [sess (assoc session :user (str (:_id user)))]
+      (json-success sess {:session sess}))
+    (json-failure 401  {:msg "Invalid login"})))
+
+(defn signout
+  "Route handler for signing out"
+  [data-provider user session]
+  { :status 200 :session nil })
+
+(defn log-event
+  "Route handler for logging events"
+  [data-provider user errorUrl category event]
+  (json-success (dp/insert-log-event data-provider {:user user :error-url errorUrl :category category :event event})))
 
 (defroutes routes
   (GET "/" {user :user} (html-index user))
   (GET "/blog/drafts" {user :user} (html-index user))
   (GET "/blog/post" {user :user} (html-index user))
 
-  ;; Generates sitemap from articles
-  (GET "/sitemap.txt" {}
-       (let [urls (mapv #(str (or (:slug %) (:_id %))) (db/blog-articles "published" :page 1 :per-page 100))]
-         {
-          :status 200
-          :headers {"Content-Type" "text/plain"}
-          :body (pages/sitemap urls)
-          }))
+  (GET "/sitemap.txt" {} (sitemap db/data-provider))
 
-  (GET "/blog/count.json" {user :user}
-       (json-success {:count (db/blog-articles-count "published")}))
+  (GET "/blog/count.json" {} (article-count db/data-provider))
+  (GET "/blog/drafts/count.json" {user :user} (draft-article-count db/data-provider user))
 
-  (GET "/blog/drafts/count.json" {user :user}
-       (if (auth/editor? user)
-         (json-success {:count (db/blog-articles-count "draft")})
-         (json-failure 403 {:message "Forbidden"})))
-
-  ;; JSON payload for a collection of articles
-  (GET "/blog/articles.json" {user :user {:strs [page per-page tagged]} :query-params}
-       (let [page (if page (Integer. page) 1)
-             per-page (if per-page (Integer. per-page) 10)]
-         (json-success (hydrate/articles db-data-provider (db/blog-articles "published" :page page :per-page per-page :tagged tagged)))))
-
-  ;; JSON payload for an article e.g. /blog/articles/1234.json
-  (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params}
-       (let [status ["published" (when (auth/editor? user) "draft")]
-             article (db/blog-article id :status status)]
-         (article-response article)))
-
+  (GET "/blog/articles.json" {user :user {:strs [page per-page tagged]} :query-params} (published db/data-provider user page per-page tagged))
+  ;; e.g. /blog/articles/1234.json
+  (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (article-by-id db/data-provider user id))
   ;; e.g. /blog/articles/unce-upon-a-time.json
-  (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params}
-       (let [status ["published" (when (auth/editor? user) "draft")]
-             article (db/blog-article-by-slug slug :status status)]
-         (article-response article)))
+  (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (article-by-slug db/data-provider user slug))
 
-  ;; Posting a new article
-  (POST "/blog/articles/post.json" {user :user params :params}
-        (if (auth/editor? user)
-          (let [user-id (:_id user)
-                article (sanitize-article params)]
-            (json-success (db/insert-blog-article article user-id)))
-          (json-failure 403 {:message "Forbidden"})))
+  (POST "/blog/articles/post.json" {user :user params :params} (post-article db/data-provider user params))
+  (POST "/blog/articles/:id.json" {user :user params :params} (update-article db/data-provider user params))
+  (POST "/blog/media.json" {user :user params :params} (post-media db/data-provider user params))
 
-  ;; Updating an existing article
-  (POST "/blog/articles/:id.json" {user :user params :params}
-        (if (auth/editor? user)
-          (let [user-id (:_id user)
-                article (sanitize-article params)]
-            (json-success (db/update-blog-article article user-id)))
-          (json-failure 403 {:message "Forbidden"})))
+  (GET "/blog/drafts/articles.json" {user :user {:strs [page per-page tagged]} :query-params} (drafts db/data-provider user page per-page tagged))
 
-  (POST "/blog/media.json" {user :user params :params}
-        (if (auth/editor? user)
-          (let [files (parse-files params)
-                user-id (:_id user)
-                media-ids (accum-media files user-id)]
-            (println "files" files)
-            (println "media-ids" media-ids)
-            (upload-files files)
-            (json-success media-ids))))
+  (GET "/blog/:id{[0-9a-f]+}" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request} (crawler-article-by-id db/data-provider user id user-agent request))
+  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request} (crawler-article-by-slug db/data-provider user slug user-agent request))
 
-  ;; JSON payload for a collection of drafts
-  (GET "/blog/drafts/articles.json" {user :user {:strs [page per-page tagged]} :query-params}
-       (if (auth/editor? user)
-         (let [page (if page (Integer. page) 1)
-               per-page (if per-page (Integer. per-page) 10)]
-           (json-success (hydrate/articles db-data-provider (db/blog-articles "draft" :page page :per-page per-page :tagged tagged))))
-         (json-failure 403 {:message "Forbidden"})))
+  (GET "/blog/media.json" {{:strs [page per-page]} :query-params} (list-media db/data-provider page per-page))
+  (GET "/blog/media/:id.json" [id] (media-by-id db/data-provider id))
 
-  ;; Crawler specific route for an article e.g. /blog/1234
-  (GET "/blog/:id{[0-9a-f]+}" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request}
-       (when-let [article (db/blog-article id :status ["published"])]
-         (crawler-article-response article user-agent (request-url request))))
-
-  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
-       (println slug)
-       (when-let [article (db/blog-article-by-slug slug :status ["published"])]
-         (crawler-article-response article user-agent (request-url request))))
-
-  (GET "/blog/media.json" {{:strs [page per-page]} :query-params}
-       (let [page (if page (Integer. page) 1)
-             per-page (if per-page (Integer. per-page) 10)]
-         (json-success (db/blog-media :page page :per-page per-page))))
-
-  (GET "/blog/media/:id.json" [id]
-       (json-success (list (db/blog-media-by-id id))))
-
-  ;; JSON payload of users
-  (GET "/users.json" {{:strs [page per-page]} :query-params user :user}
-       (if (auth/editor? user)
-         (let [page (if page (Integer. page) 1)
-               per-page (if per-page (Integer. per-page) 10)]
-           (json-success (map auth/public-user (db/users :page page :per-page per-page))))
-         (json-failure 403 {:message "Forbidden"})))
-
-  ;; JSON payload of current authenticated user
-  (GET "/users/me.json" {user :user}
-       (json-success user))
-
-  ;; JSON payload of a user by id
-  (GET "/users/:id.json" {user :user {:keys [id]} :params}
-       (when (auth/admin? user)
-         (json-success (list (db/user id)))))
+  (GET "/users.json" {{:strs [page per-page]} :query-params user :user} (list-users db/data-provider user page per-page))
+  (GET "/users/me.json" {user :user} (me db/data-provider user))
+  (GET "/users/:id.json" {user :user {:keys [id]} :params} (user-by-id db/data-provider user id))
 
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})
@@ -266,20 +330,10 @@
   ;; (POST "/auth/signup" []
   ;;       {})
 
-  (POST "/auth/signin" {session :session {:strs [username password]} :params}
-        (if-let [user (auth/user username password)]
-          (let [sess (assoc session :user (str (:_id user)))]
-            (json-success sess {:session sess}))
-          (json-failure 401  {:msg "Invalid login"})))
+  (POST "/auth/signin" {session :session {:strs [username password]} :params} (signin db/data-provider session username password))
+  (POST "/auth/signout" {user :user session :session} (signout db/data-provider user session))
 
-  (POST "/auth/signout" {user :user session :session}
-        {
-         :status 200
-         :session nil
-         })
-
-  (POST "/log/event" {user :user {:strs [errorUrl category event]} :params}
-        (json-success (db/insert-log-event {:user user :error-url errorUrl :category category :event event})))
+  (POST "/log/event" {user :user {:strs [errorUrl category event]} :params} (log-event db/data-provider user errorUrl category event))
 
   (route/resources "/" :root "public")
 
@@ -300,7 +354,7 @@
   [handler & [options]]
   (fn [request]
     (if-let [user-id (-> request :session :user)]
-      (handler (assoc request :user (auth/private-user (db/user user-id))))
+      (handler (assoc request :user (auth/private-user (dp/user-by-id db/data-provider user-id))))
       (handler request))))
 
 ;; Example request

@@ -1,20 +1,32 @@
 (ns mango.fixtures
   (:require [mango.auth :refer [public-user]]
-            [mango.hydrate :refer [DataProvider]]))
+            [mango.dataprovider :refer [DataProvider]]))
 
 (def user {:_id 1234
+           :username "User"
            :password "foo"
            :salt "salty"
            :provider :local
-           :email "test@foo.com"
+           :email "user@foo.com"
            :roles []})
 
 (def editor {:_id 5678
+             :username "Editor"
              :password "bar"
              :salt "salty"
              :provider :local
-             :email "test@bar.com"
+             :email "editor@bar.com"
              :roles ["editor"]})
+
+(def admin {:_id 91011
+            :username "Admin"
+            :password "baz"
+            :salt "salty"
+            :provider :local
+            :email "admin@bar.com"
+            :roles ["admin"]})
+
+(def users {1234 user 5678 editor 91011 admin})
 
 (def article {:content "Hello"
               :media [1 2 3 4]
@@ -35,8 +47,19 @@
                         :media [{:foo 1}, {:foo 2}, {:foo 3}, {:foo 4}]})
 
 (deftype MockDataProvider []
-    mango.hydrate.DataProvider
+  DataProvider
   (media-by-ids [this ids] [{:foo 1}, {:foo 2}, {:foo 3}, {:foo 4}])
-  (user-by-id [this id] (if (= id 1234) user editor)))
+  (blog-media [this options] nil)
+  (blog-media-by-id [this id] nil)
+  (users [this options] (vals users))
+  (user-by-id [this id] (get users id))
+  (insert-blog-media [this media user-id] nil)
+  (blog-articles [this status options] nil)
+  (blog-articles-count [this status] nil)
+  (blog-article-by-id [this id options] nil)
+  (blog-article-by-slug [this slug options] nil)
+  (insert-blog-article [this article user-id] nil)
+  (update-blog-article [this article user-id] nil)
+  (insert-log-event [this event] nil))
 
 (def data-provider (MockDataProvider.))
