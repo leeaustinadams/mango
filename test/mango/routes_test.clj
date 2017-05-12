@@ -4,6 +4,7 @@
             [mango.routes :refer :all]))
 
 (def json-headers {"Content-Type" "application/json"})
+(def html-headers {"Content-Type" "text/html"})
 
 (deftest test-json-success
   (is (= (json-success nil)
@@ -29,23 +30,33 @@
           :body "{\"message\":\"unauthorized\"}"
           :other "thing"})))
 
-(def html-headers {"Content-Type" "text/html"})
+(def forbidden-result (json-failure 403 {:message "Forbidden"}))
 
 (deftest test-html-success
   (is (= (html-success "") {:status 200 :headers html-headers :body ""}))
   (is (= (html-success "<p>foo</p>") {:status 200 :headers html-headers :body "<p>foo</p>"})))
 
-(deftest test-crawler-article-response
-  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "Twitterbot" "http://article"))))
-  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "facebookexternalhit/1.1" "http://article"))))
-  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "Googlebot" "http://article"))))
-  (is (nil? (crawler-article-response fixtures/data-provider "article" "Chrome" "http://article")))
-  (is (nil? (crawler-article-response fixtures/data-provider "article" "" "http://article"))))
+(deftest test-sitemap
+  (is (not (nil? (sitemap fixtures/data-provider)))))
 
-(def forbidden-result (json-failure 403 {:message "Forbidden"}))
+(deftest test-article-count
+  (is (= (article-count fixtures/data-provider)
+         {:status 200,
+          :headers json-headers
+          :body "{\"count\":2}"})))
 
 (deftest test-draft-article-count
-  (is (= (draft-article-count fixtures/data-provider fixtures/user) forbidden-result)))
+  (is (= (draft-article-count fixtures/data-provider fixtures/user) forbidden-result))
+  (is (= (draft-article-count fixtures/data-provider fixtures/editor)
+         {:status 200,
+          :headers json-headers
+          :body "{\"count\":0}"})))
+
+(deftest test-published
+  (is (= (published fixtures/data-provider fixtures/user 1 10 nil)
+         {:status 200
+          :headers json-headers
+          :body "[{\"content\":\"Hello\",\"media\":[{\"_id\":1,\"src\":\"1\"},{\"_id\":2,\"src\":\"2\"}],\"user\":{\"username\":\"User\",\"roles\":[]},\"rendered-content\":\"<p>Hello</p>\"},{\"content\":\"Howdy\",\"media\":[{\"_id\":3,\"src\":\"3\"},{\"_id\":4,\"src\":\"4\"}],\"user\":{\"username\":\"Editor\",\"roles\":[\"editor\"]},\"rendered-content\":\"<p>Howdy</p>\"}]"})))
 
 (deftest test-drafts
   (is (= (drafts fixtures/data-provider fixtures/user 1 10 nil) forbidden-result))
@@ -59,6 +70,13 @@
 
 (deftest test-post-media
   (is (= (post-media fixtures/data-provider fixtures/user {}) forbidden-result)))
+
+(deftest test-crawler-article-response
+  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "Twitterbot" "http://article"))))
+  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "facebookexternalhit/1.1" "http://article"))))
+  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "Googlebot" "http://article"))))
+  (is (nil? (crawler-article-response fixtures/data-provider "article" "Chrome" "http://article")))
+  (is (nil? (crawler-article-response fixtures/data-provider "article" "" "http://article"))))
 
 (deftest test-list-users
   (is (= (list-users fixtures/data-provider fixtures/user 1  10) forbidden-result))

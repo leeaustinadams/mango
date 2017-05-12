@@ -28,34 +28,43 @@
 
 (def users {1234 user 5678 editor 91011 admin})
 
+(def media0 {:_id 0 :src "0"})
+(def media1 {:_id 1 :src "1"})
+(def media2 {:_id 2 :src "2"})
+(def media3 {:_id 3 :src "3"})
+(def media4 {:_id 4 :src "4"})
+(def media [media0 media1 media2 media3 media4])
+
 (def article {:content "Hello"
-              :media [1 2 3 4]
+              :media [1 2]
               :user 1234})
 
 (def hydrated-article {:content "Hello"
                        :rendered-content "<p>Hello</p>"
                        :user (public-user user)
-                       :media [{:foo 1}, {:foo 2}, {:foo 3}, {:foo 4}]})
+                       :media [media1 media2]})
 
 (def article2 {:content "Howdy"
-               :media [5 6 7]
+               :media [3 4]
                :user 5678})
 
 (def hydrated-article2 {:content "Howdy"
                         :rendered-content "<p>Howdy</p>"
                         :user (public-user editor)
-                        :media [{:foo 1}, {:foo 2}, {:foo 3}, {:foo 4}]})
+                        :media [media3 media4]})
+
+(def articles [article article2])
 
 (deftype MockDataProvider []
   DataProvider
-  (media-by-ids [this ids] [{:foo 1}, {:foo 2}, {:foo 3}, {:foo 4}])
+  (media-by-ids [this ids] (for [i ids] (get media i)))
   (blog-media [this options] nil)
   (blog-media-by-id [this id] nil)
   (users [this options] (vals users))
   (user-by-id [this id] (get users id))
   (insert-blog-media [this media user-id] nil)
-  (blog-articles [this status options] nil)
-  (blog-articles-count [this status] nil)
+  (blog-articles [this status options] (if (= status "published") articles nil))
+  (blog-articles-count [this status] (if (= status "published") (count articles) 0))
   (blog-article-by-id [this id options] nil)
   (blog-article-by-slug [this slug options] nil)
   (insert-blog-article [this article user-id] nil)

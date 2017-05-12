@@ -11,7 +11,7 @@
 
 (deftest test-hydrate-media
   (is (= (media fixtures/data-provider {}) {}))
-  (is (= (media fixtures/data-provider {:media [1 2 3 4]}) {:media [{:foo 1}, {:foo 2}, {:foo 3}, {:foo 4}]})))
+  (is (= (media fixtures/data-provider {:media [1 2 3 4]}) {:media [fixtures/media1 fixtures/media2 fixtures/media3 fixtures/media4]})))
 
 (deftest test-hydrate-content
   (is (= (content {}) {}))
