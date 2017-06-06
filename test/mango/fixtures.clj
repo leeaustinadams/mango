@@ -61,6 +61,7 @@
   (blog-media [this options] nil)
   (blog-media-by-id [this id] nil)
   (users [this options] (vals users))
+  (user [this id] (get users id))
   (user-by-id [this id] (get users id))
   (insert-blog-media [this media user-id] nil)
   (blog-articles [this status options] (if (= status "published") articles nil))

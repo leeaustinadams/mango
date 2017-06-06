@@ -260,7 +260,7 @@
   "Route handler for a single user by id"
   [data-provider user id]
   (when (auth/admin? user)
-    (json-success (list (dp/user-by-id data-provider id)))))
+    (json-success (list (dp/user data-provider id)))))
 
 (defn signin
   "Route handler for signing in"
@@ -310,7 +310,7 @@
 
   (GET "/users.json" {{:strs [page per-page]} :query-params user :user} (list-users db/data-provider user page per-page))
   (GET "/users/me.json" {user :user} (me db/data-provider user))
-  (GET "/users/:id.json" {user :user {:keys [id]} :params} (user-by-id db/data-provider user id))
+  (GET "/users/:id.json" {user :user {:keys [id]} :params} (user db/data-provider user id))
 
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})
@@ -354,7 +354,7 @@
   [handler & [options]]
   (fn [request]
     (if-let [user-id (-> request :session :user)]
-      (handler (assoc request :user (auth/private-user (dp/user-by-id db/data-provider user-id))))
+      (handler (assoc request :user (auth/private-user (dp/user db/data-provider user-id))))
       (handler request))))
 
 ;; Example request
@@ -382,7 +382,7 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-  (println (str (select-keys request [:uri :request-method :query-string]) "\n"))
+  (println (str (select-keys request [:session :user :uri :request-method :query-string]) "\n"))
   request)
 
 (defn wrap-logger

@@ -149,6 +149,7 @@
   (blog-media [this options] (blog-media options))
   (blog-media-by-id [this id] (blog-media-by-id id))
   (users [this options] (users options))
+  (user [this id] (user id))
   (user-by-id [this id] (user-by-id id))
   (insert-blog-media [this media user-id] (insert-blog-media media user-id))
   (blog-articles [this status options] (blog-articles status options))

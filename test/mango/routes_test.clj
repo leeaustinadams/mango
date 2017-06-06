@@ -60,7 +60,9 @@
 
 (deftest test-drafts
   (is (= (drafts fixtures/data-provider fixtures/user 1 10 nil) forbidden-result))
-  (is (= (drafts fixtures/data-provider fixtures/user 1 10 "tag") forbidden-result)))
+  (is (= (drafts fixtures/data-provider fixtures/user 1 10 "tag") forbidden-result))
+  (is (not (nil? (drafts fixtures/data-provider fixtures/editor 1 10 nil))))
+  )
 
 (deftest test-post-article
   (is (= (post-article fixtures/data-provider fixtures/user {}) forbidden-result)))
