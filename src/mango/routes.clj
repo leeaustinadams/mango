@@ -392,11 +392,11 @@
     (handler (log-request request options))))
 
 (def application (-> routes
+                     wrap-logger
                      wrap-user
 ;                     (wrap-session {:store (DBSessionStore.)})
                      wrap-session
                      wrap-cookies
                      wrap-params
-                     wrap-multipart-params
-                     wrap-logger))
+                     wrap-multipart-params))
 
