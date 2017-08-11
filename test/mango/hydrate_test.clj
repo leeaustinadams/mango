@@ -17,7 +17,10 @@
   (is (= (content {}) {}))
   (is (= (content {:content "Hi"})
          {:content "Hi"
-          :rendered-content "<p>Hi</p>"})))
+          :rendered-content "<p>Hi</p>"}))
+  (is (= (content {:content "```asm\nmov #0x19, r13\n```"})
+         {:content "```asm\nmov #0x19, r13\n```"
+          :rendered-content "<pre><code class=\"asm\">mov #0x19, r13\n</code></pre>"})))
 
 (deftest test-hydrate-article
   (is (= (article fixtures/data-provider fixtures/article) fixtures/hydrated-article)))
