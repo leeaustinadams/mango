@@ -121,10 +121,13 @@ html, body {
 code.hljs {
     display: inline;
     background-color: transparent;
+    padding: 0;
 }
 
 pre {
+    padding: 0.5em;
     border: 1px solid #999;
+    overflow-x: scroll;
 }
 
 .breadcrumb {
