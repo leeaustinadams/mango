@@ -74,7 +74,10 @@
   (is (= (post-media fixtures/data-provider fixtures/user {}) forbidden-result)))
 
 (deftest test-crawler-article-response
-  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "Twitterbot" "http://article"))))
+  (is (= (crawler-article-response fixtures/data-provider "article" "Twitterbot" "http://article")
+      {:status 200
+       :headers {"Content-Type" "text/html"}
+       :body "<html>\n  <head>\n    <meta name=\"twitter:card\" content=\"summary\" />\n    <meta name=\"twitter:site\" content=\"@test\" />\n    <meta name=\"twitter:title\" content=\"\" />\n    <meta name=\"twitter:image\" content=\"https://cdn.4d4ms.com/img/A.jpg\" />\n    <meta name=\"twitter:description\" content=\"\" />\n    <meta property=\"og:url\" content=\"http://article\" />\n    <meta property=\"og:type\" content=\"article\" />\n    <meta property=\"og:title\" content=\"\" />\n    <meta property=\"og:description\" content=\"\" />\n    <meta property=\"og:image\" content=\"https://cdn.4d4ms.com/img/A.jpg\" />\n  </head>\n  <body>\n    <h1></h1>\n    \n  </body>\n</html>\n"}))
   (is (not (nil? (crawler-article-response fixtures/data-provider "article" "facebookexternalhit/1.1" "http://article"))))
   (is (not (nil? (crawler-article-response fixtures/data-provider "article" "Googlebot" "http://article"))))
   (is (nil? (crawler-article-response fixtures/data-provider "article" "Chrome" "http://article")))

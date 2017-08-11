@@ -290,6 +290,10 @@
   (GET "/blog/count.json" {} (article-count db/data-provider))
   (GET "/blog/drafts/count.json" {user :user} (draft-article-count db/data-provider user))
 
+  ;; routes for crawlers need to come before routes for generic user agents
+  (GET "/blog/:id{[0-9a-f]+}" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request} (crawler-article-by-id db/data-provider user id user-agent request))
+  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request} (crawler-article-by-slug db/data-provider user slug user-agent request))
+
   (GET "/blog/articles.json" {user :user {:strs [page per-page tagged]} :query-params} (published db/data-provider user page per-page tagged))
   ;; e.g. /blog/articles/1234.json
   (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (article-by-id db/data-provider user id))
@@ -301,9 +305,6 @@
   (POST "/blog/media.json" {user :user params :params} (post-media db/data-provider user params))
 
   (GET "/blog/drafts/articles.json" {user :user {:strs [page per-page tagged]} :query-params} (drafts db/data-provider user page per-page tagged))
-
-  (GET "/blog/:id{[0-9a-f]+}" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request} (crawler-article-by-id db/data-provider user id user-agent request))
-  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request} (crawler-article-by-slug db/data-provider user slug user-agent request))
 
   (GET "/blog/media.json" {{:strs [page per-page]} :query-params} (list-media db/data-provider page per-page))
   (GET "/blog/media/:id.json" [id] (media-by-id db/data-provider id))
