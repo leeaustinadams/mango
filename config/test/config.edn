@@ -10,7 +10,7 @@
  :twitter-site-handle "@test"
  :twitter-creator-handle "@test"
  :admin-email "admin@4d4ms.com"
- :mango-version "0.1.9-test"
+ :mango-version "0.1.16-test"
  :port 8080
  ;; :aws-credentials {:access-key (:aws-access-key env)
  ;;                   :secret-key (:aws-secret-key env)
