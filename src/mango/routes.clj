@@ -109,11 +109,10 @@
   (let [media-keys (parse-media-keys params)]
     (vals (select-keys params media-keys))))
 
-(defn upload-files
-  "Uploads files to storage"
-  [files]
-  (doseq [file files]
-    (storage/upload config/aws-media-bucket (str "blog/" (:filename file)) (:tempfile file) (:content-type file))))
+(defn upload-file
+  "Uploads files to storage. Returns a future"
+  [file]
+  (storage/upload config/aws-media-bucket (str "blog/" (:filename file)) (:tempfile file) (:content-type file)))
 
 (defn article-response
   "Renders a response for a hydrated article"
@@ -205,8 +204,8 @@
           media-ids (accum-media data-provider files user-id)]
       (println "files" files)
       (println "media-ids" media-ids)
-      (let [result (upload-files files)]
-        (if @result
+      (let [result (upload-file (first files))]
+        (if (nil? @result)
           (json-success media-ids)
           (json-failure 500 {:message "Media upload failed"}))))
     (json-failure 403 {:message "Forbidden"})))

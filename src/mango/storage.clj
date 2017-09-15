@@ -6,7 +6,7 @@
   (:import com.amazonaws.services.s3.model.Region))
 
 (defn upload
-  "Upload a file to storage"
+  "Upload a file to storage. Returns a future"
   [remote-bucket remote-name local-name content-type]
   (future
     (when-not (some #(= remote-bucket %) (map :name (s3/list-buckets)))
