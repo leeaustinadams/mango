@@ -56,7 +56,7 @@ angular.module('mango', ['ui.router',
     .directive('tweet', ['$timeout', function($timeout) {
         return {
             link: function(scope, element, attr) {
-                var renderTwitterButton = debounce(function() {
+                var renderTwitterButton = _.debounce(function() {
                     if (attr.url && attr.text) {
                         $timeout(function() {
                             element[0].innerHTML = '';
@@ -81,7 +81,7 @@ angular.module('mango', ['ui.router',
     .directive('follow', ['$timeout', function($timeout) {
         return {
             link: function(scope, element, attr) {
-                var renderTwitterFollow = debounce(function() {
+                var renderTwitterFollow = _.debounce(function() {
                     if (attr.text) {
                         $timeout(function() {
                             element[0].innerHTML = '';
@@ -113,6 +113,19 @@ angular.module('mango', ['ui.router',
             }
         };
     })
+    .factory('Util', [function() {
+        var _this = this;
+
+        _this._data = {
+            cleanArticle: function(article) {
+                article.created = new Date(article.created);
+                article.createdString = article.created.toLocaleDateString();
+                article.renderedContent = article["rendered-content"];
+            }
+        };
+
+        return _this._data;
+    }])
     .factory('LogEvent', ['$resource',
                           function($resource) {
                               return $resource('/log/event');
@@ -211,7 +224,7 @@ angular.module('mango', ['ui.router',
         $scope.$state = $state;
     })
     .controller('BlogArticlesController', function($scope, $state, $timeout, $resource, BlogArticles, Authentication,
-                                                   Authorization, params) {
+                                                   Authorization, Util, params) {
         $scope.$state = $state;
         $scope.mode = params.mode;
 
@@ -236,12 +249,7 @@ angular.module('mango', ['ui.router',
                 $scope.subheader = "Tagged \"" + params.tag + "\"";
             } else {
                 $scope.articles = BlogArticles.query(function(articles) {
-                    for(var i = 0; i < articles.length; i++) {
-                        var article = articles[i];
-                        article.created = new Date(article.created);
-                        article.createdString = article.created.toLocaleDateString();
-                        article.renderedContent = article["rendered-content"];
-                    }
+                    return _.map(articles, Util.cleanArticle);
                 }, errorHandler);
                 $scope.subheader = "Posts";
             }
@@ -251,7 +259,7 @@ angular.module('mango', ['ui.router',
             }
         }
     })
-    .controller('BlogArticleController', function($scope, $state, Authentication, BlogArticle, Upload, params) {
+    .controller('BlogArticleController', function($scope, $state, Authentication, BlogArticle, Upload, Util, params) {
         $scope.$state = $state;
         $scope.authentication = Authentication;
         $scope.mode = params.mode;
@@ -327,7 +335,7 @@ angular.module('mango', ['ui.router',
             }
 
         }
-        
+
         $scope.resetArticle = function() {
             $scope.article = {};
             $scope.article.title = '';
@@ -342,9 +350,7 @@ angular.module('mango', ['ui.router',
             $scope.article = BlogArticle.get({
                 articleId: params.id
             }, function(article) {
-                article.created = new Date(article.created);
-                article.createdString = article.created.toLocaleDateString();
-                article.renderedContent = article["rendered-content"];
+                return Util.cleanArticle(article);
             }, function(error) {
                 $state.go('blog');
             });
@@ -590,21 +596,3 @@ angular.module('mango', ['ui.router',
             template: 'bootstrap2'
         });
     }]);
-
-//Simple Debounce Implementation
-//http://davidwalsh.name/javascript-debounce-function
-function debounce(func, wait, immediate) {
-    var timeout;
-    return function() {
-        var context = this,
-            args = arguments;
-        var later = function() {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-    };
-};
