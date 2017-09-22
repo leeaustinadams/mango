@@ -213,8 +213,8 @@
 (defn crawler-article-response
   "If the user-agent is a crawler, renders an appropriate response for a hydrated article"
   [data-provider article user-agent url]
-  (let [hydrated-article (hydrate/article data-provider article)]
-    (when (some (partial str/includes? user-agent) '("Twitterbot" "facebookexternalhit/1.1" "Googlebot"))
+  (when (some (partial str/includes? user-agent) config/bot-user-agents)
+    (let [hydrated-article (hydrate/article data-provider article)]
       (html-success (pages/article-for-bots hydrated-article url)))))
 
 (defn crawler-article-by-id

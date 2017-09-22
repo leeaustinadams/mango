@@ -78,8 +78,10 @@
   (mc/find-map-by-id @DB config/db-media-collection (ObjectId. id)))
 
 (defn blog-media-by-ids [ids]
-  (mq/with-collection @DB config/db-media-collection
-    (mq/find {:_id {$in ids}})))
+  (if (empty? ids)
+    nil
+    (mq/with-collection @DB config/db-media-collection
+      (mq/find {:_id {$in ids}}))))
 
 (defn users [{:keys [page per-page]}]
   (mq/with-collection @DB config/db-users-collection

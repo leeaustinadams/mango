@@ -2,6 +2,7 @@
   (:require
             [markdown.core :as md]
             [mango.auth :as auth]
+            [mango.config :as config]
             [mango.dataprovider :as dp])
   (:gen-class))
 
@@ -9,8 +10,9 @@
   "Hydrates the media collection of x"
   [data-provider x]
   (let [media-ids (:media x)]
-    (if (not (nil? media-ids))
-      (assoc x :media (dp/media-by-ids data-provider media-ids))
+    (if-let [media (dp/media-by-ids data-provider media-ids)]
+      (let [hydrated-media (map #(assoc % :src (str config/cdn-url "/" (:src %))) media)]
+        (assoc x :media hydrated-media))
       x)))
 
 (defn user

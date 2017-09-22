@@ -29,3 +29,7 @@
   (is (= (db/blog-articles-count "published") 1))
   (is (= (map #(select-keys % test-keys) (db/blog-articles "published" {:page 1 :per-page 1 :tagged "a"}))
          [{:status "published" :title "Title" :description "Description" :tags ["a" "b"] :user (:_id fixtures/user)}])))
+
+(deftest test-blog-media-by-ids
+  (is (= (db/blog-media-by-ids nil) nil))
+  (is (= (db/blog-media-by-ids {}) nil)))

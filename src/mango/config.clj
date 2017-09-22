@@ -14,6 +14,8 @@
 (def admin-email (:admin-email env))
 (def version (:mango-version env))
 (def port (:port env))
+(def cdn-url (:cdn-url env))
+(def bot-user-agents '("Twitterbot" "facebookexternalhit/1.1" "Googlebot"))
 (def aws-credentials {:access-key (:aws-access-key env)
                       :secret-key (:aws-secret-key env)
                       :endpoint (:aws-endpoint env)})

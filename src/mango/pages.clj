@@ -31,7 +31,7 @@
    :image (let [img_src (get (first media) :src)]
             (if (empty? img_src)
               "https://cdn.4d4ms.com/img/A.jpg"
-              (str "https://cdn.4d4ms.com/blog/" img_src)))
+              img_src))
    :content (:rendered-content article)})
 
 (defn article-for-bots
