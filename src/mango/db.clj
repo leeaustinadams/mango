@@ -64,9 +64,10 @@
                  (conj {:_id (ObjectId. (:_id article))}))]
     (mc/save-and-return @DB config/db-article-collection article)))
 
-(defn blog-media [{:keys [page per-page]}]
+(defn blog-media
+  "Lookup a page worth of media items"
+  [{:keys [page per-page]}]
   (mq/with-collection @DB config/db-media-collection
-    (mq/find {:status ["published"]})
     (mq/paginate :page page :per-page per-page)))
 
 (defn insert-blog-media
@@ -74,27 +75,36 @@
   [media user-id]
   (mc/insert-and-return @DB config/db-media-collection (assoc media :user user-id)))
 
-(defn blog-media-by-id [id]
+(defn blog-media-by-id
+  "Lookup a media item by its id"
+  [id]
   (mc/find-map-by-id @DB config/db-media-collection (ObjectId. id)))
 
-(defn blog-media-by-ids [ids]
-  (if (empty? ids)
-    nil
+(defn blog-media-by-ids
+  "Lookup a collection of media by their ids"
+  [ids]
+  (when (not (empty? ids))
     (mq/with-collection @DB config/db-media-collection
       (mq/find {:_id {$in ids}}))))
 
-(defn users [{:keys [page per-page]}]
+(defn users
+  "Lookup a page worth of users"
+  [{:keys [page per-page]}]
   (mq/with-collection @DB config/db-users-collection
     (mq/find {})
     (mq/paginate :page page :per-page per-page)))
 
-(defn user [id]
+(defn user
+  "Lookup a user by id"
+  [id]
   (mc/find-map-by-id @DB config/db-users-collection (ObjectId. id)))
 
 (defn user-by-id [id]
   (mc/find-map-by-id @DB config/db-users-collection id))
 
-(defn user-by-username [username]
+(defn user-by-username
+  "Lookup a user by username"
+  [username]
   (mc/find-one-as-map @DB config/db-users-collection {:username username}))
 
 (defn insert-user

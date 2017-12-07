@@ -146,16 +146,16 @@ angular.module('mango', ['ui.router',
     }])
     .factory('BlogArticles', ['$resource',
                               function($resource) {
-                                  return $resource('/blog/articles.json?per-page=12', {
+                                  return $resource('/blog/articles.json?per-page=20', {
                                   }, {
                                       drafts: {
                                           method: 'GET',
-                                          url: '/blog/drafts/articles.json?per-page=12',
+                                          url: '/blog/drafts/articles.json?per-page=20',
                                           isArray: true
                                       },
                                       tagged: {
                                           method: 'GET',
-                                          url: '/blog/articles.json?tagged=:tag&per-page=12',
+                                          url: '/blog/articles.json?tagged=:tag&per-page=20',
                                           isArray: true
                                       }
                                   });

@@ -25,6 +25,15 @@
         </div>
         <div class="md-resize-handle" style="touch-action: pan-y;"></div>
 	  </md-input-container>
+      <div layout="row">
+        <md-subheader class="md-no-sticky">Media</md-subheader>
+        <ul class="media-list">
+          <li ng-repeat="mediaitem in article.media"
+              ng-click="">
+              <img src="{{mediaitem.src}}" alt="{{mediaitem.alt}}">
+          </li>
+        </ul>
+      </div>
       <div layout-gt-sm="row">
         <md-input-container class="md-block">
           <label>Created</label>
@@ -40,7 +49,7 @@
         </md-input-container>
       </div>
       <md-input-container class="md-block">
-        <md-button class="md-raised" name="files" type="file" ngf-select ng-model="files" ngf-multiple="true">Media</md-button>
+        <md-button class="md-raised" name="files" type="file" ngf-select ng-model="files" ngf-multiple="true">Add Media</md-button>
       </md-input-container>
       <md-button class="md-raised" ng-click="post()">Submit</md-button>
       <div ng-show="error" class="text-danger">

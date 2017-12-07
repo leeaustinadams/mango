@@ -3,6 +3,12 @@ html, body {
     margin: 0;
 }
 
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
 .article-list .repeated-item {
     border-bottom: 1px solid #ddd;
     box-sizing: border-box;
@@ -10,7 +16,7 @@ html, body {
 }
 
 .mango md-content {
-    margin: 16px;
+    margin: 5%;
 }
 
 .article-byline {
@@ -47,6 +53,34 @@ html, body {
   color: #ccc;
 }
 
+.media-list {
+  margin: 12px 0 12px 0;
+  list-style: none;
+  -webkit-padding-start: 0;
+     -moz-padding-start: 0;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+}
+
+.media-list > li {
+  display: inline-block;
+  *display: inline;
+  text-shadow: 0 1px 0 #ffffff;
+  *zoom: 1;
+}
+
+.media-list > li > .divider {
+  padding: 0 5px;
+  color: #ccc;
+}
+
+.media-list > li img {
+  height: 128px;
+  width: auto;
+  margin: 4px;
+}
+
 .tweet-button {
     margin: 2px 0 2px 0;
 }
@@ -70,11 +104,39 @@ html, body {
 
 .left-thumbnail  {
     float: left;
-    margin: 4px 0 4px 8px;
+    width: 33%;
+    height: auto;
+    margin: 8px 12px 8px 4px;
+}
+
+.middle-thumbnail {
+    width: 25%;
+    height: auto;
+    margin: 8px 12px 8px 4px;
+}
+
+.right-thumbnail  {
+    float: right;
+    width: 25%;
+    height: auto;
+    margin: 8px 12px 8px 4px;
 }
 
 .media-thumbnail {
     height:128px;
+}
+
+div.imagebar {
+    overflow: auto;
+    white-space: nowrap;
+}
+
+div.imagebar a {
+}
+
+div.imagebar img {
+    height: 240px;
+    width: auto;
 }
 
 .repeated-item img {
@@ -118,7 +180,7 @@ html, body {
     margin: 8px 8px 8px 8px;
 }
 
-code.hljs {
+.hljs {
     display: inline;
     background-color: transparent;
     padding: 0;
@@ -175,9 +237,4 @@ blockquote:before {
 
 blockquote p {
   display: inline;
-}
-
-img[src*="cdn.4d4ms.com"] {
-    max-width: 100%;
-    height: auto;
 }
