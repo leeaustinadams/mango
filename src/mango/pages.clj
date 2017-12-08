@@ -18,6 +18,8 @@
                         :description config/site-description
                         :adminEmail config/admin-email
                         :version config/version
+                        :app-js config/app-js
+                        :app-css config/app-css
                         :user user}))
 
 (defn tags

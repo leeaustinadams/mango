@@ -48,9 +48,11 @@ angular.module('mango', ['ui.router',
                     angular.forEach(items, function (item) {
                         hljs.highlightBlock(item);
                     });
-                    twttr.widgets.load(element);
+                    window.twttr.ready(function() {
+                        twttr.widgets.load(element);
+                    });
                 });
-            },
+            }
         };
     })
     .directive('tweet', ['$timeout', function($timeout) {
@@ -76,7 +78,7 @@ angular.module('mango', ['ui.router',
                 attr.$observe('url', renderTwitterButton);
                 attr.$observe('text', renderTwitterButton);
             }
-        }
+        };
     }])
     .directive('follow', ['$timeout', function($timeout) {
         return {
@@ -94,7 +96,7 @@ angular.module('mango', ['ui.router',
                 }, 150);
                 attr.$observe('text', renderTwitterFollow);
             }
-        }
+        };
     }])
     .directive('pageTitle', function() {
         return {
@@ -126,72 +128,73 @@ angular.module('mango', ['ui.router',
 
         return _this._data;
     }])
-    .factory('LogEvent', ['$resource',
-                          function($resource) {
-                              return $resource('/log/event');
-                          }
-                         ])
-    .factory('$exceptionHandler', ['$log', '$window', '$injector', function($log, $window, $injector) {
-        return function myExceptionHandler(exception, cause) {
-            $log.warn(exception, cause);
-
-            $injector.get('$http').post("/log/event",
-                       {
-                           errorUrl: $window.location.href,
-                           category: "exception",
-                           event: exception,
-                           cause: ( cause || "" )
-                       });
+    .factory('LogEvent', [
+        '$resource', function($resource) {
+            return $resource('/log/event');
         }
-    }])
-    .factory('BlogArticles', ['$resource',
-                              function($resource) {
-                                  return $resource('/blog/articles.json?per-page=20', {
-                                  }, {
-                                      drafts: {
-                                          method: 'GET',
-                                          url: '/blog/drafts/articles.json?per-page=20',
-                                          isArray: true
-                                      },
-                                      tagged: {
-                                          method: 'GET',
-                                          url: '/blog/articles.json?tagged=:tag&per-page=20',
-                                          isArray: true
-                                      }
-                                  });
-                              }
-                             ])
-    .factory('BlogArticle', ['$resource',
-                             function($resource) {
-                                 return $resource('/blog/articles/:articleId.json', {
-                                     articleId: '@_id'
-                                 }, {
-                                     save: {
-                                         method: 'POST',
-                                         url: '/blog/articles/post.json'
-                                     },
-                                     edit: {
-                                         method: 'POST',
-                                         url: '/blog/articles/:articleId.json'
-                                     }
-                                 });
-                             }
-                            ])
-    .factory('User', ['$resource',
-                      function($resource) {
-                          return $resource('/users/:userId.json', {
-                              userId: '@_id'
-                          }, {
-                              signin: {
-                                  method: 'POST',
-                                  url: '/auth/signin'
-                              },
-                              signout: {
-                                  method: 'POST',
-                                  url: '/auth/signout'
-                              }
-                          });
-                      }])
+    ])
+    .factory('$exceptionHandler', [
+        '$log', '$window', '$injector',
+        function($log, $window, $injector) {
+            return function myExceptionHandler(exception, cause) {
+                $log.warn(exception, cause);
+                $injector.get('$http').post("/log/event", {
+                    errorUrl: $window.location.href,
+                    category: "exception",
+                    event: exception,
+                    cause: ( cause || "" )
+                });
+            };
+        }
+    ])
+    .factory('BlogArticles', [
+        '$resource', function($resource) {
+            return $resource('/blog/articles.json?per-page=20', {
+            }, {
+                drafts: {
+                    method: 'GET',
+                    url: '/blog/drafts/articles.json?per-page=20',
+                    isArray: true
+                },
+                tagged: {
+                    method: 'GET',
+                    url: '/blog/articles.json?tagged=:tag&per-page=20',
+                    isArray: true
+                }
+            });
+        }
+    ])
+    .factory('BlogArticle', [
+        '$resource', function($resource) {
+            return $resource('/blog/articles/:articleId.json', {
+                articleId: '@_id'
+            }, {
+                save: {
+                    method: 'POST',
+                    url: '/blog/articles/post.json'
+                },
+                edit: {
+                    method: 'POST',
+                    url: '/blog/articles/:articleId.json'
+                }
+            });
+        }
+    ])
+    .factory('User', [
+        '$resource', function($resource) {
+            return $resource('/users/:userId.json', {
+                userId: '@_id'
+            }, {
+                signin: {
+                    method: 'POST',
+                    url: '/auth/signin'
+                },
+                signout: {
+                    method: 'POST',
+                    url: '/auth/signout'
+                }
+            });
+        }])
     .factory('Authentication', [function() {
         var _this = this;
 
@@ -215,181 +218,192 @@ angular.module('mango', ['ui.router',
 
         return _this._data;
     }])
-    .controller('MainController', function($scope, $window) {
-        $scope.navigate = function(url) {
-            $window.location.href = url;
-        };
-    })
-    .controller('LandingController', function($scope, $state) {
-        $scope.$state = $state;
-    })
-    .controller('BlogArticlesController', function($scope, $state, $timeout, $resource, BlogArticles, Authentication,
-                                                   Authorization, Util, params) {
-        $scope.$state = $state;
-        $scope.mode = params.mode;
+    .controller('MainController', [
+        '$scope', '$window', function($scope, $window) {
+            $scope.navigate = function(url) {
+                $window.location.href = url;
+            };
+        }
+    ])
+    .controller('LandingController', [
+        '$scope', '$state',
+        function($scope, $state) {
+            $scope.$state = $state;
+        }
+    ])
+    .controller('BlogArticlesController', [
+        '$scope', '$state', '$timeout', '$resource', 'BlogArticles', 'Authentication', 'Authorization', 'Util', 'params',
+        function($scope, $state, $timeout, $resource, BlogArticles, Authentication, Authorization, Util, params) {
+            $scope.$state = $state;
+            $scope.mode = params.mode;
 
-        $scope.authentication = Authentication;
-        $scope.authorization = Authorization;
+            $scope.authentication = Authentication;
+            $scope.authorization = Authorization;
 
-        var errorHandler = function(errorResponse) {
-            $state.go('landing');
-        };
+            var errorHandler = function(errorResponse) {
+                $state.go('landing');
+            };
 
-        if ($scope.mode == "drafts") {
-            $scope.articles = BlogArticles.drafts(function(articles) {
-            }, errorHandler);
-            $scope.article_click = function(article_id) {
-                $state.go('edit', {id: article_id});
-            }
-            $scope.subheader = "Drafts";
-        } else {
-            if ($scope.mode == "tagged") {
-                $scope.articles = BlogArticles.tagged({tag: params.tag}, function(articles) {
-                }, errorHandler);
-                $scope.subheader = "Tagged \"" + params.tag + "\"";
+            if ($scope.mode == "drafts") {
+                $scope.articles = BlogArticles.drafts(function(articles) { }, errorHandler);
+                $scope.article_click = function(article_id) {
+                    $state.go('edit', {id: article_id});
+                };
+                $scope.subheader = "Drafts";
             } else {
-                $scope.articles = BlogArticles.query(function(articles) {
-                    return _.map(articles, Util.cleanArticle);
-                }, errorHandler);
-                $scope.subheader = "Posts";
-            }
-
-            $scope.article_click = function(article_id) {
-                $state.go('article', {id: article_id});
-            }
-        }
-    })
-    .controller('BlogArticleController', function($scope, $state, Authentication, BlogArticle, Upload, Util, params) {
-        $scope.$state = $state;
-        $scope.authentication = Authentication;
-        $scope.mode = params.mode;
-
-        $scope.edit = function() {
-            $state.go('edit', {id: params.id});
-        }
-
-        $scope.tag_click = function(tag) {
-            $state.go('tagged', {tag: tag});
-        }
-
-        $scope.post = function() {
-            var article = new BlogArticle({
-                _id: this.article._id,
-                title: this.article.title,
-                description: this.article.description,
-                content: this.article.content,
-                created: this.article.created.toISOString(),
-                media: this.article.media,
-                tags: this.article.tags,
-                status: this.article.status
-            });
-
-            if (!article.media) { delete article.media; }
-            if (!article.tags) { delete article.tags; }
-
-            if (article.media) {
-                for (m = 0; m < article.media.length; m++) {
-                    article.media[m] = article.media[m]._id;
+                if ($scope.mode == "tagged") {
+                    $scope.articles = BlogArticles.tagged({tag: params.tag}, function(articles) {
+                    }, errorHandler);
+                    $scope.subheader = "Tagged \"" + params.tag + "\"";
+                } else {
+                    $scope.articles = BlogArticles.query(function(articles) {
+                        return _.map(articles, Util.cleanArticle);
+                    }, errorHandler);
+                    $scope.subheader = "Posts";
                 }
-            }
 
-            if ($scope.files && $scope.files.length) {
-                Upload.upload({
-                    url: 'blog/media.json',
-                    data: {files: $scope.files}
-                }).then(function (response) {
-                    console.log('Success Response: ' + response.data);
-                    article.media = article.media || [];
-                    for (i = 0; i < response.data.length; i++) {
-                        article.media[article.media.length] = response.data[i];
+                $scope.article_click = function(article_id) {
+                    $state.go('article', {id: article_id});
+                };
+            }
+        }
+    ])
+    .controller('BlogArticleController', [
+        '$scope', '$state', 'Authentication', 'BlogArticle', 'Upload', 'Util', 'params',
+        function($scope, $state, Authentication, BlogArticle, Upload, Util, params) {
+            $scope.$state = $state;
+            $scope.authentication = Authentication;
+            $scope.mode = params.mode;
+
+            $scope.edit = function() {
+                $state.go('edit', {id: params.id});
+            };
+
+            $scope.tag_click = function(tag) {
+                $state.go('tagged', {tag: tag});
+            };
+
+            $scope.post = function() {
+                var article = new BlogArticle({
+                    _id: this.article._id,
+                    title: this.article.title,
+                    description: this.article.description,
+                    content: this.article.content,
+                    created: this.article.created.toISOString(),
+                    media: this.article.media,
+                    tags: this.article.tags,
+                    status: this.article.status
+                });
+
+                if (!article.media) { delete article.media; }
+                if (!article.tags) { delete article.tags; }
+
+                if (article.media) {
+                    for (m = 0; m < article.media.length; m++) {
+                        article.media[m] = article.media[m]._id;
                     }
+                }
+
+                if ($scope.files && $scope.files.length) {
+                    Upload.upload({
+                        url: 'blog/media.json',
+                        data: {files: $scope.files}
+                    }).then(function (response) {
+                        console.log('Success Response: ' + response.data);
+                        article.media = article.media || [];
+                        for (i = 0; i < response.data.length; i++) {
+                            article.media[article.media.length] = response.data[i];
+                        }
+                        $scope.postArticle(article);
+                    }, function (response) {
+                        $scope.error = response.status;
+                        console.log('Error status: ' + response.status);
+                    }, function (event) {
+                        var progressPercentage = parseInt(100.0 * event.loaded / event.total);
+                        console.log('progress: ' + progressPercentage + '%');
+                    });
+                } else {
                     $scope.postArticle(article);
-                }, function (response) {
-                    $scope.error = response.status;
-                    console.log('Error status: ' + response.status);
-                }, function (event) {
-                    var progressPercentage = parseInt(100.0 * event.loaded / event.total);
-                    console.log('progress: ' + progressPercentage + '%');
+                }
+            };
+
+            $scope.postArticle = function(article) {
+                if ($scope.mode == "edit") {
+                    article.$edit(function(response) {
+                        $scope.resetArticle();
+                        $state.go('article', {id: response._id});
+                    }, function(errorResponse) {
+                        $scope.error = errorResponse.data.msg;
+                    });
+                } else {
+                    delete article._id;
+                    article.$save(function(response) {
+                        $scope.resetArticle();
+                        $state.go('article', {id: response._id});
+                    }, function(errorResponse) {
+                        $scope.error = errorResponse.data.msg;
+                    });
+                }
+
+            };
+
+            $scope.resetArticle = function() {
+                $scope.article = {};
+                $scope.article.title = '';
+                $scope.article.description = '';
+                $scope.article.content = '';
+                $scope.article.created = new Date();
+                $scope.article.tags = '';
+                $scope.article.status = 'draft';
+            };
+
+            if (params.id) {
+                $scope.article = BlogArticle.get({
+                    articleId: params.id
+                }, function(article) {
+                    return Util.cleanArticle(article);
+                }, function(error) {
+                    $state.go('blog');
                 });
             } else {
-                $scope.postArticle(article);
+                $scope.resetArticle();
             }
         }
+    ])
+    .controller('UserController', [
+        '$scope', '$state', 'User', 'Authentication', 'params',
+        function($scope, $state, User, Authentication, params) {
+            $scope.name = 'UserController';
+            $scope.mode = params.mode;
 
-        $scope.postArticle = function(article) {
-            if ($scope.mode == "edit") {
-                article.$edit(function(response) {
-                    $scope.resetArticle();
-                    $state.go('article', {id: response._id});
+            $scope.authentication = Authentication;
+            if ($scope.mode == 'me') {
+                $scope.user = Authentication.user;
+            }
+
+            $scope.signin = function() {
+                var user = new User({username: this.user.name, password: this.user.password});
+                user.$signin(function(response) {
+                    $scope.authentication.user = response;
+                    $state.go('landing');
                 }, function(errorResponse) {
                     $scope.error = errorResponse.data.msg;
                 });
-            } else {
-                delete article._id;
-                article.$save(function(response) {
-                    $scope.resetArticle();
-                    $state.go('article', {id: response._id});
+            };
+
+            $scope.signout = function() {
+                var user = new User($scope.authentication.user);
+                user.$signout(function(response) {
+                    $scope.authentication.user = null;
+                    $state.go('landing');
                 }, function(errorResponse) {
                     $scope.error = errorResponse.data.msg;
                 });
-            }
-
+            };
         }
-
-        $scope.resetArticle = function() {
-            $scope.article = {};
-            $scope.article.title = '';
-            $scope.article.description = '';
-            $scope.article.content = '';
-            $scope.article.created = new Date();
-            $scope.article.tags = '';
-            $scope.article.status = 'draft';
-        }
-
-        if (params.id) {
-            $scope.article = BlogArticle.get({
-                articleId: params.id
-            }, function(article) {
-                return Util.cleanArticle(article);
-            }, function(error) {
-                $state.go('blog');
-            });
-        } else {
-            $scope.resetArticle();
-        }
-    })
-    .controller('UserController', function($scope, $state, User, Authentication, params) {
-        $scope.name = 'UserController';
-        $scope.mode = params.mode;
-
-        $scope.authentication = Authentication;
-        if ($scope.mode == 'me') {
-            $scope.user = Authentication.user;
-        }
-
-        $scope.signin = function() {
-            var user = new User({username: this.user.name, password: this.user.password});
-            user.$signin(function(response) {
-                $scope.authentication.user = response;
-                $state.go('landing');
-            }, function(errorResponse) {
-                $scope.error = errorResponse.data.msg;
-            });
-        }
-
-        $scope.signout = function() {
-            var user = new User($scope.authentication.user);
-            user.$signout(function(response) {
-                $scope.authentication.user = null;
-                $state.go('landing');
-            }, function(errorResponse) {
-                $scope.error = errorResponse.data.msg;
-            });
-        }
-    })
-    .config(['$locationProvider', '$urlRouterProvider', '$stateProvider', '$mdThemingProvider', '$httpProvider',
-             '$breadcrumbProvider', function($locationProvider, $urlRouterProvider, $stateProvider, $mdThemingProvider,
-                                             $httpProvider, $breadcrumbProvider) {
+    ])
+    .config(['$locationProvider', '$urlRouterProvider', '$stateProvider', '$mdThemingProvider', '$httpProvider', '$breadcrumbProvider',
+             function($locationProvider, $urlRouterProvider, $stateProvider, $mdThemingProvider, $httpProvider, $breadcrumbProvider) {
         $mdThemingProvider.theme('default').primaryPalette('blue').accentPalette('red');
 
         hljs.configure({languages: ["clj", "c", "java", "html", "js"]});
@@ -410,7 +424,7 @@ angular.module('mango', ['ui.router',
             return response;
         });
 
-        $urlRouterProvider.otherwise('/')
+        $urlRouterProvider.otherwise('/');
 
         $stateProvider.state({
             name: 'landing',

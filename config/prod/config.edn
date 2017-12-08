@@ -10,8 +10,10 @@
  :twitter-site-handle "@beamjack"
  :twitter-creator-handle "@beamjack"
  :admin-email "admin@4d4ms.com"
- :mango-version "0.1.18"
+ :mango-version "0.1.19"
  :port 8080
  :cdn-url "https://cdn.4d4ms.com/blog"
  :aws-media-bucket "4d4ms"
- :aws-region "us-west-1"}
+ :aws-region "us-west-1"
+ :app-js "js/mango.js"
+ :app-css "css/mango.css"}
