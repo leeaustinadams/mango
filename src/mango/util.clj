@@ -2,8 +2,7 @@
   (:require [clojure.string :as str]
             [cheshire.generate :refer [add-encoder encode-str]]
             [clj-time.format :as time-format])
-  (:import org.bson.types.ObjectId)
-  (:gen-class))
+  (:import org.bson.types.ObjectId))
 
 (add-encoder org.bson.types.ObjectId encode-str)
 

@@ -1,9 +1,9 @@
-(defproject mango "0.1.20-SNAPSHOT"
+(defproject mango :lein-v
   :description "Lee's Website"
-  :url "http://www.4d4ms.com"
+  :url "https://www.4d4ms.com"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/data.json "0.2.6"]
                  [environ "1.1.0"]
                  [com.novemberain/monger "3.1.0"]
@@ -19,6 +19,7 @@
                  [clj-time "0.12.0"]
                  [amazonica "0.3.76"]
                  [yogthos/config "0.8"]]
+  :plugins [[com.roomkey/lein-v "6.2.2"]]
   :profiles {
              :dev {:resource-paths ["config/dev"]}
              :prod {:resource-paths ["config/prod"]}
@@ -27,11 +28,7 @@
              :repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}
              }
   :release-tasks [["vcs" "assert-committed"]
-                  ["change" "version" "leiningen.release/bump-version" "release"]
-                  ["vcs" "commit"]
-                  ["vcs" "tag"]
-                  ["change" "version" "leiningen.release/bump-version"]
-                  ["vcs" "commit"]]
+                  ["v" "update"]]
   :test-selectors {:default (complement :integration)
                    :integration :integration}
   :main mango.core)

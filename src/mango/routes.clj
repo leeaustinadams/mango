@@ -23,8 +23,7 @@
             [mango.hydrate :as hydrate]
             [mango.pages :as pages]
             [mango.storage :as storage]
-            [mango.util :refer [slugify xform-ids xform-tags xform-time]])
-  (:gen-class))
+            [mango.util :refer [slugify xform-ids xform-tags xform-time]]))
 
 (defn sanitize-article
   "Cleans and prepares an article from parameters posted"

@@ -3,8 +3,7 @@
             [markdown.core :as md]
             [mango.auth :as auth]
             [mango.config :as config]
-            [mango.dataprovider :as dp])
-  (:gen-class))
+            [mango.dataprovider :as dp]))
 
 (defn media
   "Hydrates the media collection of x"

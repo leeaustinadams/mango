@@ -1,5 +1,6 @@
 (ns mango.config
-  (:require [config.core :refer [env]]))
+  (:require [config.core :refer [env]]
+            [version]))
 
 (def db-name (:db-name env))
 (def db-article-collection (:db-article-collection env))
@@ -12,7 +13,7 @@
 (def twitter-site-handle (:twitter-site-handle env))
 (def twitter-creator-handle (:twitter-creator-handle env))
 (def admin-email (:admin-email env))
-(def version (:mango-version env))
+(def version version/raw-version)
 (def port (:port env))
 (def cdn-url (:cdn-url env))
 (def bot-user-agents '("Twitterbot" "facebookexternalhit/1.1" "Googlebot"))

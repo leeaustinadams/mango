@@ -3,8 +3,7 @@
             [environ.core :refer [env]]
             [mango.routes :as routes]
             [mango.config :as config]
-            [mango.db :as db])
-  (:gen-class))
+            [mango.db :as db]))
 
 (defn -main [& args]
   (db/init)
