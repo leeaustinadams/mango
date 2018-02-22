@@ -22,5 +22,5 @@
                       :endpoint (:aws-endpoint env)})
 (def aws-media-bucket (:aws-media-bucket env))
 (def aws-media-bucket-region (:aws-region env))
-(def app-js (:app-js env))
+(def app-js (str "js/mango-" version/version ".js"))
 (def app-css (:app-css env))

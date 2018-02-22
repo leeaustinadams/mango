@@ -16,5 +16,4 @@
  ;;                   :secret-key (:aws-secret-key env)
  ;;                   :endpoint (:aws-endpoint env)}
  :aws-media-bucket "4d4ms-test"
- :app-js "js/mango.js"
  :app-css "css/mango.css"}

@@ -10,3 +10,4 @@ pom.xml.asc
 .hgignore
 .hg/
 run-4d4ms.sh
+/resources/public/js/mango*.js

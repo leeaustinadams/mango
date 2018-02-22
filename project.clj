@@ -19,7 +19,8 @@
                  [clj-time "0.12.0"]
                  [amazonica "0.3.76"]
                  [yogthos/config "0.8"]]
-  :plugins [[com.roomkey/lein-v "6.2.2"]]
+  :plugins [[com.roomkey/lein-v "6.2.2"]
+            [lein-shell "0.5.0"]]
   :profiles {
              :dev {:resource-paths ["config/dev"]}
              :prod {:resource-paths ["config/prod"]}
@@ -27,6 +28,10 @@
              :uberjar {:aot :all}
              :repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}
              }
+  :prep-tasks [["v" "cache" "src"]
+               ["shell" "rm" "-f" "resources/public/js/mango*.js"]
+               ["shell" "cp" "dev-resources/js/mango.js" "resources/public/js/mango-${:version}.js"]
+               "javac" "compile"]
   :release-tasks [["vcs" "assert-committed"]
                   ["v" "update"]]
   :test-selectors {:default (complement :integration)

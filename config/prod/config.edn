@@ -14,5 +14,4 @@
  :cdn-url "https://cdn.4d4ms.com/blog"
  :aws-media-bucket "4d4ms"
  :aws-region "us-west-1"
- :app-js "js/mango.js"
  :app-css "css/mango.css"}

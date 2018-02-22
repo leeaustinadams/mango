@@ -14,5 +14,4 @@
  :cdn-url "https://s3-us-west-1.amazonaws.com/4d4ms-dev/blog"
  :aws-media-bucket "4d4ms-dev"
  :aws-region "us-west-1"
- :app-js "js/mango.js"
  :app-css "css/mango.css"}
