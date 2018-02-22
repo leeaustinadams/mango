@@ -31,6 +31,8 @@
   :prep-tasks [["v" "cache" "src"]
                ["shell" "rm" "-f" "resources/public/js/mango*.js"]
                ["shell" "cp" "dev-resources/js/mango.js" "resources/public/js/mango-${:version}.js"]
+               ["shell" "rm" "-f" "resources/public/css/mango*.css"]
+               ["shell" "cp" "dev-resources/css/mango.css" "resources/public/css/mango-${:version}.css"]
                "javac" "compile"]
   :release-tasks [["vcs" "assert-committed"]
                   ["v" "update"]]
