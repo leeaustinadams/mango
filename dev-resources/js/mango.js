@@ -316,7 +316,7 @@ angular.module('mango', ['ui.router',
                         }
                         $scope.postArticle(article);
                     }, function (response) {
-                        $scope.error = response.status;
+                        $scope.error = response.status + " " + response.statusText;
                         console.log('Error status: ' + response.status);
                     }, function (event) {
                         var progressPercentage = parseInt(100.0 * event.loaded / event.total);
