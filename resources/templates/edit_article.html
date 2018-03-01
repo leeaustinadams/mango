@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edit</title>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <link rel="stylesheet" href="/{{ app-css }}" type="text/css" media="screen" />
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-43198629-1"></script>
+    <script type="text/javascript">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-43198629-1');
+
+      {{^js-logged-in-user}}
+      var user = null;
+      {{/js-logged-in-user}}
+      {{#js-logged-in-user}}
+      var user = {{{js-logged-in-user}}};
+      {{/js-logged-in-user}}
+    </script>
+  </head>
+  <body>
+    <div class="mango">
+      <h1>Edit</h1>
+    </div>
+  </body>
+</html>

@@ -2,8 +2,7 @@
 ;; https://github.com/dakrone/cheshire
 ;; https://github.com/weavejester/compojure
 (ns mango.routes
-  (:require [clojure.data.json :as json]
-            [clojure.walk :refer [keywordize-keys]]
+  (:require [clojure.walk :refer [keywordize-keys]]
             [clojure.string :as str]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.middleware.cookies :refer [wrap-cookies]]
@@ -120,10 +119,6 @@
     (json-success (hydrate/article data-provider article))
     (json-failure 404 {:msg "Not found"})))
 
-(defn html-index
-  [user]
-  (pages/index (json/write-str (auth/public-user user))))
-
 (defn sitemap
   "Route handler for the sitemap.txt response"
   [data-provider]
@@ -209,25 +204,6 @@
           (json-failure 500 {:message "Media upload failed"}))))
     (json-failure 403 {:message "Forbidden"})))
 
-(defn crawler-article-response
-  "If the user-agent is a crawler, renders an appropriate response for a hydrated article"
-  [data-provider article user-agent url]
-  (when (some (partial str/includes? user-agent) config/bot-user-agents)
-    (let [hydrated-article (hydrate/article data-provider article)]
-      (html-success (pages/article-for-bots hydrated-article url)))))
-
-(defn crawler-article-by-id
-  "Route handler for crawlers to get an article by id"
-  [data-provider user id user-agent request]
-  (when-let [article (dp/blog-article-by-id data-provider id {:status ["published"]})]
-    (crawler-article-response data-provider article user-agent (request-url request))))
-
-(defn crawler-article-by-slug
-  "Route handler for crawlers to get an article by slug"
-  [data-provider user slug user-agent request]
-  (when-let [article (dp/blog-article-by-slug data-provider slug {:status ["published"]})]
-    (crawler-article-response data-provider article user-agent (request-url request))))
-
 (defn list-media
   "Route handler to list media"
   [data-provider page per-page]
@@ -265,8 +241,8 @@
   [data-provider session username password]
   (if-let [user (auth/user username password)]
     (let [sess (assoc session :user (str (:_id user)))]
-      (json-success sess {:session sess}))
-    (json-failure 401  {:msg "Invalid login"})))
+      {:body (pages/sign-in-success user) :session sess})
+    (pages/sign-in nil "Invalid login")))
 
 (defn signout
   "Route handler for signing out"
@@ -279,23 +255,40 @@
   (json-success (dp/insert-log-event data-provider {:user user :error-url errorUrl :category category :event event})))
 
 (defroutes routes
-  (GET "/" {user :user} (html-index user))
-  (GET "/blog/drafts" {user :user} (html-index user))
-  (GET "/blog/post" {user :user} (html-index user))
-
   (GET "/sitemap.txt" {} (sitemap db/data-provider))
 
+  ;; Main
+  (GET "/" {user :user}
+       (pages/root user))
+  (GET "/photography" {user :user}
+       (pages/photography user))
+  (GET "/about" {user :user}
+       (pages/about user))
+  (GET "/signin" {user :user}
+       (pages/sign-in user))
+
+  ;; Blog
+  (GET "/blog" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+       (pages/articles user "Articles" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged nil}))))
+  (GET "/blog/tagged/:tag{[0-9a-z-]+}" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
+       (pages/articles user (str "Articles Tagged " tag) (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged tag}))))
+  (GET "/blog/drafts" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
+       (if (auth/editor? user)
+         (pages/articles user "Drafts" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "draft" {:page 0 :per-page 100 :tagged tag})))
+         (pages/not-found user)))
+  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+       (let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
+         (pages/article user (hydrate/article db/data-provider article) (request-url request))))
+  (GET "/edit/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+       (let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
+         (pages/edit-article user (hydrate/article db/data-provider article))))
+
+  ;; JSON API
   (GET "/blog/count.json" {} (article-count db/data-provider))
   (GET "/blog/drafts/count.json" {user :user} (draft-article-count db/data-provider user))
 
-  ;; routes for crawlers need to come before routes for generic user agents
-  (GET "/blog/:id{[0-9a-f]+}" {user :user {:keys [id]} :params {:strs [user-agent]} :headers :as request} (crawler-article-by-id db/data-provider user id user-agent request))
-  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request} (crawler-article-by-slug db/data-provider user slug user-agent request))
-
   (GET "/blog/articles.json" {user :user {:strs [page per-page tagged]} :query-params} (published db/data-provider user page per-page tagged))
-  ;; e.g. /blog/articles/1234.json
   (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (article-by-id db/data-provider user id))
-  ;; e.g. /blog/articles/unce-upon-a-time.json
   (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (article-by-slug db/data-provider user slug))
 
   (POST "/blog/articles/post.json" {user :user params :params} (post-article db/data-provider user params))
@@ -336,8 +329,8 @@
 
   (route/resources "/" :root "public")
 
-  ;; all other requests get redirected to index
-  (rfn {user :user} (html-index user)))
+  ;; all other requests
+  (rfn {user :user} (pages/not-found user)))
 
 (defrecord DBSessionStore []
   SessionStore

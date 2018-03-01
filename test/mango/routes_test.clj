@@ -80,54 +80,6 @@
 (deftest test-post-media
   (is (= (post-media fixtures/data-provider fixtures/user {}) forbidden-result)))
 
-(deftest test-crawler-article-response
-  (is (= (crawler-article-response fixtures/data-provider {:title "A title" :description "A description" :content "Hi there" :user 1234} "Twitterbot" "http://article")
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body (str "<html>\n"
-                  "  <head>\n"
-                  "    <meta name=\"twitter:card\" content=\"summary\" />\n"
-                  "    <meta name=\"twitter:site\" content=\"@test\" />\n"
-                  "    <meta name=\"twitter:title\" content=\"A title\" />\n"
-                  "    <meta name=\"twitter:image\" content=\"https://cdn.4d4ms.com/img/A.jpg\" />\n"
-                  "    <meta name=\"twitter:description\" content=\"A description\" />\n"
-                  "    <meta property=\"og:url\" content=\"http://article\" />\n"
-                  "    <meta property=\"og:type\" content=\"article\" />\n"
-                  "    <meta property=\"og:title\" content=\"A title\" />\n"
-                  "    <meta property=\"og:description\" content=\"A description\" />\n"
-                  "    <meta property=\"og:image\" content=\"https://cdn.4d4ms.com/img/A.jpg\" />\n"
-                  "  </head>\n"
-                  "  <body>\n"
-                  "    <h1>A title</h1>\n"
-                  "    <p>Hi there</p>\n"
-                  "  </body>\n"
-                  "</html>\n")}))
-  (is (= (crawler-article-response fixtures/data-provider {:title "A title" :description "A description" :content "Hi there" :user 1234 :media [3]} "Twitterbot" "http://article")
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body (str "<html>\n"
-                  "  <head>\n"
-                  "    <meta name=\"twitter:card\" content=\"summary\" />\n"
-                  "    <meta name=\"twitter:site\" content=\"@test\" />\n"
-                  "    <meta name=\"twitter:title\" content=\"A title\" />\n"
-                  "    <meta name=\"twitter:image\" content=\"http://test-cdn.4d4ms.com/blog/3.jpg\" />\n"
-                  "    <meta name=\"twitter:description\" content=\"A description\" />\n"
-                  "    <meta property=\"og:url\" content=\"http://article\" />\n"
-                  "    <meta property=\"og:type\" content=\"article\" />\n"
-                  "    <meta property=\"og:title\" content=\"A title\" />\n"
-                  "    <meta property=\"og:description\" content=\"A description\" />\n"
-                  "    <meta property=\"og:image\" content=\"http://test-cdn.4d4ms.com/blog/3.jpg\" />\n"
-                  "  </head>\n"
-                  "  <body>\n"
-                  "    <h1>A title</h1>\n"
-                  "    <p>Hi there</p>\n"
-                  "  </body>\n"
-                  "</html>\n")}))
-  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "facebookexternalhit/1.1" "http://article"))))
-  (is (not (nil? (crawler-article-response fixtures/data-provider "article" "Googlebot" "http://article"))))
-  (is (nil? (crawler-article-response fixtures/data-provider "article" "Chrome" "http://article")))
-  (is (nil? (crawler-article-response fixtures/data-provider "article" "" "http://article"))))
-
 (deftest test-list-users
   (is (= (list-users fixtures/data-provider fixtures/user 1  10) forbidden-result))
   (is (= (list-users fixtures/data-provider fixtures/editor 1 10) forbidden-result))

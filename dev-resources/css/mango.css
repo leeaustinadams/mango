@@ -15,8 +15,8 @@ html, body {
     padding-top: 10px;
 }
 
-.mango md-content {
-    margin: 0 5% 0 5%;
+.mango {
+    margin: 5% 5% 0 5%;
 }
 
 .article-byline {
@@ -83,14 +83,6 @@ html, body {
 
 .tweet-button {
     margin: 2px 0 2px 0;
-}
-
-.article-list md-virtual-repeat-container {
-    border: solid 1px grey;
-}
-
-.article-list .md-virtual-repeat-container .md-virtual-repeat-offsetter {
-    padding-left: 16px;
 }
 
 .article-thumbnail {
@@ -177,7 +169,7 @@ div.imagebar img {
 
 .footer {
     top: 90%;
-    margin: 8px 8px 8px 8px;
+    margin: 24px 8px 8px 8px;
 }
 
 .hljs {

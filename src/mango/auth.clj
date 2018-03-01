@@ -14,7 +14,7 @@
 (defn update-user-password
   "Add/replace the :password field with its encrypted form of password"
   [user password]
-  (when user (assoc user :password (password/encrypt password)))) 
+  (when user (assoc user :password (password/encrypt password))))
 
 (defn public-user
   "Remove fields that should never be visible externally"

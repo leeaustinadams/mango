@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>About</title>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <link rel="stylesheet" href="/{{ app-css }}" type="text/css" media="screen" />
+
+    <script async type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-43198629-1"></script>
+    <script type="text/javascript">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-43198629-1');
+
+      {{^js-logged-in-user}}
+      var user = null;
+      {{/js-logged-in-user}}
+      {{#js-logged-in-user}}
+      var user = {{{js-logged-in-user}}};
+      {{/js-logged-in-user}}
+    </script>
+  </head>
+  <body>
+    <div class="mango">
+      <h3>Me</h3>
+      <p>I've been a professional software developer for 18 years. I live in beautiful San Francisco Bay area with my wife and our three children. I'm currently a Staff Software Engineer at <a href="https://twitter.com">Twitter</a></p>
+      <h3>Interests</h3>
+      <p><a href="http://www.github.com/leeaustinadams">Code</a>, Technology, Books, Movies, Hiking, Backpacking, Travel, <a href="/photography">Photography</a>, Motorcycles</p>
+      <h3>Crypto</h3>
+      <a href="https://keybase.io/leeadams">Keybase.io</a>
+      <a href="https://4d4ms.com/lee.asc">PGP Key</a>
+      <div class="footer">
+        <small class="copyright">&copy; 2014-2018 Lee Adams <a href="mailto:{{adminEmail}}">contact</a></small>
+        <small class="version">{{version}}</small>
+      </div>
+    </div>
+  </body>
+</html>
