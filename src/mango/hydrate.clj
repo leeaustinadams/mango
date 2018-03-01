@@ -27,7 +27,7 @@
   [article]
   (let [content (:content article)]
     (if (not (nil? content))
-      (assoc article :rendered-content (md/md-to-html-string content :footnotes? true))
+      (assoc article :rendered-content (md/md-to-html-string content :footnotes? true :inhibit-separator "|"))
       article)))
 
 (defn article
