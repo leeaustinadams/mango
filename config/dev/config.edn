@@ -5,6 +5,7 @@
  :db-users-collection "users"
  :db-sessions-collection "sessions"
  :db-log-collection "logevents"
+ :session-key "ankylosaurus1234"
  :site-title "DEV - Lee Austin Adams - DEV"
  :site-description "DEV - Lee's Website - DEV"
  :twitter-site-handle "@beamjack"

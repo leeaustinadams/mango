@@ -5,6 +5,7 @@
  :db-users-collection "users"
  :db-sessions-collection "sessions"
  :db-log-collection "logevents"
+ :session-key "ankylosaurus1234"
  :site-title "TEST - Lee Austin Adams - TEST"
  :site-description "TEST - Lee's Website - TEST"
  :twitter-site-handle "@test"

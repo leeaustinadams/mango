@@ -8,6 +8,7 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.session :refer [wrap-session]]
+            [ring.middleware.session.cookie :refer [cookie-store]]
             [ring.middleware.session.store :refer [SessionStore]]
             [ring.middleware.multipart-params :refer [wrap-multipart-params]]
             [ring.util.request :refer [request-url]]
@@ -387,7 +388,8 @@
                      wrap-logger
                      wrap-user
 ;                     (wrap-session {:store (DBSessionStore.)})
-                     wrap-session
+                     (wrap-session {:store (cookie-store {:key config/session-key})})
+;                     wrap-session
                      wrap-cookies
                      wrap-params
                      wrap-multipart-params))

@@ -8,6 +8,7 @@
 (def db-users-collection (:db-users-collection env))
 (def db-sessions-collection (:db-sessions-collection env))
 (def db-log-collection (:db-log-collection env))
+(def session-key (:session-key env))
 (def site-title (:site-title env))
 (def site-description (:site-description env))
 (def twitter-site-handle (:twitter-site-handle env))
