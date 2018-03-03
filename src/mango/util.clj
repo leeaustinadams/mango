@@ -22,7 +22,8 @@
 (defn xform-time
   "Transforms a timestring into a time object"
   [time]
-  (time-format/parse (time-format/formatters :date-time) time))
+  (when time
+    (time-format/parse (time-format/formatters :date-time) time)))
 
 (defn xform-tags
   "Make a vector of tags from a comma separated list"

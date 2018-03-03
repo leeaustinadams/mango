@@ -29,11 +29,17 @@
     <div class="mango">
       <h1>Sign In</h1>
       <form name="userForm" action="/auth/signin" method="POST" enctype="multipart/form-data">
-        <label>Username</label>
-        <input name="username" type="text" required>
-	    <label>Password</label>
-	    <input name="password" type="password" required>
-        <input name="submit" type="submit" value="Sign in">
+        <div>
+          <label>Username</label>
+          <input name="username" type="text" required>
+        </div>
+        <div>
+	      <label>Password</label>
+	      <input name="password" type="password" required>
+        </div>
+        <div>
+          <input name="submit" type="submit" value="Sign in">
+        </div>
         {{message}}
       </form>
       <div class="footer">

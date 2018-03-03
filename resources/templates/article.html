@@ -72,16 +72,11 @@
           (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
       </div>
-
-      <h1 class="md-headline">{{article.title}}</h1>
+      <h1 class="article-title">{{article.title}}</h1>
+      <h2 class="article-description">{{article.description}}</h2>
       <p class="article-byline"><span>Posted By:</span> {{article.user.displayName}} (@{{article.user.twitterHandle}})</p>
       <p class="article-infoline">On: {{article.created}}</p>
-      Tagged:
-      <ul class="tags">
-        {{#tags}}
-        <li><a href="/blog/tagged/{{tag}}">{{tag}}</a><span class="divider">-</span></li>
-        {{/tags}}
-      </ul>
+      <p class="article-tags">Tagged:<ul class="tags">{{#tags}}<li><a href="/blog/tagged/{{tag}}">{{tag}}</a><span class="divider">-</span></li>{{/tags}}</ul></p>
       <a class="twitter-share-button"
          href="https://twitter.com/intent/tweet?text={{article.description}}"
          data-url="{{url}}">

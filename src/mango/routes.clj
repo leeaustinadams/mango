@@ -274,15 +274,16 @@
   (GET "/blog/tagged/:tag{[0-9a-z-]+}" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
        (pages/articles user (str "Articles Tagged " tag) (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged tag}))))
   (GET "/blog/drafts" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
-       (if (auth/editor? user)
-         (pages/articles user "Drafts" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "draft" {:page 0 :per-page 100 :tagged tag})))
-         (pages/not-found user)))
+       (when (auth/editor? user)
+         (pages/articles user "Drafts" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "draft" {:page 0 :per-page 100 :tagged tag})))))
+  (GET "/blog/new" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+       (when (auth/editor? user) (pages/edit-article user)))
   (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
-       (let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
+       (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
          (pages/article user (hydrate/article db/data-provider article) (request-url request))))
   (GET "/edit/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
-       (let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
-         (pages/edit-article user (hydrate/article db/data-provider article))))
+       (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
+         (pages/edit-article user (hydrate/article db/data-provider article) (request-url request))))
 
   ;; JSON API
   (GET "/blog/count.json" {} (article-count db/data-provider))

@@ -17,7 +17,7 @@
                                  vals)))
 
 (defn article-vals
-  [url article]
+  [article url]
   {:url url
    :card "summary"
    :site config/twitter-site-handle
@@ -31,7 +31,7 @@
 (defn article
   "Render an article. Expects media to have been hydrated"
   [user article url]
-  (render-page "templates/article.html" user (article-vals url article)))
+  (render-page "templates/article.html" user (article-vals article url)))
 
 (defn articles
   "Render a list of articles"
@@ -66,8 +66,8 @@
 
 (defn edit-article
   "Render the editing in page"
-  [user article]
-  (render-page "templates/edit_article.html" user))
+  [user & [article url]]
+  (render-page "templates/edit_article.html" user (when article (article-vals article url))))
 
 (defn not-found
   "Render a page for when a URI is not found"
