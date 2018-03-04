@@ -2,6 +2,7 @@
 (ns mango.pages
   (:require [mango.auth :as auth]
             [mango.config :as config]
+            [mango.util :refer [csv]]
             [clojure.data.json :as json]
             [stencil.core :as stencil]))
 
@@ -22,7 +23,7 @@
   {:url url
    :card "summary"
    :site config/twitter-site-handle
-   :article article
+   :article (assoc article :tags-csv (csv (:tags article)))
    :image (let [img_src (get (first (:media article)) :src)]
             (if (empty? img_src)
               "https://cdn.4d4ms.com/img/A.jpg"

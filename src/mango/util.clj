@@ -30,3 +30,9 @@
   [tags]
   (when (not (empty? tags))
     (mapv #(str/trim %) (str/split tags #","))))
+
+(defn csv
+  "Make a string of comma separated values from s."
+  [s]
+  (let [e (interleave s (repeat ", "))]
+    (reduce str (take (dec (count e)) e))))

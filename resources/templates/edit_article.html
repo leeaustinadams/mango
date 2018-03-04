@@ -27,30 +27,61 @@
   </head>
   <body>
     <div class="mango">
+      {{#article._id}}
+      <form name="articleForm" action="/blog/articles/{{article._id}}.json" method="POST" enctype="multipart/form-data">
+        <p>{{article._id}}</p>
+        <input name="_id" type="hidden" value="{{article._id}}">
+      {{/article._id}}
+      {{^article._id}}
       <form name="articleForm" action="/blog/articles/post.json" method="POST" enctype="multipart/form-data">
-        <div>
-          <label>Title</label>
-          <input name="title" type="text" value="{{article.title}}"required>
+        <p>New Article</p>
+      {{/article._id}}
+        <div class="row">
+          <div class="col-25">
+            <label>Title</label>
+          </div>
+          <div class="col-75">
+            <input name="title" type="text" value="{{article.title}}" required>
+          </div>
         </div>
-        <div>
-          <label>Description</label>
-          <input name="description" value="{{article.description}}">
+        <div class="row">
+          <div class="col-25">
+            <label>Description</label>
+          </div>
+          <div class="col-75">
+            <input name="description" value="{{article.description}}">
+          </div>
         </div>
-        <div>
-          <label>Tags</label>
-          <input name="tags" type="text" value="{{article.tags}}">
+        <div class="row">
+          <div class="col-25">
+            <label>Tags</label>
+          </div>
+          <div class="col-75">
+            <input name="tags" type="text" value="{{article.tags-csv}}">
+          </div>
         </div>
-        <div>
-          <label>Content</label>
-          <input name="content" type="text" value="{{article.content}}">
+        <div class="row">
+          <div class="col-25">
+            <label>Content</label>
+          </div>
+          <div class="col-75">
+            <textarea name="content">{{article.content}}</textarea>
+          </div>
         </div>
-        <div>
-          <label>Status</label>
-          <input type="radio" name="status" value="draft" checked>Draft<br>
-          <input type="radio" name="status" value="published">Published<br>
-          <input type="radio" name="status" value="trash">Trash
-          <div>
-          <input name="submit" type="submit" value="Submit">
+        <div class="row">
+          <div class="col-25">
+            <label>Status</label>
+          </div>
+          <div class="col-75">
+            <select id="status" name="status">
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="trash">Trash</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <input class="button" name="submit" type="submit" value="Submit">
         </div>
       </form>
     </div>
