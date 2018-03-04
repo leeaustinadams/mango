@@ -72,26 +72,30 @@
           (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
       </div>
-      <h1 class="article-title">{{article.title}}</h1>
-      <h2 class="article-description">{{article.description}}</h2>
-      <p class="article-byline"><span>Posted By:</span> {{article.user.displayName}} (@{{article.user.twitterHandle}})</p>
-      <p class="article-infoline">On: {{article.created}}</p>
-      <p class="article-tags">Tagged:<ul class="tags">{{#tags}}<li><a href="/blog/tagged/{{tag}}">{{tag}}</a><span class="divider">-</span></li>{{/tags}}</ul></p>
-      <a class="twitter-share-button"
-         href="https://twitter.com/intent/tweet?text={{article.description}}"
-         data-url="{{url}}">
-        Tweet</a>
-      <a class="twitter-follow-button"
-         href="https://twitter.com/{{article.user.twitterHandle}}"
-         data-show-count="true">
-        Follow @{{article.user.twitterHandle}}</a>
-      <div class="md-body-1 article-body">
+      <div class="article-header">
+        <h1 class="article-title">{{article.title}}</h1>
+        <h2 class="article-description">{{article.description}}</h2>
+        <div class="article-byline">Posted By: {{article.user.displayName}} (@{{article.user.twitterHandle}})</div>
+        <div class="article-infoline">On: {{article.created}}</div>
+        <div class="article-tagsline">Tagged: <ul class="tags">{{#tags}}<li><a href="/blog/tagged/{{tag}}">{{tag}}</a><span class="divider">-</span></li>{{/tags}}</ul></div>
+        <div>
+          <a class="twitter-share-button"
+             href="https://twitter.com/intent/tweet?text={{article.description}}"
+             data-url="{{url}}">
+            Tweet</a>
+          <a class="twitter-follow-button"
+             href="https://twitter.com/{{article.user.twitterHandle}}"
+             data-show-count="true">
+            Follow @{{article.user.twitterHandle}}</a>
+        </div>
+      </div>
+      <div class="article-content">
         {{{article.rendered-content}}}
       </div>
-      <div class="footer">
-        <small class="copyright">&copy; 2014-2018 Lee Adams <a href="mailto:{{adminEmail}}">contact</a></small>
-        <small class="version">{{version}}</small>
-      </div>
+    </div>
+    <div class="footer" align="center">
+      <small class="copyright">&copy; 2014-2018 Lee Adams <a href="mailto:{{admin-email}}">contact</a></small>
+      <small class="version">{{version}}</small>
     </div>
   </body>
 </html>

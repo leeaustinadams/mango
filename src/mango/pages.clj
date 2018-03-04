@@ -13,7 +13,8 @@
                                    (let [auth-user (auth/public-user user)]
                                      {:js-logged-in-user (json/write-str auth-user)
                                       :logged-in-user auth-user}))
-                                 {:app-css config/app-css}
+                                 {:app-css config/app-css
+                                  :admin-email config/admin-email}
                                  vals)))
 
 (defn article-vals

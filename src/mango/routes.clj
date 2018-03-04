@@ -272,7 +272,7 @@
   (GET "/blog" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
        (pages/articles user "Articles" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged nil}))))
   (GET "/blog/tagged/:tag{[0-9a-z-]+}" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
-       (pages/articles user (str "Articles Tagged " tag) (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged tag}))))
+       (pages/articles user (str "Articles Tagged \"" tag \") (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged tag}))))
   (GET "/blog/drafts" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
        (when (auth/editor? user)
          (pages/articles user "Drafts" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "draft" {:page 0 :per-page 100 :tagged tag})))))
