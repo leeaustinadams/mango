@@ -248,7 +248,7 @@
 (defn signout
   "Route handler for signing out"
   [data-provider user session]
-  { :status 200 :session nil })
+  { :status 200 :session nil})
 
 (defn log-event
   "Route handler for logging events"
@@ -267,6 +267,8 @@
        (pages/about user))
   (GET "/signin" {user :user}
        (pages/sign-in user))
+  (GET "/signout" {user :user}
+       (pages/sign-out user))
 
   ;; Blog
   (GET "/blog" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
@@ -282,8 +284,9 @@
        (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
          (pages/article user (hydrate/article db/data-provider article) (request-url request))))
   (GET "/edit/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
-       (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
-         (pages/edit-article user (hydrate/article db/data-provider article) (request-url request))))
+       (when (auth/editor? user)
+         (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
+           (pages/edit-article user (hydrate/article db/data-provider article) (request-url request)))))
 
   ;; JSON API
   (GET "/blog/count.json" {} (article-count db/data-provider))

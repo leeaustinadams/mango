@@ -15,7 +15,8 @@
                                      {:js-logged-in-user (json/write-str auth-user)
                                       :logged-in-user auth-user}))
                                  {:app-css config/app-css
-                                  :admin-email config/admin-email}
+                                  :admin-email config/admin-email
+                                  :is-editor (auth/editor? user)}
                                  vals)))
 
 (defn article-vals
@@ -60,6 +61,11 @@
   "Render the sign in page"
   [user & [message]]
   (render-page "templates/signin.html" user {:message message}))
+
+(defn sign-out
+  "Render the sign out page"
+  [user & [message]]
+  (render-page "templates/signout.html" user {:message message}))
 
 (defn sign-in-success
   "Render the sign in success page"

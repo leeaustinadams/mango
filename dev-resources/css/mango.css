@@ -60,9 +60,7 @@ html, body {
 
 .tags > li {
     display: inline-block;
-    *display: inline;
     text-shadow: 0 1px 0 #ffffff;
-    *zoom: 1;
 }
 
 .tags > li > .divider {
@@ -77,9 +75,7 @@ html, body {
 
 .media-list > li {
     display: inline-block;
-    *display: inline;
     text-shadow: 0 1px 0 #ffffff;
-    *zoom: 1;
 }
 
 .media-list > li > .divider {
@@ -197,9 +193,7 @@ pre {
 
 .breadcrumb > li {
     display: inline-block;
-    *display: inline;
     text-shadow: 0 1px 0 #ffffff;
-    *zoom: 1;
 }
 
 .breadcrumb > li > .divider {
@@ -237,7 +231,7 @@ label {
     font-size: x-large;
 }
 
-input[type=text] {
+input[type=text], input[type=password] {
     width: 100%;
     margin 4px 2px;
     border: 1px solid #999;
@@ -298,4 +292,17 @@ textarea {
         width: 100%;
         margin-top: 0;
     }
+}
+
+.header ul {
+    margin: 0 0 0 0;
+    display: inline-block;
+    list-style: none;
+    -webkit-padding-start: 0;
+    -moz-padding-start: 0;
+}
+
+.header ul > li {
+    display: inline-block;
+    margin: 0 8px 0 8px;
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Signed In</title>
+    <title>Sign In</title>
 	<meta charset="utf-8">
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -27,20 +27,15 @@
   </head>
   <body>
     <div class="mango">
-      <div class="header">
-        <ul><li><a href="/">Home</a></li><li><a href="/blog">Blog</a></li>{{#is-editor}}<li><a href="/blog/drafts">Drafts</a></li>{{/is-editor}}{{#logged-in-user}}<li><a href="/signout">Sign out</a></li>{{/logged-in-user}}{{^logged-in-user}}<li><a href="/signin">Sign in</a></li>{{/logged-in-user}}</ul>
-      </div>
-      <h1>Signed In</h1>
-      <p>Username: {{logged-in-user.username}}</p>
-      <p>Display Name: {{logged-in-user.displayName}}</p>
-      <p>First Name: {{logged-in-user.firstName}}</p>
-      <p>Last Name: {{logged-in-user.lastName}}</p>
-      <p>Email: {{logged-in-user.email}}</p>
-      <p>Twitter: {{logged-in-user.twitterHandle}}</p>
-      <p>Roles: {{logged-in-user.roles}}</p>
-      <p>Created: {{logged-in-user.created}}</p>
+      <h1>Sign Out?</h1>
+      <form name="signout" action="/auth/signout" method="POST" enctype="multipart/form-data">
+        <div class="row">
+          <input name="submit" type="submit" value="Sign Out">
+        </div>
+        {{message}}
+      </form>
     </div>
-    <div class="footer" align="center">
+    <div class="footer">
       <small class="copyright">&copy; 2014-2018 Lee Adams <a href="mailto:{{admin-email}}">contact</a></small>
       <small class="version">{{version}}</small>
     </div>

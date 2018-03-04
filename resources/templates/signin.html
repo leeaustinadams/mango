@@ -28,16 +28,24 @@
   <body>
     <div class="mango">
       <h1>Sign In</h1>
-      <form name="userForm" action="/auth/signin" method="POST" enctype="multipart/form-data">
-        <div>
-          <label>Username</label>
-          <input name="username" type="text" required>
+      <form name="signin" action="/auth/signin" method="POST" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col-25">
+            <label>Username</label>
+          </div>
+          <div class="col-75">
+            <input name="username" type="text" required>
+          </div>
         </div>
-        <div>
-	      <label>Password</label>
-	      <input name="password" type="password" required>
+        <div class="row">
+          <div class="col-25">
+	        <label>Password</label>
+          </div>
+          <div class="col-75">
+	        <input name="password" type="password" required>
+          </div>
         </div>
-        <div>
+        <div class="row">
           <input name="submit" type="submit" value="Sign in">
         </div>
         {{message}}

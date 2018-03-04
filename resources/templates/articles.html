@@ -28,6 +28,9 @@
   </head>
   <body>
     <div class="mango">
+      <div class="header">
+        <ul><li><a href="/">Home</a></li><li><a href="/blog">Blog</a></li>{{#is-editor}}<li><a href="/blog/drafts">Drafts</a></li>{{/is-editor}}{{#logged-in-user}}<li><a href="/signout">Sign out</a></li>{{/logged-in-user}}{{^logged-in-user}}<li><a href="/signin">Sign in</a></li>{{/logged-in-user}}</ul>
+      </div>
       <h1>{{list-title}}</h1>
       {{#articles}}
         <div class="article-list-item">
