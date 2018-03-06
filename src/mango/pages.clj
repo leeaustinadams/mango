@@ -6,17 +6,22 @@
             [clojure.data.json :as json]
             [stencil.core :as stencil]))
 
+(defn standard-vals
+  []
+  {:version config/version
+   :app-css config/app-css
+   :admin-email config/admin-email})
+
 (defn render-page
   "Render a page"
   [template user & [vals]]
   (stencil/render-file template (merge
+                                 (standard-vals)
                                  (when user
                                    (let [auth-user (auth/public-user user)]
                                      {:js-logged-in-user (json/write-str auth-user)
                                       :logged-in-user auth-user}))
-                                 {:app-css config/app-css
-                                  :admin-email config/admin-email
-                                  :is-editor (auth/editor? user)}
+                                 {:is-editor (auth/editor? user)}
                                  vals)))
 
 (defn article-vals
