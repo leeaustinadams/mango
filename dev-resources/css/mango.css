@@ -2,6 +2,7 @@ html, body {
     height: 100%;
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
+    background: #eee;
 }
 
 .clearfix::after {
@@ -15,6 +16,7 @@ html, body {
     padding: 2% 2% 2% 2%;
     border: 1px solid #999;
     border-radius: 4px;
+    background: white;
 }
 
 .article-header {
@@ -38,6 +40,14 @@ html, body {
 
 .article-tagsline {
     margin: 12px 0 12px 0;
+}
+
+.article-socialline {
+    margin: 12px 0 12px 0;
+}
+
+.twitter-follow-button, .twitter-share-button {
+    margin: 0 8px 0 0;
 }
 
 .article-content img {
