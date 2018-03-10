@@ -19,11 +19,17 @@
   [ids]
   (when (not (empty? ids)) (map #(ObjectId. %) (map str/trim (str/split ids #",")))))
 
-(defn xform-time
+(defn xform-string-to-time
   "Transforms a timestring into a time object"
   [time]
   (when time
-    (time-format/parse (time-format/formatters :date-time) time)))
+    (time-format/parse (time-format/formatters :date) time)))
+
+(defn xform-time-to-string
+  "Transforms a time object into a string"
+  [time]
+  (when time
+    (time-format/unparse (time-format/formatters :date) time)))
 
 (defn xform-tags
   "Make a vector of tags from a comma separated list"

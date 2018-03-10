@@ -23,7 +23,7 @@
             [mango.hydrate :as hydrate]
             [mango.pages :as pages]
             [mango.storage :as storage]
-            [mango.util :refer [slugify xform-ids xform-tags xform-time]]))
+            [mango.util :refer [slugify xform-ids xform-tags xform-time-to-string xform-string-to-time]]))
 
 (defn sanitize-article
   "Cleans and prepares an article from parameters posted"
@@ -32,7 +32,7 @@
                     keywordize-keys
                     (select-keys [:_id :title :description :content :created :media :tags :status]))
         media (xform-ids (:media article))
-        created (xform-time (:created article))
+        created (xform-string-to-time (:created article))
         tags (xform-tags (:tags article))]
     (merge article
            (when media {:media media})
