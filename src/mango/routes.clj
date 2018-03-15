@@ -254,7 +254,8 @@
 (defn signout
   "Route handler for signing out"
   [data-provider user session]
-  { :status 200 :session nil})
+  (merge (redir-response 302 "/")
+         { :session nil}))
 
 (defn log-event
   "Route handler for logging events"
