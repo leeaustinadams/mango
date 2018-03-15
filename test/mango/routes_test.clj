@@ -19,18 +19,29 @@
           :body "{\"foo\":\"bar\"}"
           :other "thing"})))
 
-(deftest test-json-failure
-  (is (= (json-failure 404 {:message "not found"})
+(deftest test-json-status
+  (is (= (json-status 200 nil)
+         {:status 200 :headers json-headers :body "null"}))
+  (is (= (json-status 302 {:foo "bar"})
+         {:status 302
+          :headers json-headers
+          :body "{\"foo\":\"bar\"}"}))
+  (is (= (json-status 420 {:foo "bar"} {:other "thing"})
+         {:status 420
+          :headers json-headers
+          :body "{\"foo\":\"bar\"}"
+          :other "thing"}))
+  (is (= (json-status 404 {:message "not found"})
          {:status 404
           :headers json-headers
           :body "{\"message\":\"not found\"}"}))
-  (is (= (json-failure 401 {:message "unauthorized"} {:other "thing"})
+  (is (= (json-status 401 {:message "unauthorized"} {:other "thing"})
          {:status 401
           :headers json-headers
           :body "{\"message\":\"unauthorized\"}"
           :other "thing"})))
 
-(def forbidden-result (json-failure 403 {:message "Forbidden"}))
+(def forbidden-result (json-status 403 {:message "Forbidden"}))
 
 (deftest test-html-success
   (is (= (html-success "") {:status 200 :headers html-headers :body ""}))

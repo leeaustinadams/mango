@@ -51,23 +51,19 @@
         (let [m (dp/insert-blog-media data-provider {:src (:filename file)} user-id)]
           (recur (rest files) (conj media (:_id m))))))))
 
-(defn json-success
-  "A JSON response for a success (200). Generates JSON from the obj passed in"
-  [obj & rest]
+(defn json-status
+  "A JSON response for a status. Generates JSON from the obj passed in"
+  [status obj & rest]
   (reduce merge {
-                 :status 200
+                 :status status
                  :headers {"Content-Type" "application/json"}
                  :body (generate-string obj)}
           rest))
 
-(defn json-failure
-  "A JSON response for a failure. Generates JSON from the obj passed in"
-  [code obj & rest]
-  (reduce merge {
-                 :status code
-                 :headers {"Content-Type" "application/json"}
-                 :body (generate-string obj)}
-          rest))
+(defn json-success
+  "A JSON response for a success (200). Generates JSON from the obj passed in"
+  [obj & [rest]]
+  (json-status 200 obj rest))
 
 (defn html-response
   "An HTML response with code."
@@ -81,6 +77,14 @@
   "An HTML response for a success (200)."
   [body]
   (html-response 200 body))
+
+(defn redir-response
+  "A response for a redirection."
+  [code location]
+  {
+   :status code
+   :headers {"Content-Type" "text/html"
+             "Location" location}})
 
 (defn parse-file-keys
   "Returns a collection of keys for files"
@@ -118,7 +122,7 @@
   [data-provider article]
   (if (not (empty? article))
     (json-success (hydrate/article data-provider article))
-    (json-failure 404 {:msg "Not found"})))
+    (json-status 404 {:msg "Not found"})))
 
 (defn sitemap
   "Route handler for the sitemap.txt response"
@@ -140,7 +144,7 @@
   [data-provider user]
   (if (auth/editor? user)
     (json-success {:count (dp/blog-articles-count data-provider "draft")})
-    (json-failure 403 {:message "Forbidden"})))
+    (json-status 403 {:message "Forbidden"})))
 
 (defn published
   "Route handler for a page worth of articles"
@@ -156,7 +160,7 @@
     (let [page (if page (Integer. page) 1)
           per-page (if per-page (Integer. per-page) 10)]
       (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "draft" {:page page :per-page per-page :tagged tagged}))))
-    (json-failure 403 {:message "Forbidden"})))
+    (json-status 403 {:message "Forbidden"})))
 
 (defn article-by-id
   "Route handler for a single article by its id"
@@ -177,18 +181,20 @@
   [data-provider user params]
   (if (auth/editor? user)
     (let [user-id (:_id user)
-          article (sanitize-article params)]
-      (json-success (dp/insert-blog-article data-provider article user-id)))
-    (json-failure 403 {:message "Forbidden"})))
+          article (sanitize-article params)
+          inserted (dp/insert-blog-article data-provider article user-id)]
+      (redir-response 302 (str "/blog/" (:slug article))))
+    (json-status 403 {:message "Forbidden"})))
 
 (defn update-article
   "Route handler for updating an existing article"
   [data-provider user params]
   (if (auth/editor? user)
     (let [user-id (:_id user)
-          article (sanitize-article params)]
-      (json-success (dp/update-blog-article data-provider article user-id)))
-    (json-failure 403 {:message "Forbidden"})))
+          article (sanitize-article params)
+          updated (dp/update-blog-article data-provider article user-id)]
+      (redir-response 302 (str "/blog/" (:slug article))))
+    (json-status 403 {:message "Forbidden"})))
 
 (defn post-media
   "Route handler for uploading media"
@@ -202,8 +208,8 @@
       (let [result (upload-file (first files))]
         (if (nil? @result)
           (json-success media-ids)
-          (json-failure 500 {:message "Media upload failed"}))))
-    (json-failure 403 {:message "Forbidden"})))
+          (json-status 500 {:message "Media upload failed"}))))
+    (json-status 403 {:message "Forbidden"})))
 
 (defn list-media
   "Route handler to list media"
@@ -224,7 +230,7 @@
     (let [page (if page (Integer. page) 1)
           per-page (if per-page (Integer. per-page) 10)]
       (json-success (map auth/public-user (dp/users data-provider {:page page :per-page per-page}))))
-    (json-failure 403 {:message "Forbidden"})))
+    (json-status 403 {:message "Forbidden"})))
 
 (defn me
   "Route handler for currently logged in user"
