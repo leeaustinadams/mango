@@ -37,13 +37,14 @@
   "Render the toolbar"
   [user & [article]]
   [:div {:class "header"}
-   (unordered-list (list (link-to "/" "Home")
-                         (link-to "/blog" "Blog")
-                         (when (auth/editor? user) (link-to "/blog/drafts" "Drafts"))
-                         (when (and article (auth/editor? user)) (link-to (str "/edit/" (:slug article)) "Edit"))
-                         (if user
-                           (link-to "/signout" "Sign out")
-                           (link-to "/signin" "Sign in"))))])
+   (unordered-list (filter #(not (nil? %)) (list (link-to "/" "Home")
+                                                 (link-to "/blog" "Blog")
+                                                 (when (auth/editor? user) (link-to "/blog/new" "New"))
+                                                 (when (auth/editor? user) (link-to "/blog/drafts" "Drafts"))
+                                                 (when (and article (auth/editor? user)) (link-to (str "/edit/" (:slug article)) "Edit"))
+                                                 (if user
+                                                   (link-to "/signout" "Sign out")
+                                                   (link-to "/signin" "Sign in")))))])
 
 (defn tags
   "Render tags"
