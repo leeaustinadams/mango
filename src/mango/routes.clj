@@ -248,7 +248,8 @@
   [data-provider session username password]
   (if-let [user (auth/user username password)]
     (let [sess (assoc session :user (str (:_id user)))]
-      {:body (pages/sign-in-success user) :session sess})
+      (merge (redir-response 302 "/")
+             {:session sess}))
     (pages/sign-in nil "Invalid login")))
 
 (defn signout
@@ -294,6 +295,8 @@
        (when (auth/editor? user)
          (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
            (pages/edit-article user (hydrate/article db/data-provider article) (request-url request)))))
+  (GET "/me" {user :user}
+       (when user (pages/user-details user)))
 
   ;; JSON API
   (GET "/blog/count.json" {} (article-count db/data-provider))

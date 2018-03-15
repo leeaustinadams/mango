@@ -196,20 +196,19 @@
             (when message [:p message])]]
           (footer)]))
 
-(defn sign-in-success
-  "Render the sign in success page"
+(defn user-details
+  "Render the user details page"
   [user]
   (html5 [:head (header "Success")]
          [:body
           [:div {:class "mango"}
            (toolbar user)
-           [:h1 "Signed In"]
            [:p "Username: " (:username user)]
            [:p "Display Name: " (:displayName user)]
            [:p "First Name: " (:firstName user)]
            [:p "Last Name: " (:lastName user)]
-           [:p "Email: " (:email user)]
-           [:p "Twitter: " (:twitterHandle user)]
+           [:p "Email: " (let [email (:email user)] (mail-to email email))]
+           [:p "Twitter: " (let [handle (:twitterHandle user)] (link-to (str "https://twitter.com/" handle) handle))]
            [:p "Roles: " (unordered-list (:roles user))]
            [:p "Created: " (xform-time-to-string (:created user))]]
           (footer)]))
