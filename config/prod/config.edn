@@ -14,4 +14,5 @@
  :port 8080
  :cdn-url "https://cdn.4d4ms.com/blog"
  :aws-media-bucket "4d4ms"
- :aws-region "us-west-1"}
+ :aws-region "us-west-1"
+ :google-analytics-id "UA-43198629-1"}

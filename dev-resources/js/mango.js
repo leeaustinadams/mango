@@ -16,7 +16,7 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'UA-43198629-1');
+    gtag('config', mango.googleAnalyticsId);
 
     window.twttr = (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0],

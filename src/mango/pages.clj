@@ -2,7 +2,7 @@
 (ns mango.pages
   (:require [mango.auth :as auth]
             [mango.config :as config]
-            [mango.util :refer [csv xform-time-to-string xform-string-to-time]]
+            [clojure.core.strint :refer [<<]]
             [clojure.data.json :as json]
             [stencil.core :as stencil]
             [hiccup.page :refer [html5 include-css include-js]]
@@ -24,6 +24,7 @@
    (include-js "/js/highlight.pack.js")
    (include-js "https://www.googletagmanager.com/gtag/js?id=UA-43198629-1")
    (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
+   (javascript-tag (<< "var mango = (function() { return { googleAnalyticsId: \"~{config/google-analytics-id}\" }})();"))
    (include-js (str "/" config/app-js))))
 
 (defn footer

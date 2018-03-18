@@ -25,4 +25,4 @@
 (def aws-media-bucket-region (:aws-region env))
 (def app-js (str "js/mango-" version/version ".min.js"))
 (def app-css (str "css/mango-" version/version ".min.css"))
-
+(def google-analytics-id (:google-analytics-id env))

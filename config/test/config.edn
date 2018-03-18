@@ -16,4 +16,5 @@
  ;; :aws-credentials {:access-key (:aws-access-key env)
  ;;                   :secret-key (:aws-secret-key env)
  ;;                   :endpoint (:aws-endpoint env)}
- :aws-media-bucket "4d4ms-test"}
+ :aws-media-bucket "4d4ms-test"
+ :google-analytics-id ""}
