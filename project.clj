@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/data.json "0.2.6"]
+                 [org.clojure/core.incubator "0.1.4"]
                  [environ "1.1.0"]
                  [com.novemberain/monger "3.1.0"]
                  [ring/ring-core "1.4.0"]

@@ -2,7 +2,9 @@
   (:require [clojure.string :as str]
             [cheshire.generate :refer [add-encoder encode-str]]
             [clj-time.format :as time-format])
-  (:import org.bson.types.ObjectId))
+  (:import org.bson.types.ObjectId
+           java.net.URLEncoder
+           java.net.URLDecoder))
 
 (add-encoder org.bson.types.ObjectId encode-str)
 
@@ -37,8 +39,12 @@
   (when (not (empty? tags))
     (mapv #(str/trim %) (str/split tags #","))))
 
-(defn csv
-  "Make a string of comma separated values from s."
+(defn url-encode
+  "URL encodes a string"
   [s]
-  (let [e (interleave s (repeat ", "))]
-    (reduce str (take (dec (count e)) e))))
+  (URLEncoder/encode s))
+
+(defn url-decode
+  "URL decodes a string"
+  [s]
+  (URLDecoder/decode s))

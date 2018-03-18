@@ -2,6 +2,7 @@
 (ns mango.pages
   (:require [mango.auth :as auth]
             [mango.config :as config]
+            [mango.util :refer [xform-time-to-string xform-string-to-time url-encode]]
             [clojure.core.strint :refer [<<]]
             [clojure.data.json :as json]
             [stencil.core :as stencil]
@@ -47,14 +48,19 @@
                                                    (link-to "/signout" "Sign out")
                                                    (link-to "/signin" "Sign in")))))])
 
+(defn link-to-tag
+  "Render a link to articles with a tag"
+  [tag]
+  (link-to (str "/blog/tagged/" (url-encode tag)) tag))
+
 (defn tags
   "Render tags"
   [tags]
   (unordered-list {:class "tags"}
-                  (map (fn [tag]
-                         (list
-                          (link-to (str "/blog/tagged/" (hiccup.util/url-encode tag)) tag)
-                          [:span {:class "divider"} "-"])) tags)))
+                  (map #(list
+                         (link-to-tag %)
+                         [:span {:class "divider"} "-"]) tags)))
+
 (defn article
   "Render an article. Expects media to have been hydrated"
   [user article url]
@@ -226,7 +232,7 @@
               (when article (hidden-field "_id" (:_id article)))
               (field-row text-field "title" "Title" (when article (:title article)))
               (field-row text-field "description" "Description" (when article (:description article)))
-              (field-row text-field "tags" "Tags" (when article (csv (:tags article))))
+              (field-row text-field "tags" "Tags" (when article (apply str (interpose ", " (:tags article)))))
               (field-row text-area "content" "Content" (when article (:content article)))
               (field-row (fn [name value] [:input {:name name :type "date" :value value}]) "created" "Date" (when article (xform-time-to-string (:created article))))
               (field-row (fn [name value] (drop-down name
