@@ -12,4 +12,6 @@ pom.xml.asc
 run-4d4ms.sh
 /resources/public/js/mango*.js
 /resources/public/css/mango*.css
+/dev-resources/js/mango*.min.js
+/dev-resources/css/mango*.min.css
 /src/version.clj
