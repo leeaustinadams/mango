@@ -12,7 +12,6 @@
                  [ring/ring-defaults "0.1.2"]
                  [compojure "1.4.0"]
                  [cheshire "5.5.0" :exclusions [com.fasterxml.jackson.core/jackson-core]]
-                 [crypto-random "1.2.0"]
                  [crypto-password "0.2.0"]
                  [stencil "0.5.0"]
                  [markdown-clj "1.0.2"]

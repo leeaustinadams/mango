@@ -1,7 +1,5 @@
-;; https://github.com/weavejester/crypto-password
 (ns mango.auth
   (:require [mango.db :as db]
-            [crypto.random :as random]
             [crypto.password.pbkdf2 :as password]))
 
 (defn user
