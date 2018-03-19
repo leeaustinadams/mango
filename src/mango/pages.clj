@@ -38,7 +38,7 @@
 (defn toolbar
   "Render the toolbar"
   [user & [article]]
-  [:div {:class "header"}
+  [:div {:class "toolbar"}
    (unordered-list (filter #(not (nil? %)) (list (link-to "/" "Home")
                                                  (link-to "/blog" "Blog")
                                                  (when (auth/editor? user) (link-to "/blog/new" "New"))
@@ -141,6 +141,7 @@
   (html5 [:head (header "Photography")]
          [:body
           [:div {:class "mango"}
+           (toolbar user)
            [:h3 (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
            [:h3 (link-to "http://www.flickr.com/photos/beamjack/tags/buildings/" "Buildings")]
            [:h3 (link-to "http://www.flickr.com/photos/beamjack/tags/places/" "Places")]
@@ -153,6 +154,7 @@
   (html5 [:head (header "About")]
          [:body
           [:div {:class "mango"}
+           (toolbar user)
            [:h3 "Me"]
            [:p "I've been a professional software developer for 18 years. I live in beautiful San Francisco Bay area with my wife and our three children. I'm currently a Staff Software Engineer at " (link-to "https://twitter.com" "Twitter")]
            [:h3 "Interests"]
@@ -184,6 +186,7 @@
   (html5 [:head (header "Sign In")]
          [:body
           [:div {:class "mango"}
+           (toolbar user)
            [:h1 "Sign In"]
            [:form {:name "signin" :action "/auth/signin" :method "POST" :enctype "multipart/form-data"}
             (field-row text-field "username" "Username")
@@ -198,6 +201,7 @@
   (html5 [:head (header "Sign Out")]
          [:body
           [:div {:class "mango"}
+           (toolbar user)
            [:h1 "Sign Out?"]
            [:form {:name "signout" :action "/auth/signout" :method "POST" :enctype "multipart/form-data"}
             (submit-row "Sign Out")
@@ -227,6 +231,7 @@
   (html5 [:head (header "Edit")]
          [:body
           [:div {:class "mango"}
+           (toolbar user)
            (let [id (if article (:_id article) "post")]
              [:form {:name "articleForm" :action (str "/blog/articles/" id ".json") :method "POST" :enctype "multipart/form-data"}
               (when article (hidden-field "_id" (:_id article)))
@@ -253,6 +258,7 @@
    [:head (header "Not Found")]
    [:body
     [:div {:class "mango"}
+     (toolbar user)
      [:h1 "Not found!"]
      [:p "The page you are looking for could not be found"]]
     (footer)]))

@@ -304,13 +304,13 @@ textarea {
     }
 }
 
-.header {
-    margin: 8px 0 8px 0;
+.toolbar {
+    margin: 8px 0 12px 0;
     padding: 2px 0 2px 0;
     border-bottom: solid 1px #999;
 }
 
-.header ul {
+.toolbar ul {
     margin: 0 0 0 0;
     display: inline-block;
     list-style: none;
@@ -318,7 +318,7 @@ textarea {
     -moz-padding-start: 0;
 }
 
-.header ul > li {
+.toolbar ul > li {
     display: inline-block;
     margin: 0 8px 0 8px;
 }
