@@ -29,9 +29,11 @@
              :prod {:resource-paths ["config/prod"]}
              :test {:resource-paths ["config/test"]}
              :uberjar {:aot :all}
-             :repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}
+             :repl {:init-ns mango.core
+                    :init (use 'mango.core :reload)}
              }
   :prep-tasks [["v" "cache" "src"]
+               ["minify-assets"]
                ["shell" "rm" "-f" "resources/public/js/mango-*.js"]
                ["shell" "cp" "dev-resources/js/mango.min.js" "resources/public/js/mango-${:version}.min.js"]
                ["shell" "rm" "-f" "resources/public/css/mango-*.css"]

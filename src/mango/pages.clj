@@ -142,10 +142,12 @@
          [:body
           [:div {:class "mango"}
            (toolbar user)
-           [:h3 (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
-           [:h3 (link-to "http://www.flickr.com/photos/beamjack/tags/buildings/" "Buildings")]
-           [:h3 (link-to "http://www.flickr.com/photos/beamjack/tags/places/" "Places")]
-           [:h3 (link-to "http://www.flickr.com/photos/beamjack/" "Everything Else")]]
+           [:div {:class "row"}
+            [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
+            [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/buildings/" "Buildings")]]
+           [:div {:class "row"}
+            [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/places/" "Places")]
+            [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/" "Everything Else")]]]
           (footer)]))
 
 (defn about
@@ -168,7 +170,7 @@
 (defn field-row
   "Render a form row with label"
   [field name label-content & [value]]
-  (list [:div {:class "row"}
+  (list [:div {:class "field-row"}
          [:div {:class "col-25"}
           (label name label-content)]
          [:div {:class "col-75"}
