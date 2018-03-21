@@ -31,14 +31,14 @@
 (defn footer
   "Render the footer"
   []
-  [:div {:class "footer" :align "center"}
-   [:small {:class "copyright"} "&copy; 2014-2018 Lee Adams " (mail-to config/admin-email "contact")][:br]
-   [:small {class "version"} config/version]])
+  [:div.footer {:align "center"}
+   [:small.copyright "&copy; 2014-2018 Lee Adams " (mail-to config/admin-email "contact")][:br]
+   [:small.version config/version]])
 
 (defn toolbar
   "Render the toolbar"
   [user & [article]]
-  [:div {:class "toolbar"}
+  [:div.toolbar
    (unordered-list (filter #(not (nil? %)) (list (link-to "/" "Home")
                                                  (link-to "/blog" "Blog")
                                                  (when (auth/editor? user) (link-to "/blog/new" "New"))
@@ -57,9 +57,25 @@
   "Render tags"
   [tags]
   (unordered-list {:class "tags"}
-                  (map #(list
-                         (link-to-tag %)
-                         [:span {:class "divider"} "-"]) tags)))
+                  (let [divider [:span.divider "-"]]
+                    (partition-all 2 (interpose divider (map link-to-tag tags))))))
+
+(defn tweet-button
+  "Render a Tweet button that will prepopulate with text"
+  [url text]
+  (link-to {:class "twitter-share-button"
+            :data-url url}
+           (hiccup.util/url "https://twitter.com/intent/tweet" {:text text})
+           "Tweet"))
+
+(defn follow-button
+  "Render a Twitter Follow button for handle"
+  [handle]
+  (when handle
+    (link-to {:class "twitter-follow-button"
+              :data-show-count "true"}
+             (str "https://twitter.com/" handle)
+             (str "Follow @" handle))))
 
 (defn article
   "Render an article. Expects media to have been hydrated"
@@ -82,7 +98,7 @@
       [:meta {:property "og:description" :content (:description article)}]
       [:meta {:property "og:image" :content img}]]
      [:body
-      [:div {:class "mango"}
+      [:div.mango
        [:div {:align "center"}
         [:ins {:class "adsbygoogle"
                :style "display:block"
@@ -91,90 +107,83 @@
                :data-ad-format "auto"}]
         (javascript-tag "(adsbygoogle = window.adsbygoogle || []).push({});")]
        (toolbar user article)
-       [:div {:class "article-header"}
-        [:h1 {:class "article-title"} (:title article)]
-        [:h2 {:class "article-description"} (:description article)]
-        [:div {:class "article-byline"} "Posted By: " (get-in article [:user :displayName]) "(@" (get-in article [:user :twitterHandle]) ")"]
-        [:div {:class "article-infoline"} "On: " (xform-time-to-string (:created article))]
-        [:div {:class "article-tagsline"} "Tagged: " (tags (:tags article))]
-        [:div {:class "article-socialline"}
-         (link-to {:class "twitter-share-button"
-                   :data-url url}
-                  (hiccup.util/url "https://twitter.com/intent/tweet" {:text (:description article)})
-                  "Tweet")
-         (let [handle (get-in article [:user :twitterHandle])]
-           (link-to {:class "twitter-follow-button"
-                     :data-show-count "true"}
-                    (str "https://twitter.com/" handle)
-                    (str "Follow @" handle)))]]
-       [:div {:class "article-content"}
+       [:div.article-header
+        [:h1.article-title (:title article)]
+        [:h2.article-description (:description article)]
+        [:div.article-byline "Posted By: " (get-in article [:user :displayName]) "(@" (get-in article [:user :twitterHandle]) ")"]
+        [:div.article-infoline "On: " (xform-time-to-string (:created article))]
+        [:div.article-tagsline "Tagged: " (tags (:tags article))]
+        [:div.article-socialline
+         (tweet-button url (:description article))
+         (follow-button (get-in article [:user :twitterHandle]))]]
+       [:div.article-content
         (:rendered-content article)]]
       (footer)])))
 
-(defn articles
-  "Render a list of articles"
-  [user list-title articles]
-  (html5 [:head (header list-title)]
+(defn page
+  "Renders a page"
+  [user title content & {:keys [show-toolbar show-footer]}]
+  (html5 [:head (header title)]
          [:body
-          [:div {:class "mango"}
-           (toolbar user)
-           [:h1 list-title]
-           (map (fn [article] [:div {:class "article-list-item"}
-                               [:h2 (link-to (str "/blog/" (:slug article)) (:title article))]
-                               [:p (:description article)]]) articles)]
-          (footer)]))
+          [:div.mango
+           (when show-toolbar (toolbar user))
+           content]
+          (when show-footer (footer))]))
 
 (defn root
   "Render the root page"
   [user]
-  (html5 [:head (header "4d4ms.com")]
-         [:body
-          [:div {:class "mango"}
-           [:h2 (link-to "/blog" "Blog")]
-           [:h2 (link-to "/photography" "Photography")]
-           [:h2 (link-to "/about" "About")]]
-          (footer)]))
+  (page user "4d4ms.com"
+        (list [:h2 (link-to "/blog" "Blog")]
+              [:h2 (link-to "/photography" "Photography")]
+              [:h2 (link-to "/about" "About")])))
+
+(defn articles
+  "Render a list of articles"
+  [user list-title articles]
+  (page user list-title
+        (list
+         [:h1 list-title]
+         (map (fn [article] [:div {:class "article-list-item"}
+                             [:h2 (link-to (str "/blog/" (:slug article)) (:title article))]
+                             [:p (:description article)]]) articles))
+        :show-toolbar true
+        :show-footer true))
 
 (defn photography
   "Render the photography page"
   [user]
-  (html5 [:head (header "Photography")]
-         [:body
-          [:div {:class "mango"}
-           (toolbar user)
-           [:div {:class "row"}
-            [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
-            [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/buildings/" "Buildings")]]
-           [:div {:class "row"}
-            [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/places/" "Places")]
-            [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/" "Everything Else")]]]
-          (footer)]))
+  (page user "Photography"
+        (list
+         [:div {:class "row"}
+          [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
+          [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/buildings/" "Buildings")]]
+         [:div {:class "row"}
+          [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/places/" "Places")]
+          [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/" "Everything Else")]])))
 
 (defn about
   "Render the about page"
   [user]
-  (html5 [:head (header "About")]
-         [:body
-          [:div {:class "mango"}
-           (toolbar user)
-           [:h3 "Me"]
-           [:p "I've been a professional software developer for 18 years. I live in beautiful San Francisco Bay area with my wife and our three children. I'm currently a Staff Software Engineer at " (link-to "https://twitter.com" "Twitter")]
-           [:h3 "Interests"]
-           [:p (link-to "http://www.github.com/leeaustinadams" "Code") ", Technology, Books, Movies, Hiking, Backpacking, Travel, " (link-to "/photography" "Photography") ", Motorcycles"]
-           [:h3 "Crypto"]
-           [:ul
-            [:li (link-to "https://keybase.io/leeadams" "Keybase.io")]
-            [:li (link-to "https://4d4ms.com/lee.asc" "PGP Key")]]]
-          (footer)]))
+  (page user "About"
+        (list
+         [:h3 "Me"]
+         [:p "I've been a professional software developer for 18 years. I live in beautiful San Francisco Bay area with my wife and our three children. I'm currently a Staff Software Engineer at " (link-to "https://twitter.com" "Twitter")]
+         [:h3 "Interests"]
+         [:p (link-to "http://www.github.com/leeaustinadams" "Code") ", Technology, Books, Movies, Hiking, Backpacking, Travel, " (link-to "/photography" "Photography") ", Motorcycles"]
+         [:h3 "Crypto"]
+         [:ul
+          [:li (link-to "https://keybase.io/leeadams" "Keybase.io")]
+          [:li (link-to "https://4d4ms.com/lee.asc" "PGP Key")]])))
 
 (defn field-row
   "Render a form row with label"
-  [field name label-content & [value]]
+  [field name label-content & rest]
   (list [:div {:class "field-row"}
          [:div {:class "col-25"}
           (label name label-content)]
          [:div {:class "col-75"}
-          (field name value)]]))
+          (apply field name rest)]]))
 
 (defn submit-row
   "Render a form submit row"
@@ -185,85 +194,71 @@
 (defn sign-in
   "Render the sign in page"
   [user & [message]]
-  (html5 [:head (header "Sign In")]
-         [:body
-          [:div {:class "mango"}
-           (toolbar user)
-           [:h1 "Sign In"]
-           [:form {:name "signin" :action "/auth/signin" :method "POST" :enctype "multipart/form-data"}
-            (field-row text-field "username" "Username")
-            (field-row password-field "password" "Password")
-            (submit-row "Sign In")
-            (when message [:p message])]]
-          (footer)]))
+  (page user "Sign In"
+        (list
+         [:h1 "Sign In"]
+         [:form {:name "signin" :action "/auth/signin" :method "POST" :enctype "multipart/form-data"}
+          (field-row text-field "username" "Username")
+          (field-row password-field "password" "Password")
+          (submit-row "Sign In")
+          (when message [:p message])])))
 
 (defn sign-out
   "Render the sign out page"
   [user & [message]]
-  (html5 [:head (header "Sign Out")]
-         [:body
-          [:div {:class "mango"}
-           (toolbar user)
-           [:h1 "Sign Out?"]
-           [:form {:name "signout" :action "/auth/signout" :method "POST" :enctype "multipart/form-data"}
-            (submit-row "Sign Out")
-            (when message [:p message])]]
-          (footer)]))
+  (page user "Sign Out"
+        (list
+         [:h1 "Sign Out?"]
+         [:form {:name "signout" :action "/auth/signout" :method "POST" :enctype "multipart/form-data"}
+          (submit-row "Sign Out")
+          (when message [:p message])])))
 
 (defn user-details
   "Render the user details page"
   [user]
-  (html5 [:head (header "Success")]
-         [:body
-          [:div {:class "mango"}
-           (toolbar user)
-           [:p "Username: " (:username user)]
-           [:p "Display Name: " (:displayName user)]
-           [:p "First Name: " (:firstName user)]
-           [:p "Last Name: " (:lastName user)]
-           [:p "Email: " (let [email (:email user)] (mail-to email email))]
-           [:p "Twitter: " (let [handle (:twitterHandle user)] (link-to (str "https://twitter.com/" handle) handle))]
-           [:p "Roles: " (unordered-list (:roles user))]
-           [:p "Created: " (xform-time-to-string (:created user))]]
-          (footer)]))
+  (page user "Success"
+        (list
+         [:p "Username: " (:username user)]
+         [:p "Display Name: " (:displayName user)]
+         [:p "First Name: " (:firstName user)]
+         [:p "Last Name: " (:lastName user)]
+         [:p "Email: " (let [email (:email user)] (mail-to email email))]
+         [:p "Twitter: " (let [handle (:twitterHandle user)] (link-to (str "https://twitter.com/" handle) handle))]
+         [:p "Roles: " (unordered-list (:roles user))]
+         [:p "Created: " (xform-time-to-string (:created user))])))
+
+(defn date-field
+  "Renders a date input"
+  [name value]
+  [:input {:name name :type "date" :value value}])
+
+(defn dropdown-field
+  "Renders a dropdown select input"
+  [name values default-value]
+  (drop-down name values default-value))
 
 (defn edit-article
   "Render the editing in page"
   [user & [article url]]
-  (html5 [:head (header "Edit")]
-         [:body
-          [:div {:class "mango"}
-           (toolbar user)
-           (let [id (if article (:_id article) "post")]
-             [:form {:name "articleForm" :action (str "/blog/articles/" id ".json") :method "POST" :enctype "multipart/form-data"}
-              (when article (hidden-field "_id" (:_id article)))
-              (field-row text-field "title" "Title" (when article (:title article)))
-              (field-row text-field "description" "Description" (when article (:description article)))
-              (field-row text-field "tags" "Tags" (when article (apply str (interpose ", " (:tags article)))))
-              (field-row text-area "content" "Content" (when article (:content article)))
-              (field-row (fn [name value] [:input {:name name :type "date" :value value}]) "created" "Date" (when article (xform-time-to-string (:created article))))
-              (field-row (fn [name value] (drop-down name
-                                                     (list ["Draft" "draft"]
-                                                           ["Published" "published"]
-                                                           ["Trash" "trash"])
-                                                     value))
-                         "status"
-                         "Status"
-                         (if article (:status article) "draft"))
-              (submit-row "Submit")])]
-          (footer)]))
+  (page user "Edit"
+        (let [id (if article (:_id article) "post")]
+          [:form {:name "articleForm" :action (str "/blog/articles/" id ".json") :method "POST" :enctype "multipart/form-data"}
+           (when article (hidden-field "_id" (:_id article)))
+           (field-row text-field "title" "Title" (when article (:title article)))
+           (field-row text-field "description" "Description" (when article (:description article)))
+           (field-row text-field "tags" "Tags" (when article (apply str (interpose ", " (:tags article)))))
+           (field-row text-area "content" "Content" (when article (:content article)))
+           (field-row date-field "created" "Date" (when article (xform-time-to-string (:created article))))
+           (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (if article (:status article) "draft"))
+           (submit-row "Submit")])))
 
 (defn not-found
   "Render a page for when a URI is not found"
   [user]
-  (html5
-   [:head (header "Not Found")]
-   [:body
-    [:div {:class "mango"}
-     (toolbar user)
-     [:h1 "Not found!"]
-     [:p "The page you are looking for could not be found"]]
-    (footer)]))
+  (page user "Not Found"
+        (list
+         [:h1 "Not found!"]
+         [:p "The page you are looking for could not be found"])))
 
 (defn sitemap
   "Render a sitemap for indexing"
