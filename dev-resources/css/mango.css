@@ -60,6 +60,10 @@ html, body {
     padding-top: 10px;
 }
 
+.footnotes {
+    font-size: small;
+}
+
 .tags {
     margin: 0 0 0 0;
     display: inline-block;
