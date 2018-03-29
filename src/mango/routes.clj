@@ -9,7 +9,6 @@
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.session.cookie :refer [cookie-store]]
-            [ring.middleware.session.store :refer [SessionStore]]
             [ring.middleware.multipart-params :refer [wrap-multipart-params]]
             [ring.util.request :refer [request-url]]
             [ring.util.response :refer [file-response]]
@@ -114,8 +113,8 @@
 
 (defn upload-file
   "Uploads files to storage. Returns a future"
-  [file]
-  (storage/upload config/aws-media-bucket (str "blog/" (:filename file)) (:tempfile file) (:content-type file)))
+  [{:keys [filename tempfile content-type]}]
+  (storage/upload config/aws-media-bucket (str "blog/" filename) tempfile content-type))
 
 (defn article-response
   "Renders a response for a hydrated article"
@@ -280,12 +279,12 @@
 
   ;; Blog
   (GET "/blog" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
-       (pages/articles user "Articles" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged nil}))))
+       (pages/articles-list user "Articles" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged nil}))))
   (GET "/blog/tagged/:tag" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
-       (pages/articles user (str "Articles Tagged \"" (url-decode tag) \") (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged (url-decode tag)}))))
+       (pages/articles-list user (str "Articles Tagged \"" (url-decode tag) \") (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged (url-decode tag)}))))
   (GET "/blog/drafts" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
        (when (auth/editor? user)
-         (pages/articles user "Drafts" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "draft" {:page 0 :per-page 100 :tagged tag})))))
+         (pages/articles-list user "Drafts" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "draft" {:page 0 :per-page 100 :tagged tag})))))
   (GET "/blog/new" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
        (when (auth/editor? user) (pages/edit-article user)))
   (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
@@ -294,7 +293,7 @@
   (GET "/edit/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
        (when (auth/editor? user)
          (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
-           (pages/edit-article user (hydrate/article db/data-provider article) (request-url request)))))
+           (pages/edit-article user (hydrate/article db/data-provider article)))))
   (GET "/me" {user :user}
        (when user (pages/user-details user)))
 
@@ -347,15 +346,6 @@
   ;; all other requests
   (rfn {user :user} (pages/not-found user)))
 
-(defrecord DBSessionStore []
-  SessionStore
-  (delete-session [this key] (db/delete-session key) nil)
-  (read-session [this key] (db/read-session key))
-  (write-session [this key data]
-    (if (nil? key)
-      (db/add-session data)
-      (db/write-session key data))))
-
 (defn wrap-user
   "Add a user to the request object if there is a user id in the session"
   [handler & [options]]
@@ -401,9 +391,7 @@
 (def application (-> routes
                      wrap-logger
                      wrap-user
-;                     (wrap-session {:store (DBSessionStore.)})
                      (wrap-session {:store (cookie-store {:key config/session-key})})
-;                     wrap-session
                      wrap-cookies
                      wrap-params
                      wrap-multipart-params))
