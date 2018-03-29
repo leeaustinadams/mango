@@ -8,8 +8,7 @@
             [stencil.core :as stencil]
             [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.element :refer :all]
-            [hiccup.form :refer :all]
-            ))
+            [hiccup.form :refer :all]))
 
 (defn header
   "Render the header"
@@ -53,7 +52,7 @@
   [tag]
   (link-to (str "/blog/tagged/" (url-encode tag)) tag))
 
-(defn tags
+(defn tags-list
   "Render tags"
   [tags]
   (unordered-list {:class "tags"}
@@ -79,23 +78,23 @@
 
 (defn article
   "Render an article. Expects media to have been hydrated"
-  [user article url]
-  (let [img (let [img_src (get (first (:media article)) :src)]
+  [user {:keys [title description tags media created rendered-content] {author-name :displayName author-twitter-handle :twitterHandle} :user :as article} url]
+  (let [img (let [img_src (get (first media) :src)]
               (if (empty? img_src)
                 "https://cdn.4d4ms.com/img/A.jpg"
                 img_src))]
     (html5
      [:head
-      (header (:title article))
+      (header title)
       [:meta {:name "twitter:card" :content "summary"}]
       [:meta {:name "twitter:site" :content config/twitter-site-handle}]
-      [:meta {:name "twitter:title" :content (:title article)}]
+      [:meta {:name "twitter:title" :content title}]
       [:meta {:name "twitter:image" :content img}]
-      [:meta {:name "twitter:description" :content (:description article)}]
+      [:meta {:name "twitter:description" :content description}]
       [:meta {:property "og:url" :content url}]
       [:meta {:property "og:type" :content "article"}]
-      [:meta {:property "og:title" :content (:title article)}]
-      [:meta {:property "og:description" :content (:description article)}]
+      [:meta {:property "og:title" :content title}]
+      [:meta {:property "og:description" :content description}]
       [:meta {:property "og:image" :content img}]]
      [:body
       [:div.mango
@@ -108,16 +107,15 @@
         (javascript-tag "(adsbygoogle = window.adsbygoogle || []).push({});")]
        (toolbar user article)
        [:div.article-header
-        [:h1.article-title (:title article)]
-        [:h2.article-description (:description article)]
-        [:div.article-byline "Posted By: " (get-in article [:user :displayName]) "(@" (get-in article [:user :twitterHandle]) ")"]
-        [:div.article-infoline "On: " (xform-time-to-string (:created article))]
-        [:div.article-tagsline "Tagged: " (tags (:tags article))]
+        [:h1.article-title title]
+        [:h2.article-description description]
+        [:div.article-byline "Posted By: " author-name " (@" author-twitter-handle ")"]
+        [:div.article-infoline "On: " (xform-time-to-string created)]
+        [:div.article-tagsline "Tagged: " (tags-list tags)]
         [:div.article-socialline
-         (tweet-button url (:description article))
-         (follow-button (get-in article [:user :twitterHandle]))]]
-       [:div.article-content
-        (:rendered-content article)]]
+         (tweet-button url description)
+         (follow-button author-twitter-handle)]]
+       [:div.article-content rendered-content]]
       (footer)])))
 
 (defn page
@@ -138,15 +136,20 @@
               [:h2 (link-to "/photography" "Photography")]
               [:h2 (link-to "/about" "About")])))
 
-(defn articles
+(defn article-list-item
+  "Render an article list item"
+  [{:keys [slug title description]}]
+  [:div.article-list-item
+   [:h2 (link-to (str "/blog/" slug) title)]
+   [:p description]])
+
+(defn articles-list
   "Render a list of articles"
   [user list-title articles]
   (page user list-title
         (list
          [:h1 list-title]
-         (map (fn [article] [:div {:class "article-list-item"}
-                             [:h2 (link-to (str "/blog/" (:slug article)) (:title article))]
-                             [:p (:description article)]]) articles))
+         (map article-list-item articles))
         :show-toolbar true
         :show-footer true))
 
@@ -155,12 +158,12 @@
   [user]
   (page user "Photography"
         (list
-         [:div {:class "row"}
-          [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
-          [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/buildings/" "Buildings")]]
-         [:div {:class "row"}
-          [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/tags/places/" "Places")]
-          [:h3 {:class "col-50"} (link-to "http://www.flickr.com/photos/beamjack/" "Everything Else")]])))
+         [:div.row
+          [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
+          [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/tags/buildings/" "Buildings")]]
+         [:div.row
+          [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/tags/places/" "Places")]
+          [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/" "Everything Else")]])))
 
 (defn about
   "Render the about page"
@@ -179,17 +182,14 @@
 (defn field-row
   "Render a form row with label"
   [field name label-content & rest]
-  (list [:div {:class "field-row"}
-         [:div {:class "col-25"}
-          (label name label-content)]
-         [:div {:class "col-75"}
-          (apply field name rest)]]))
+  (list [:div.field-row
+         [:div.col-25 (label name label-content)]
+         [:div.col-75 (apply field name rest)]]))
 
 (defn submit-row
   "Render a form submit row"
   [content]
-  [:div {:class "row"}
-   (submit-button content)])
+  [:div.row (submit-button content)])
 
 (defn sign-in
   "Render the sign in page"
@@ -215,17 +215,17 @@
 
 (defn user-details
   "Render the user details page"
-  [user]
+  [{:keys [username displayName firstName lastName email twitterHandle roles created] :as user}]
   (page user "Success"
         (list
-         [:p "Username: " (:username user)]
-         [:p "Display Name: " (:displayName user)]
-         [:p "First Name: " (:firstName user)]
-         [:p "Last Name: " (:lastName user)]
-         [:p "Email: " (let [email (:email user)] (mail-to email email))]
-         [:p "Twitter: " (let [handle (:twitterHandle user)] (link-to (str "https://twitter.com/" handle) handle))]
-         [:p "Roles: " (unordered-list (:roles user))]
-         [:p "Created: " (xform-time-to-string (:created user))])))
+         [:p "Username: " username]
+         [:p "Display Name: " displayName]
+         [:p "First Name: " firstName]
+         [:p "Last Name: " lastName]
+         [:p "Email: " (mail-to email email)]
+         [:p "Twitter: " (link-to (str "https://twitter.com/" twitterHandle) twitterHandle)]
+         [:p "Roles: " (unordered-list roles)]
+         [:p "Created: " (xform-time-to-string created)])))
 
 (defn date-field
   "Renders a date input"
@@ -239,17 +239,17 @@
 
 (defn edit-article
   "Render the editing in page"
-  [user & [article url]]
+  [user & [{:keys [_id title description tags content created status]}]]
   (page user "Edit"
-        (let [id (if article (:_id article) "post")]
-          [:form {:name "articleForm" :action (str "/blog/articles/" id ".json") :method "POST" :enctype "multipart/form-data"}
-           (when article (hidden-field "_id" (:_id article)))
-           (field-row text-field "title" "Title" (when article (:title article)))
-           (field-row text-field "description" "Description" (when article (:description article)))
-           (field-row text-field "tags" "Tags" (when article (apply str (interpose ", " (:tags article)))))
-           (field-row text-area "content" "Content" (when article (:content article)))
-           (field-row date-field "created" "Date" (when article (xform-time-to-string (:created article))))
-           (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (if article (:status article) "draft"))
+        (let [action (or _id "post")]
+          [:form {:name "articleForm" :action (str "/blog/articles/" action ".json") :method "POST" :enctype "multipart/form-data"}
+           (when _id (hidden-field "_id" _id))
+           (field-row text-field "title" "Title" title)
+           (field-row text-field "description" "Description" description)
+           (field-row text-field "tags" "Tags" (apply str (interpose ", " tags)))
+           (field-row text-area "content" "Content" content)
+           (field-row date-field "created" "Date" (xform-time-to-string created))
+           (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
            (submit-row "Submit")])))
 
 (defn not-found
