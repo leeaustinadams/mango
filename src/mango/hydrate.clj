@@ -1,3 +1,4 @@
+;; https://github.com/yogthos/markdown-clj
 (ns mango.hydrate
   (:require
             [markdown.core :as md]
