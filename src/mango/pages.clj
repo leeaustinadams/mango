@@ -193,11 +193,12 @@
 
 (defn sign-in
   "Render the sign in page"
-  [user & [message]]
+  [user anti-forgery-token & [message]]
   (page user "Sign In"
         (list
          [:h1 "Sign In"]
          [:form {:name "signin" :action "/auth/signin" :method "POST" :enctype "multipart/form-data"}
+          (hidden-field "__anti-forgery-token" anti-forgery-token)
           (field-row text-field "username" "Username")
           (field-row password-field "password" "Password")
           (submit-row "Sign In")
@@ -205,11 +206,12 @@
 
 (defn sign-out
   "Render the sign out page"
-  [user & [message]]
+  [user anti-forgery-token & [message]]
   (page user "Sign Out"
         (list
          [:h1 "Sign Out?"]
          [:form {:name "signout" :action "/auth/signout" :method "POST" :enctype "multipart/form-data"}
+          (hidden-field "__anti-forgery-token" anti-forgery-token)
           (submit-row "Sign Out")
           (when message [:p message])])))
 
@@ -239,10 +241,11 @@
 
 (defn edit-article
   "Render the editing in page"
-  [user & [{:keys [_id title description tags content created status]}]]
+  [user anti-forgery-token & [{:keys [_id title description tags content created status]}]]
   (page user "Edit"
         (let [action (or _id "post")]
           [:form {:name "articleForm" :action (str "/blog/articles/" action ".json") :method "POST" :enctype "multipart/form-data"}
+           (hidden-field "__anti-forgery-token" anti-forgery-token)
            (when _id (hidden-field "_id" _id))
            (field-row text-field "title" "Title" title)
            (field-row text-field "description" "Description" description)

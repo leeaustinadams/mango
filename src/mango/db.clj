@@ -12,6 +12,7 @@
 
 (def conn (atom ()))
 (def DB (atom ()))
+(def default-per-page 100)
 
 (defn init
   "Initialize the database connection"
@@ -33,12 +34,12 @@
 
 (defn blog-articles
   "Query all blog articles that are published"
-  [status {:keys [page per-page tagged]}]
+  [status {:keys [page per-page tagged] :or {page 1 per-page default-per-page}}]
   (let [query (merge {:status status} (when tagged {:tags {$in [tagged]}}))]
     (mq/with-collection @DB config/db-article-collection
       (mq/find query)
       (mq/sort {:created -1})
-      (mq/paginate :page page :per-page per-page))))
+      (mq/paginate :page (Integer. page) :per-page (Integer. per-page)))))
 
 (defn blog-article-by-id
   "Query a single blog article by id"
@@ -66,9 +67,9 @@
 
 (defn blog-media
   "Lookup a page worth of media items"
-  [{:keys [page per-page]}]
+  [{:keys [page per-page] :or {page 1 per-page default-per-page}}]
   (mq/with-collection @DB config/db-media-collection
-    (mq/paginate :page page :per-page per-page)))
+    (mq/paginate :page (Integer. page) :per-page (Integer. per-page))))
 
 (defn insert-blog-media
   "Adds a media item"
@@ -89,10 +90,10 @@
 
 (defn users
   "Lookup a page worth of users"
-  [{:keys [page per-page]}]
+  [{:keys [page per-page] :or {page 1 per-page default-per-page}}]
   (mq/with-collection @DB config/db-users-collection
     (mq/find {})
-    (mq/paginate :page page :per-page per-page)))
+    (mq/paginate :page (Integer. page) :per-page (Integer. per-page))))
 
 (defn user
   "Lookup a user by id"

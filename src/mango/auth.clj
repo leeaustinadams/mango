@@ -4,25 +4,25 @@
 
 (defn user
   "Authenticate the user with username and password"
-  [username password]
+  [username plaintext-password]
   (when-let [user (db/user-by-username username)]
     (let [encrypted-password (:password user)]
-      (when (and (not (nil? encrypted-password)) (password/check password encrypted-password)) user))))
+      (when (and (not (nil? encrypted-password)) (password/check plaintext-password encrypted-password)) user))))
 
 (defn update-user-password
   "Add/replace the :password field with its encrypted form of password"
-  [user password]
-  (when user (assoc user :password (password/encrypt password))))
-
-(defn public-user
-  "Remove fields that should never be visible externally"
-  [user]
-  (dissoc user :_id :password :salt :provider :email :resetPasswordToken :resetPasswordExpires))
+  [user plaintext-password]
+  (when user (assoc user :password (password/encrypt plaintext-password))))
 
 (defn private-user
   "Remove fields that should usually not be necessary internally"
   [user]
-  (dissoc user :password :salt))
+  (dissoc user :password :salt :provider))
+
+(defn public-user
+  "Remove fields that should never be visible externally"
+  [user]
+  (dissoc (private-user user) :_id :email :resetPasswordToken :resetPasswordExpires))
 
 (defn authorized?
   "Return true if the user has role specified by permission"

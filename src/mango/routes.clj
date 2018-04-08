@@ -5,11 +5,7 @@
   (:require [clojure.walk :refer [keywordize-keys]]
             [clojure.string :as str]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
-            [ring.middleware.cookies :refer [wrap-cookies]]
-            [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.session.cookie :refer [cookie-store]]
-            [ring.middleware.multipart-params :refer [wrap-multipart-params]]
             [ring.util.request :refer [request-url]]
             [ring.util.response :refer [file-response]]
             [compojure.core :refer [defroutes rfn GET PUT POST]]
@@ -147,18 +143,14 @@
 
 (defn published
   "Route handler for a page worth of articles"
-  [data-provider user page per-page tagged]
-  (let [page (if page (Integer. page) 1)
-        per-page (if per-page (Integer. per-page) 10)]
-    (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "published" {:page page :per-page per-page :tagged tagged})))))
+  [data-provider user options]
+  (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "published" options))))
 
 (defn drafts
   "Route handler for a page worth of drafts"
-  [data-provider user page per-page tagged]
+  [data-provider user options]
   (if (auth/editor? user)
-    (let [page (if page (Integer. page) 1)
-          per-page (if per-page (Integer. per-page) 10)]
-      (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "draft" {:page page :per-page per-page :tagged tagged}))))
+    (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "draft" options)))
     (json-status 403 {:message "Forbidden"})))
 
 (defn article-by-id
@@ -212,23 +204,23 @@
 
 (defn list-media
   "Route handler to list media"
-  [data-provider page per-page]
-  (let [page (if page (Integer. page) 1)
-        per-page (if per-page (Integer. per-page) 10)]
-    (json-success (dp/blog-media data-provider {:page page :per-page per-page}))))
+  [data-provider user options]
+  (if (auth/editor? user)
+    (json-success (dp/blog-media data-provider options))
+    (json-status 403 {:message "Forbidden"})))
 
 (defn media-by-id
   "Route handler for a single media description by id"
-  [data-provider id]
-  (json-success (list (dp/blog-media-by-id data-provider id))))
+  [data-provider user id]
+  (if (auth/editor? user)
+    (json-success (list (dp/blog-media-by-id data-provider id)))
+    (json-status 403 {:message "Forbidden"})))
 
 (defn list-users
   "Route handler for a list of all users"
-  [data-provider user page per-page]
+  [data-provider user options]
   (if (auth/admin? user)
-    (let [page (if page (Integer. page) 1)
-          per-page (if per-page (Integer. per-page) 10)]
-      (json-success (map auth/public-user (dp/users data-provider {:page page :per-page per-page}))))
+    (json-success (map auth/public-user (dp/users data-provider options)))
     (json-status 403 {:message "Forbidden"})))
 
 (defn me
@@ -242,6 +234,10 @@
   (when (auth/admin? user)
     (json-success (list (dp/user data-provider id)))))
 
+(defn session-anti-forgery-token
+  [session]
+  (get session :ring.middleware.anti-forgery/anti-forgery-token))
+
 (defn signin
   "Route handler for signing in"
   [data-provider session username password]
@@ -249,7 +245,7 @@
     (let [sess (assoc session :user (str (:_id user)))]
       (merge (redir-response 302 "/")
              {:session sess}))
-    (pages/sign-in nil "Invalid login")))
+    (pages/sign-in nil (session-anti-forgery-token session) "Invalid login")))
 
 (defn signout
   "Route handler for signing out"
@@ -257,65 +253,60 @@
   (merge (redir-response 302 "/")
          { :session nil}))
 
-(defn log-event
-  "Route handler for logging events"
-  [data-provider user errorUrl category event]
-  (json-success (dp/insert-log-event data-provider {:user user :error-url errorUrl :category category :event event})))
-
 (defroutes routes
   (GET "/sitemap.txt" {} (sitemap db/data-provider))
 
   ;; Main
-  (GET "/" {user :user}
+  (GET "/" {:keys [user]}
        (pages/root user))
-  (GET "/photography" {user :user}
+  (GET "/photography" {:keys [user]}
        (pages/photography user))
-  (GET "/about" {user :user}
+  (GET "/about" {:keys [user]}
        (pages/about user))
-  (GET "/signin" {user :user}
-       (pages/sign-in user))
-  (GET "/signout" {user :user}
-       (pages/sign-out user))
+  (GET "/signin" {:keys [user session]}
+       (pages/sign-in user (session-anti-forgery-token session)))
+  (GET "/signout" {:keys [user session]}
+       (pages/sign-out user (session-anti-forgery-token session)))
 
   ;; Blog
-  (GET "/blog" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+  (GET "/blog" {:keys [user]}
        (pages/articles-list user "Articles" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged nil}))))
-  (GET "/blog/tagged/:tag" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
+  (GET "/blog/tagged/:tag" {user :user {:keys [tag]} :params}
        (pages/articles-list user (str "Articles Tagged \"" (url-decode tag) \") (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged (url-decode tag)}))))
-  (GET "/blog/drafts" {user :user {:keys [tag]} :params {:strs [user-agent]} :headers :as request}
+  (GET "/blog/drafts" {user :user {:keys [tag]} :params}
        (when (auth/editor? user)
          (pages/articles-list user "Drafts" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "draft" {:page 0 :per-page 100 :tagged tag})))))
-  (GET "/blog/new" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
-       (when (auth/editor? user) (pages/edit-article user)))
-  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+  (GET "/blog/new" {:keys [user session]}
+       (when (auth/editor? user) (pages/edit-article user (session-anti-forgery-token session))))
+  (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params :as request}
        (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
          (pages/article user (hydrate/article db/data-provider article) (request-url request))))
-  (GET "/edit/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params {:strs [user-agent]} :headers :as request}
+  (GET "/edit/:slug{[0-9a-z-]+}" {:keys [user session] {:keys [slug]} :params}
        (when (auth/editor? user)
-         (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
-           (pages/edit-article user (hydrate/article db/data-provider article)))))
-  (GET "/me" {user :user}
+         (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" "draft"]})]
+           (pages/edit-article user (session-anti-forgery-token session) (hydrate/article db/data-provider article)))))
+  (GET "/me" {:keys [user]}
        (when user (pages/user-details user)))
 
   ;; JSON API
   (GET "/blog/count.json" {} (article-count db/data-provider))
-  (GET "/blog/drafts/count.json" {user :user} (draft-article-count db/data-provider user))
+  (GET "/blog/drafts/count.json" {:keys [user]} (draft-article-count db/data-provider user))
 
-  (GET "/blog/articles.json" {user :user {:strs [page per-page tagged]} :query-params} (published db/data-provider user page per-page tagged))
+  (GET "/blog/articles.json" {:keys [user params]} (published db/data-provider user params))
   (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (article-by-id db/data-provider user id))
   (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (article-by-slug db/data-provider user slug))
 
-  (POST "/blog/articles/post.json" {user :user params :params} (post-article db/data-provider user params))
-  (POST "/blog/articles/:id.json" {user :user params :params} (update-article db/data-provider user params))
-  (POST "/blog/media.json" {user :user params :params} (post-media db/data-provider user params))
+  (POST "/blog/articles/post.json" {:keys [user params]} (post-article db/data-provider user params))
+  (POST "/blog/articles/:id.json" {:keys [user params]} (update-article db/data-provider user params))
+  (POST "/blog/media.json" {:keys [user params]} (post-media db/data-provider user params))
 
-  (GET "/blog/drafts/articles.json" {user :user {:strs [page per-page tagged]} :query-params} (drafts db/data-provider user page per-page tagged))
+  (GET "/blog/drafts/articles.json" {:keys [user params]} (drafts db/data-provider user params))
 
-  (GET "/blog/media.json" {{:strs [page per-page]} :query-params} (list-media db/data-provider page per-page))
-  (GET "/blog/media/:id.json" [id] (media-by-id db/data-provider id))
+  (GET "/blog/media.json" {:keys [user params]} (list-media db/data-provider user params))
+  (GET "/blog/media/:id.json" {user :user {:keys [id]} :params} (media-by-id db/data-provider user id))
 
-  (GET "/users.json" {{:strs [page per-page]} :query-params user :user} (list-users db/data-provider user page per-page))
-  (GET "/users/me.json" {user :user} (me db/data-provider user))
+  (GET "/users.json" {:keys [user params]} (list-users db/data-provider user params))
+  (GET "/users/me.json" {:keys [user]} (me db/data-provider user))
   (GET "/users/:id.json" {user :user {:keys [id]} :params} (user db/data-provider user id))
 
   ;; (GET "/admin/users/:id.json" [id]
@@ -336,15 +327,13 @@
   ;; (POST "/auth/signup" []
   ;;       {})
 
-  (POST "/auth/signin" {session :session {:strs [username password]} :params} (signin db/data-provider session username password))
-  (POST "/auth/signout" {user :user session :session} (signout db/data-provider user session))
-
-  (POST "/log/event" {user :user {:strs [errorUrl category event]} :params} (log-event db/data-provider user errorUrl category event))
+  (POST "/auth/signin" {session :session {:keys [username password]} :params} (signin db/data-provider session username password))
+  (POST "/auth/signout" {:keys [user session]} (signout db/data-provider user session))
 
   (route/resources "/" :root "public")
 
   ;; all other requests
-  (rfn {user :user} (pages/not-found user)))
+  (rfn {:keys [user]} (pages/not-found user)))
 
 (defn wrap-user
   "Add a user to the request object if there is a user id in the session"
@@ -379,7 +368,7 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-  (println (str (select-keys request [:session :user :uri :request-method :query-string]) "\n"))
+  (println (str (select-keys request [:session :user :uri :request-method :query-string :params]) "\n"))
   request)
 
 (defn wrap-logger
@@ -388,11 +377,11 @@
   (fn [request]
     (handler (log-request request options))))
 
+(def this-site-defaults
+  (-> site-defaults
+      (assoc-in [:session :store] (cookie-store {:key config/session-key}))))
+
 (def application (-> routes
                      wrap-logger
                      wrap-user
-                     (wrap-session {:store (cookie-store {:key config/session-key})})
-                     wrap-cookies
-                     wrap-params
-                     wrap-multipart-params))
-
+                     (wrap-defaults this-site-defaults)))

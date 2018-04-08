@@ -64,7 +64,7 @@
           :body "{\"count\":0}"})))
 
 (deftest test-published
-  (is (= (published fixtures/data-provider fixtures/user 1 10 nil)
+  (is (= (published fixtures/data-provider fixtures/user nil)
          {:status 200
           :headers json-headers
           :body (str "[{\"content\":\"Hello\",\"media\":"
@@ -77,9 +77,9 @@
           "\"rendered-content\":\"<p>Howdy</p>\"}]")})))
 
 (deftest test-drafts
-  (is (= (drafts fixtures/data-provider fixtures/user 1 10 nil) forbidden-result))
-  (is (= (drafts fixtures/data-provider fixtures/user 1 10 "tag") forbidden-result))
-  (is (not (nil? (drafts fixtures/data-provider fixtures/editor 1 10 nil))))
+  (is (= (drafts fixtures/data-provider fixtures/user nil) forbidden-result))
+  (is (= (drafts fixtures/data-provider fixtures/user {:tagged "tag"}) forbidden-result))
+  (is (not (nil? (drafts fixtures/data-provider fixtures/editor nil))))
   )
 
 (deftest test-post-article
@@ -92,9 +92,9 @@
   (is (= (post-media fixtures/data-provider fixtures/user {}) forbidden-result)))
 
 (deftest test-list-users
-  (is (= (list-users fixtures/data-provider fixtures/user 1  10) forbidden-result))
-  (is (= (list-users fixtures/data-provider fixtures/editor 1 10) forbidden-result))
-  (is (= (list-users fixtures/data-provider fixtures/admin 1 10)
+  (is (= (list-users fixtures/data-provider fixtures/user nil) forbidden-result))
+  (is (= (list-users fixtures/data-provider fixtures/editor nil) forbidden-result))
+  (is (= (list-users fixtures/data-provider fixtures/admin nil)
          {:status 200,
           :headers {"Content-Type" "application/json"},
           :body "[{\"username\":\"User\",\"roles\":[]},{\"username\":\"Editor\",\"roles\":[\"editor\"]},{\"username\":\"Admin\",\"roles\":[\"admin\"]}]"})))
