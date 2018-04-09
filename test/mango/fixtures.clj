@@ -1,6 +1,12 @@
 (ns mango.fixtures
-  (:require [mango.auth :refer [public-user]]
-            [mango.dataprovider :refer [DataProvider]]))
+  (:require
+   [cheshire.core :refer [generate-string]]
+   [mango.auth :refer [public-user]]
+   [mango.dataprovider :refer [DataProvider]]))
+
+(def forbidden-result {:status 403
+                       :headers {"Content-Type" "application/json"}
+                       :body (generate-string {:message "Forbidden"})})
 
 (def user {:_id 1234
            :username "User"

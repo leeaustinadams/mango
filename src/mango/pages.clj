@@ -4,7 +4,6 @@
             [mango.config :as config]
             [mango.util :refer [xform-time-to-string xform-string-to-time url-encode]]
             [clojure.core.strint :refer [<<]]
-            [clojure.data.json :as json]
             [stencil.core :as stencil]
             [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.element :refer :all]
@@ -244,7 +243,7 @@
   [user anti-forgery-token & [{:keys [_id title description tags content created status]}]]
   (page user "Edit"
         (let [action (or _id "post")]
-          [:form {:name "articleForm" :action (str "/blog/articles/" action ".json") :method "POST" :enctype "multipart/form-data"}
+          [:form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
            (hidden-field "__anti-forgery-token" anti-forgery-token)
            (when _id (hidden-field "_id" _id))
            (field-row text-field "title" "Title" title)

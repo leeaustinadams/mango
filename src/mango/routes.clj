@@ -1,5 +1,4 @@
 ;; http://ring-clojure.github.io/ring/
-;; https://github.com/dakrone/cheshire
 ;; https://github.com/weavejester/compojure
 (ns mango.routes
   (:require [clojure.walk :refer [keywordize-keys]]
@@ -10,30 +9,15 @@
             [ring.util.response :refer [file-response]]
             [compojure.core :refer [defroutes rfn GET PUT POST]]
             [compojure.route :as route]
-            [cheshire.core :refer :all]
             [mango.auth :as auth]
             [mango.config :as config]
             [mango.db :as db]
             [mango.dataprovider :as dp]
             [mango.hydrate :as hydrate]
+            [mango.json-api :as api]
             [mango.pages :as pages]
             [mango.storage :as storage]
             [mango.util :refer [slugify xform-ids xform-tags xform-time-to-string xform-string-to-time url-decode]]))
-
-(defn sanitize-article
-  "Cleans and prepares an article from parameters posted"
-  [params]
-  (let [article (-> params
-                    keywordize-keys
-                    (select-keys [:_id :title :description :content :created :media :tags :status]))
-        media (xform-ids (:media article))
-        created (xform-string-to-time (:created article))
-        tags (xform-tags (:tags article))]
-    (merge article
-           (when media {:media media})
-           (when created {:created created})
-           {:slug (slugify (:title article) :limit 5)}
-           {:tags tags})))
 
 (defn accum-media
   "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
@@ -45,20 +29,6 @@
         media
         (let [m (dp/insert-blog-media data-provider {:src (:filename file)} user-id)]
           (recur (rest files) (conj media (:_id m))))))))
-
-(defn json-status
-  "A JSON response for a status. Generates JSON from the obj passed in"
-  [status obj & rest]
-  (reduce merge {
-                 :status status
-                 :headers {"Content-Type" "application/json"}
-                 :body (generate-string obj)}
-          rest))
-
-(defn json-success
-  "A JSON response for a success (200). Generates JSON from the obj passed in"
-  [obj & [rest]]
-  (json-status 200 obj rest))
 
 (defn html-response
   "An HTML response with code."
@@ -80,6 +50,37 @@
    :status code
    :headers {"Content-Type" "text/html"
              "Location" location}})
+
+(defn- sanitize-article
+  "Cleans and prepares an article from parameters posted"
+  [params]
+  (let [article (-> params
+                    keywordize-keys
+                    (select-keys [:_id :title :description :content :created :media :tags :status]))
+        media (xform-ids (:media article))
+        created (xform-string-to-time (:created article))
+        tags (xform-tags (:tags article))]
+    (merge article
+           (when media {:media media})
+           (when created {:created created})
+           {:slug (slugify (:title article) :limit 5)}
+           {:tags tags})))
+
+(defn post-article
+  "Route handler for posting an article"
+  [data-provider user params]
+  (let [user-id (:_id user)
+        article (sanitize-article params)
+        inserted (dp/insert-blog-article data-provider article user-id)]
+    (redir-response 302 (str "/blog/" (:slug article)))))
+
+(defn update-article
+  "Route handler for updating an existing article"
+  [data-provider user params]
+  (let [user-id (:_id user)
+        article (sanitize-article params)
+        updated (dp/update-blog-article data-provider article user-id)]
+    (redir-response 302 (str "/blog/" (:slug article)))))
 
 (defn parse-file-keys
   "Returns a collection of keys for files"
@@ -112,12 +113,18 @@
   [{:keys [filename tempfile content-type]}]
   (storage/upload config/aws-media-bucket (str "blog/" filename) tempfile content-type))
 
-(defn article-response
-  "Renders a response for a hydrated article"
-  [data-provider article]
-  (if (not (empty? article))
-    (json-success (hydrate/article data-provider article))
-    (json-status 404 {:msg "Not found"})))
+;; (defn post-media
+;;   "Route handler for uploading media"
+;;   [data-provider user params]
+;;   (let [files (parse-files params)
+;;         user-id (:_id user)
+;;         media-ids (accum-media data-provider files user-id)]
+;;     (println "files" files)
+;;     (println "media-ids" media-ids)
+;;     (let [result (upload-file (first files))]
+;;       (if (nil? @result)
+;;         (json-success media-ids)
+;;         (json-status 500 {:message "Media upload failed"})))))
 
 (defn sitemap
   "Route handler for the sitemap.txt response"
@@ -128,111 +135,6 @@
      :headers {"Content-Type" "text/plain"}
      :body (pages/sitemap urls)
      }))
-
-(defn article-count
-  "Route handler for total published article count"
-  [data-provider ]
-  (json-success {:count (dp/blog-articles-count data-provider "published")}))
-
-(defn draft-article-count
-  "Route handler for total draft article count"
-  [data-provider user]
-  (if (auth/editor? user)
-    (json-success {:count (dp/blog-articles-count data-provider "draft")})
-    (json-status 403 {:message "Forbidden"})))
-
-(defn published
-  "Route handler for a page worth of articles"
-  [data-provider user options]
-  (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "published" options))))
-
-(defn drafts
-  "Route handler for a page worth of drafts"
-  [data-provider user options]
-  (if (auth/editor? user)
-    (json-success (hydrate/articles data-provider (dp/blog-articles data-provider "draft" options)))
-    (json-status 403 {:message "Forbidden"})))
-
-(defn article-by-id
-  "Route handler for a single article by its id"
-  [data-provider user id]
-  (let [status ["published" (when (auth/editor? user) "draft")]
-        article (dp/blog-article-by-id data-provider id {:status status})]
-    (article-response data-provider  article)))
-
-(defn article-by-slug
-  "Route handler for a single article by slug"
-  [data-provider user slug]
-  (let [status ["published" (when (auth/editor? user) "draft")]
-        article (dp/blog-article-by-slug data-provider slug {:status status})]
-    (article-response data-provider article)))
-
-(defn post-article
-  "Route handler for posting an article"
-  [data-provider user params]
-  (if (auth/editor? user)
-    (let [user-id (:_id user)
-          article (sanitize-article params)
-          inserted (dp/insert-blog-article data-provider article user-id)]
-      (redir-response 302 (str "/blog/" (:slug article))))
-    (json-status 403 {:message "Forbidden"})))
-
-(defn update-article
-  "Route handler for updating an existing article"
-  [data-provider user params]
-  (if (auth/editor? user)
-    (let [user-id (:_id user)
-          article (sanitize-article params)
-          updated (dp/update-blog-article data-provider article user-id)]
-      (redir-response 302 (str "/blog/" (:slug article))))
-    (json-status 403 {:message "Forbidden"})))
-
-(defn post-media
-  "Route handler for uploading media"
-  [data-provider user params]
-  (if (auth/editor? user)
-    (let [files (parse-files params)
-          user-id (:_id user)
-          media-ids (accum-media data-provider files user-id)]
-      (println "files" files)
-      (println "media-ids" media-ids)
-      (let [result (upload-file (first files))]
-        (if (nil? @result)
-          (json-success media-ids)
-          (json-status 500 {:message "Media upload failed"}))))
-    (json-status 403 {:message "Forbidden"})))
-
-(defn list-media
-  "Route handler to list media"
-  [data-provider user options]
-  (if (auth/editor? user)
-    (json-success (dp/blog-media data-provider options))
-    (json-status 403 {:message "Forbidden"})))
-
-(defn media-by-id
-  "Route handler for a single media description by id"
-  [data-provider user id]
-  (if (auth/editor? user)
-    (json-success (list (dp/blog-media-by-id data-provider id)))
-    (json-status 403 {:message "Forbidden"})))
-
-(defn list-users
-  "Route handler for a list of all users"
-  [data-provider user options]
-  (if (auth/admin? user)
-    (json-success (map auth/public-user (dp/users data-provider options)))
-    (json-status 403 {:message "Forbidden"})))
-
-(defn me
-  "Route handler for currently logged in user"
-  [user]
-  (json-success user))
-
-(defn user-by-id
-  "Route handler for a single user by id"
-  [data-provider user id]
-  (when (auth/admin? user)
-    (json-success (list (dp/user data-provider id)))))
 
 (defn session-anti-forgery-token
   [session]
@@ -287,27 +189,27 @@
            (pages/edit-article user (session-anti-forgery-token session) (hydrate/article db/data-provider article)))))
   (GET "/me" {:keys [user]}
        (when user (pages/user-details user)))
+  (POST "/blog/articles/post" {:keys [user params]} (when (auth/editor? user) (post-article db/data-provider user params)))
+  (POST "/blog/articles/:id" {:keys [user params]} (when (auth/editor? user) (update-article db/data-provider user params)))
 
-  ;; JSON API
-  (GET "/blog/count.json" {} (article-count db/data-provider))
-  (GET "/blog/drafts/count.json" {:keys [user]} (draft-article-count db/data-provider user))
+  ;; JSON API -- All accesses should require authorization
+  (GET "/blog/count.json" {:keys [user]} (when (auth/editor? user) (api/article-count db/data-provider)))
+  (GET "/blog/drafts/count.json" {:keys [user]} (when (auth/editor? user) (api/draft-article-count db/data-provider user)))
 
-  (GET "/blog/articles.json" {:keys [user params]} (published db/data-provider user params))
-  (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (article-by-id db/data-provider user id))
-  (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (article-by-slug db/data-provider user slug))
+  (GET "/blog/articles.json" {:keys [user params]} (when (auth/editor? user) (api/published db/data-provider params)))
+  (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/article-by-id db/data-provider user id)))
+  (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (when (auth/editor? user) (api/article-by-slug db/data-provider user slug)))
 
-  (POST "/blog/articles/post.json" {:keys [user params]} (post-article db/data-provider user params))
-  (POST "/blog/articles/:id.json" {:keys [user params]} (update-article db/data-provider user params))
-  (POST "/blog/media.json" {:keys [user params]} (post-media db/data-provider user params))
+;  (POST "/blog/media.json" {:keys [user params]} (when (auth/editor? user) (post-media db/data-provider user params)))
 
-  (GET "/blog/drafts/articles.json" {:keys [user params]} (drafts db/data-provider user params))
+  (GET "/blog/drafts/articles.json" {:keys [user params]} (when (auth/editor? user) (api/drafts db/data-provider params)))
 
-  (GET "/blog/media.json" {:keys [user params]} (list-media db/data-provider user params))
-  (GET "/blog/media/:id.json" {user :user {:keys [id]} :params} (media-by-id db/data-provider user id))
+  (GET "/blog/media.json" {:keys [user params]} (when (auth/editor? user) (api/list-media db/data-provider params)))
+  (GET "/blog/media/:id.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/media-by-id db/data-provider id)))
 
-  (GET "/users.json" {:keys [user params]} (list-users db/data-provider user params))
-  (GET "/users/me.json" {:keys [user]} (me db/data-provider user))
-  (GET "/users/:id.json" {user :user {:keys [id]} :params} (user db/data-provider user id))
+  (GET "/users.json" {:keys [user params]} (when (auth/editor? user) (api/list-users db/data-provider params)))
+  (GET "/users/me.json" {:keys [user]} (when (auth/editor? user) (api/me db/data-provider user)))
+  (GET "/users/:id.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/user-by-id db/data-provider id)))
 
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})
