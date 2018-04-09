@@ -68,16 +68,16 @@
 
 (defn post-article
   "Route handler for posting an article"
-  [data-provider user params]
-  (let [user-id (:_id user)
+  [data-provider author params]
+  (let [user-id (:_id author)
         article (sanitize-article params)
         inserted (dp/insert-blog-article data-provider article user-id)]
     (redir-response 302 (str "/blog/" (:slug article)))))
 
 (defn update-article
   "Route handler for updating an existing article"
-  [data-provider user params]
-  (let [user-id (:_id user)
+  [data-provider author params]
+  (let [user-id (:_id author)
         article (sanitize-article params)
         updated (dp/update-blog-article data-provider article user-id)]
     (redir-response 302 (str "/blog/" (:slug article)))))
@@ -197,8 +197,8 @@
   (GET "/blog/drafts/count.json" {:keys [user]} (when (auth/editor? user) (api/draft-article-count db/data-provider user)))
 
   (GET "/blog/articles.json" {:keys [user params]} (when (auth/editor? user) (api/published db/data-provider params)))
-  (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/article-by-id db/data-provider user id)))
-  (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (when (auth/editor? user) (api/article-by-slug db/data-provider user slug)))
+  (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/article-by-id db/data-provider id)))
+  (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (when (auth/editor? user) (api/article-by-slug db/data-provider slug)))
 
 ;  (POST "/blog/media.json" {:keys [user params]} (when (auth/editor? user) (post-media db/data-provider user params)))
 

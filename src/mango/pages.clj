@@ -61,10 +61,11 @@
 (defn tweet-button
   "Render a Tweet button that will prepopulate with text"
   [url text]
-  (link-to {:class "twitter-share-button"
-            :data-url url}
-           (hiccup.util/url "https://twitter.com/intent/tweet" {:text text})
-           "Tweet"))
+  (when (and url text)
+    (link-to {:class "twitter-share-button"
+              :data-url url}
+             (hiccup.util/url "https://twitter.com/intent/tweet" {:text text})
+             "Tweet")))
 
 (defn follow-button
   "Render a Twitter Follow button for handle"
