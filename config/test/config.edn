@@ -17,4 +17,5 @@
  ;;                   :secret-key (:aws-secret-key env)
  ;;                   :endpoint (:aws-endpoint env)}
  :aws-media-bucket "4d4ms-test"
+ :ads-enabled false
  :google-analytics-id ""}

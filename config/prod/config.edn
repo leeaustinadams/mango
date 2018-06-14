@@ -15,4 +15,5 @@
  :cdn-url "https://cdn.4d4ms.com/blog"
  :aws-media-bucket "4d4ms"
  :aws-region "us-west-1"
+ :ads-enabled true
  :google-analytics-id "UA-43198629-1"}
