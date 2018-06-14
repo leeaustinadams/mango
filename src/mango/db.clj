@@ -27,19 +27,37 @@
   (reset! DB nil)
   (reset! conn nil))
 
+(defmulti user-by-id class)
+(defmethod user-by-id String [id] (user-by-id (ObjectId. id)))
+(defmethod user-by-id ObjectId [id] (mc/find-one-as-map @DB config/db-users-collection {:_id id}))
+
+(defn user-by-username
+  "Lookup a user by username"
+  [username]
+  (mc/find-one-as-map @DB config/db-users-collection {:username username}))
+
 (defn blog-articles-count
-  "Query the number of articles that are published"
-  [status]
-  (mc/count @DB config/db-article-collection {:status status}))
+  "Query the number of articles"
+  [status {:keys [author]}]
+  (let [query (merge {:status status}
+                     (when author {:user (:_id (user-by-username author))}))]
+    (mc/count @DB config/db-article-collection query)))
+
+(defn blog-articles-by-query
+  "Query blog articles"
+  [query {:keys [page per-page] :or {page 1 per-page default-per-page}}]
+  (mq/with-collection @DB config/db-article-collection
+    (mq/find query)
+    (mq/sort {:created -1})
+    (mq/paginate :page (Integer. page) :per-page (Integer. per-page))))
 
 (defn blog-articles
-  "Query all blog articles that are published"
-  [status {:keys [page per-page tagged] :or {page 1 per-page default-per-page}}]
-  (let [query (merge {:status status} (when tagged {:tags {$in [tagged]}}))]
-    (mq/with-collection @DB config/db-article-collection
-      (mq/find query)
-      (mq/sort {:created -1})
-      (mq/paginate :page (Integer. page) :per-page (Integer. per-page)))))
+  "Query blog articles"
+  [status {:keys [tagged author] :as params}]
+  (let [query (merge {:status status}
+                     (when author {:user (:_id (user-by-username author))})
+                     (when tagged {:tags {$in [tagged]}}))]
+    (blog-articles-by-query query params)))
 
 (defn blog-article-by-id
   "Query a single blog article by id"
@@ -95,19 +113,6 @@
     (mq/find {})
     (mq/paginate :page (Integer. page) :per-page (Integer. per-page))))
 
-(defn user
-  "Lookup a user by id"
-  [id]
-  (mc/find-map-by-id @DB config/db-users-collection (ObjectId. id)))
-
-(defn user-by-id [id]
-  (mc/find-map-by-id @DB config/db-users-collection id))
-
-(defn user-by-username
-  "Lookup a user by username"
-  [username]
-  (mc/find-one-as-map @DB config/db-users-collection {:username username}))
-
 (defn insert-user
   "Add a new user record"
   [username first-name last-name display-name email twitter-handle password roles]
@@ -162,7 +167,6 @@
   (blog-media [this options] (blog-media options))
   (blog-media-by-id [this id] (blog-media-by-id id))
   (users [this options] (users options))
-  (user [this id] (user id))
   (user-by-id [this id] (user-by-id id))
   (insert-blog-media [this media user-id] (insert-blog-media media user-id))
   (blog-articles [this status options] (blog-articles status options))

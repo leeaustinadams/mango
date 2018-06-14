@@ -11,7 +11,6 @@
 (def user {:_id 1234
            :username "User"
            :password "foo"
-           :salt "salty"
            :provider :local
            :email "user@foo.com"
            :roles []})
@@ -19,7 +18,6 @@
 (def editor {:_id 5678
              :username "Editor"
              :password "bar"
-             :salt "salty"
              :provider :local
              :email "editor@bar.com"
              :roles ["editor"]})
@@ -27,7 +25,6 @@
 (def admin {:_id 91011
             :username "Admin"
             :password "baz"
-            :salt "salty"
             :provider :local
             :email "admin@bar.com"
             :roles ["admin"]})
@@ -73,7 +70,6 @@
   (blog-media [this options] nil)
   (blog-media-by-id [this id] nil)
   (users [this options] (vals users))
-  (user [this id] (get users id))
   (user-by-id [this id] (get users id))
   (insert-blog-media [this media user-id] nil)
   (blog-articles

@@ -5,7 +5,6 @@
   (blog-media [this options])
   (blog-media-by-id [this id])
   (users [this options])
-  (user [this id])
   (user-by-id [this id])
   (insert-blog-media [this media user-id])
   (blog-articles [this status options])

@@ -9,7 +9,7 @@
     (let [encrypted-password (:password user)]
       (when (and (not (nil? encrypted-password)) (password/check plaintext-password encrypted-password)) user))))
 
-(defn update-user-password
+(defn encrypt-user-password
   "Add/replace the :password field with its encrypted form of password"
   [user plaintext-password]
   (when user (assoc user :password (password/encrypt plaintext-password))))
@@ -17,7 +17,7 @@
 (defn private-user
   "Remove fields that should usually not be necessary internally"
   [user]
-  (dissoc user :password :salt :provider))
+  (dissoc user :password :provider))
 
 (defn public-user
   "Remove fields that should never be visible externally"

@@ -8,4 +8,4 @@
   (is (editor? fixtures/editor)))
 
 (deftest test-public-user
-  (is (empty? (select-keys (public-user fixtures/user) [:_id :password :salt :provider :email]))))
+  (is (empty? (select-keys (public-user fixtures/user) [:_id :password :provider :email]))))

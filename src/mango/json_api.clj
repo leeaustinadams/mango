@@ -84,4 +84,4 @@
 (defn user-by-id
   "Route handler for a single user by id"
   [data-provider id]
-  (json-success (list (dp/user data-provider id))))
+  (json-success (list (dp/user-by-id data-provider id))))

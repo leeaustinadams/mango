@@ -78,7 +78,7 @@
 
 (defn article
   "Render an article. Expects media to have been hydrated"
-  [user {:keys [title description tags media created rendered-content] {author-name :displayName author-twitter-handle :twitterHandle} :user :as article} url]
+  [user {:keys [title description tags media created rendered-content] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
   (let [img (let [img_src (get (first media) :src)]
               (if (empty? img_src)
                 "https://cdn.4d4ms.com/img/A.jpg"
@@ -110,7 +110,7 @@
        [:div.article-header
         [:h1.article-title title]
         [:h2.article-description description]
-        [:div.article-byline "Posted By: " author-name " (@" author-twitter-handle ")"]
+        [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
         [:div.article-infoline "On: " (xform-time-to-string created)]
         [:div.article-tagsline "Tagged: " (tags-list tags)]
         [:div.article-socialline

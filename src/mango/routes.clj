@@ -193,8 +193,8 @@
   (POST "/blog/articles/:id" {:keys [user params]} (when (auth/editor? user) (update-article db/data-provider user params)))
 
   ;; JSON API -- All accesses should require authorization
-  (GET "/blog/count.json" {:keys [user]} (when (auth/editor? user) (api/article-count db/data-provider)))
-  (GET "/blog/drafts/count.json" {:keys [user]} (when (auth/editor? user) (api/draft-article-count db/data-provider user)))
+  (GET "/blog/count.json" {:keys [user params]} (when (auth/editor? user) (api/article-count db/data-provider)))
+  (GET "/blog/drafts/count.json" {:keys [user params]} (when (auth/editor? user) (api/draft-article-count db/data-provider user)))
 
   (GET "/blog/articles.json" {:keys [user params]} (when (auth/editor? user) (api/published db/data-provider params)))
   (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/article-by-id db/data-provider id)))
@@ -242,7 +242,7 @@
   [handler & [options]]
   (fn [request]
     (if-let [user-id (-> request :session :user)]
-      (handler (assoc request :user (auth/private-user (dp/user db/data-provider user-id))))
+      (handler (assoc request :user (auth/private-user (dp/user-by-id db/data-provider user-id))))
       (handler request))))
 
 ;; Example request
