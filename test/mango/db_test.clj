@@ -3,7 +3,8 @@
             [monger.db :as mdb]
             [mango.db :as db]
             [mango.fixtures :as fixtures]
-            [mango.config :as config]))
+            [mango.config :as config])
+  (:import org.bson.types.ObjectId))
 
 (defn db-fixture [f]
   (println "Testing DB on " config/db-name)

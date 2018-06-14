@@ -82,6 +82,24 @@ html, body {
     color: #ccc;
 }
 
+.roles {
+    margin: 0 0 0 0;
+    display: inline-block;
+    list-style: none;
+    -webkit-padding-start: 0;
+    -moz-padding-start: 0;
+}
+
+.roles > li {
+    display: inline-block;
+    text-shadow: 0 1px 0 #ffffff;
+}
+
+.roles > li > .divider {
+    padding: 0 5px;
+    color: #ccc;
+}
+
 .media-list {
     margin: 12px 0 12px 0;
     list-style: none;

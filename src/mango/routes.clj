@@ -192,6 +192,9 @@
   (POST "/blog/articles/post" {:keys [user params]} (when (auth/editor? user) (post-article db/data-provider user params)))
   (POST "/blog/articles/:id" {:keys [user params]} (when (auth/editor? user) (update-article db/data-provider user params)))
 
+  ;; Admin
+  (GET "/admin/users" {:keys [user params]} (when (auth/admin? user) (pages/admin-users user (dp/users db/data-provider params))))
+
   ;; JSON API -- All accesses should require authorization
   (GET "/blog/count.json" {:keys [user params]} (when (auth/editor? user) (api/article-count db/data-provider)))
   (GET "/blog/drafts/count.json" {:keys [user params]} (when (auth/editor? user) (api/draft-article-count db/data-provider user)))

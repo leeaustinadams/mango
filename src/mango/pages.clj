@@ -46,6 +46,13 @@
                                                    (link-to "/signout" "Sign out")
                                                    (link-to "/signin" "Sign in")))))])
 
+(defn divided-list
+  "Render a divided list"
+  [items item-fn divider & [class]]
+  (unordered-list (when class {:class class})
+                  (let [divider [:span.divider divider]]
+                    (partition-all 2 (interpose divider (map item-fn items))))))
+
 (defn link-to-tag
   "Render a link to articles with a tag"
   [tag]
@@ -54,9 +61,7 @@
 (defn tags-list
   "Render tags"
   [tags]
-  (unordered-list {:class "tags"}
-                  (let [divider [:span.divider "-"]]
-                    (partition-all 2 (interpose divider (map link-to-tag tags))))))
+  (divided-list tags link-to-tag "-" "tags"))
 
 (defn tweet-button
   "Render a Tweet button that will prepopulate with text"
@@ -216,19 +221,39 @@
           (submit-row "Sign Out")
           (when message [:p message])])))
 
+(defn roles-list
+  "Render a list of roles"
+  [roles]
+  (divided-list roles identity "·" "roles"))
+
+(defn user-item
+  "Render a user's details"
+  [{:keys [username displayName firstName lastName email twitter-handle roles created]}]
+  (list
+   [:div.row "Username: " username]
+   [:div.row
+    [:div.col-25 "Display Name: " displayName]
+    [:div.col-25 "First Name: " firstName]
+    [:div.col-25 "Last Name: " lastName]]
+   [:div.row
+    [:div.col-50 "Email: " (mail-to email email)]
+    (when twitter-handle [:div.col-50 "Twitter: " (link-to (str "https://twitter.com/" twitter-handle) twitter-handle)])]
+   [:div.row "Roles: " (roles-list roles)]
+   [:div.row "Created: " (xform-time-to-string created)]))
+
 (defn user-details
   "Render the user details page"
-  [{:keys [username displayName firstName lastName email twitterHandle roles created] :as user}]
-  (page user "Success"
-        (list
-         [:p "Username: " username]
-         [:p "Display Name: " displayName]
-         [:p "First Name: " firstName]
-         [:p "Last Name: " lastName]
-         [:p "Email: " (mail-to email email)]
-         [:p "Twitter: " (link-to (str "https://twitter.com/" twitterHandle) twitterHandle)]
-         [:p "Roles: " (unordered-list roles)]
-         [:p "Created: " (xform-time-to-string created)])))
+  [{:keys [username] :as user}]
+  (page user username
+        (user-item user)
+        :show-footer true))
+
+(defn admin-users
+  "Render user administration page."
+  [user users]
+  (page user "Admin - Users"
+        (interpose [:hr] (map user-item users))
+        :show-toolbar true :show-footer true))
 
 (defn date-field
   "Renders a date input"
