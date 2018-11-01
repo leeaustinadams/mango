@@ -83,7 +83,7 @@
 
 (defn article
   "Render an article. Expects media to have been hydrated"
-  [user {:keys [title description tags media created rendered-content] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
+  [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
   (let [img (let [img_src (get (first media) :src)]
               (if (empty? img_src)
                 "https://cdn.4d4ms.com/img/A.jpg"
@@ -103,7 +103,7 @@
       [:meta {:property "og:image" :content img}]]
      [:body
       [:div.mango
-       (when config/ads-enabled
+       (when (and config/ads-enabled (not (= "draft" status)))
          [:div {:align "center"}
           [:ins {:class "adsbygoogle"
                  :style "display:block"
