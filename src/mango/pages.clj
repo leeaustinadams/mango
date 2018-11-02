@@ -35,7 +35,7 @@
 
 (defn toolbar
   "Render the toolbar"
-  [user & [article]]
+  [user & [article redir]]
   [:div.toolbar
    (unordered-list (filter #(not (nil? %)) (list (link-to "/" "Home")
                                                  (link-to "/blog" "Blog")
@@ -43,8 +43,8 @@
                                                  (when (auth/editor? user) (link-to "/blog/drafts" "Drafts"))
                                                  (when (and article (auth/editor? user)) (link-to (str "/edit/" (:slug article)) "Edit"))
                                                  (if user
-                                                   (link-to "/signout" "Sign out")
-                                                   (link-to "/signin" "Sign in")))))])
+                                                   (link-to (str "/signout?redir=" redir) "Sign out")
+                                                   (link-to (str "/signin?redir=" redir) "Sign in")))))])
 
 (defn divided-list
   "Render a divided list"
@@ -111,7 +111,7 @@
                  :data-ad-slot "5968146561"
                  :data-ad-format "auto"}]
           (javascript-tag "(adsbygoogle = window.adsbygoogle || []).push({});")])
-       (toolbar user article)
+       (toolbar user article url)
        [:div.article-header
         [:h1.article-title title]
         [:h2.article-description description]
@@ -126,11 +126,11 @@
 
 (defn page
   "Renders a page"
-  [user title content & {:keys [show-toolbar show-footer]}]
+  [user title content & {:keys [show-toolbar show-footer redir]}]
   (html5 [:head (header title)]
          [:body
           [:div.mango
-           (when show-toolbar (toolbar user))
+           (when show-toolbar (toolbar user nil (or redir "/")))
            content]
           (when show-footer (footer))]))
 
@@ -157,7 +157,8 @@
          [:h1 list-title]
          (map article-list-item articles))
         :show-toolbar true
-        :show-footer true))
+        :show-footer true
+        :redir "/blog"))
 
 (defn photography
   "Render the photography page"
@@ -177,7 +178,7 @@
   (page user "About"
         (list
          [:h3 "Me"]
-         [:p "I've been a professional software developer for 18 years. I live in beautiful San Francisco Bay area with my wife and our three children. I'm currently a Staff Software Engineer at " (link-to "https://twitter.com" "Twitter")]
+         [:p "I've been a professional software developer for almost 20 years. I live in beautiful San Francisco Bay area with my wife and our three children. I'm currently a Staff Software Engineer at " (link-to "https://twitter.com" "Twitter")]
          [:h3 "Interests"]
          [:p (link-to "http://www.github.com/leeaustinadams" "Code") ", Technology, Books, Movies, Hiking, Backpacking, Travel, " (link-to "/photography" "Photography") ", Motorcycles"]
          [:h3 "Crypto"]
@@ -199,11 +200,11 @@
 
 (defn sign-in
   "Render the sign in page"
-  [user anti-forgery-token & [message]]
+  [user anti-forgery-token & [message redir]]
   (page user "Sign In"
         (list
          [:h1 "Sign In"]
-         [:form {:name "signin" :action "/auth/signin" :method "POST" :enctype "multipart/form-data"}
+         [:form {:name "signin" :action (str "/auth/signin?redir=" redir) :method "POST" :enctype "multipart/form-data"}
           (hidden-field "__anti-forgery-token" anti-forgery-token)
           (field-row text-field "username" "Username")
           (field-row password-field "password" "Password")
@@ -212,11 +213,11 @@
 
 (defn sign-out
   "Render the sign out page"
-  [user anti-forgery-token & [message]]
+  [user anti-forgery-token & [message redir]]
   (page user "Sign Out"
         (list
          [:h1 "Sign Out?"]
-         [:form {:name "signout" :action "/auth/signout" :method "POST" :enctype "multipart/form-data"}
+         [:form {:name "signout" :action (str "/auth/signout?redir=" redir) :method "POST" :enctype "multipart/form-data"}
           (hidden-field "__anti-forgery-token" anti-forgery-token)
           (submit-row "Sign Out")
           (when message [:p message])])))

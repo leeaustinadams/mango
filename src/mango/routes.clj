@@ -142,17 +142,17 @@
 
 (defn signin
   "Route handler for signing in"
-  [data-provider session username password]
+  [data-provider session username password redir]
   (if-let [user (auth/user username password)]
     (let [sess (assoc session :user (str (:_id user)))]
-      (merge (redir-response 302 "/")
+      (merge (redir-response 302 (or redir "/"))
              {:session sess}))
     (pages/sign-in nil (session-anti-forgery-token session) "Invalid login")))
 
 (defn signout
   "Route handler for signing out"
-  [data-provider user session]
-  (merge (redir-response 302 "/")
+  [data-provider user session redir]
+  (merge (redir-response 302 (or redir "/"))
          { :session nil}))
 
 (defroutes routes
@@ -165,10 +165,10 @@
        (pages/photography user))
   (GET "/about" {:keys [user]}
        (pages/about user))
-  (GET "/signin" {:keys [user session]}
-       (pages/sign-in user (session-anti-forgery-token session)))
-  (GET "/signout" {:keys [user session]}
-       (pages/sign-out user (session-anti-forgery-token session)))
+  (GET "/signin" {:keys [user session] {:keys [redir]} :params}
+       (pages/sign-in user (session-anti-forgery-token session) "" redir))
+  (GET "/signout" {:keys [user session] {:keys [redir]} :params}
+       (pages/sign-out user (session-anti-forgery-token session) "" redir))
 
   ;; Blog
   (GET "/blog" {:keys [user]}
@@ -232,8 +232,8 @@
   ;; (POST "/auth/signup" []
   ;;       {})
 
-  (POST "/auth/signin" {session :session {:keys [username password]} :params} (signin db/data-provider session username password))
-  (POST "/auth/signout" {:keys [user session]} (signout db/data-provider user session))
+  (POST "/auth/signin" {session :session {:keys [username password redir]} :params} (signin db/data-provider session username password redir))
+  (POST "/auth/signout" {:keys [user session] {:keys [redir]} :params} (signout db/data-provider user session redir))
 
   (route/resources "/" :root "public")
 
