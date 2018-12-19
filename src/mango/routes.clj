@@ -235,7 +235,7 @@
   (POST "/auth/signin" {session :session {:keys [username password redir]} :params} (signin db/data-provider session username password redir))
   (POST "/auth/signout" {:keys [user session] {:keys [redir]} :params} (signout db/data-provider user session redir))
 
-  (route/resources "/" :root "public")
+  (route/resources "/")
 
   ;; all other requests
   (rfn {:keys [user]} (pages/not-found user)))
