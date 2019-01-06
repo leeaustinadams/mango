@@ -27,7 +27,7 @@
     (let [file (first files)]
       (if (nil? file)
         media
-        (let [m (dp/insert-blog-media data-provider {:src (:filename file)} user-id)]
+        (let [m (dp/insert-blog-media data-provider {:filename (:filename file)} user-id)]
           (recur (rest files) (conj media (:_id m))))))))
 
 (defn html-response
@@ -65,6 +65,13 @@
            (when created {:created created})
            {:slug (slugify (:title article) :limit 5)}
            {:tags tags})))
+
+(defn- sanitize-media
+  "Cleans and prepares media from parameters posted"
+  [params]
+  (-> params
+      keywordize-keys
+      (select-keys [:_id])))
 
 (defn post-article
   "Route handler for posting an article"
@@ -113,18 +120,32 @@
   [{:keys [filename tempfile content-type]}]
   (storage/upload config/aws-media-bucket (str "blog/" filename) tempfile content-type))
 
-;; (defn post-media
-;;   "Route handler for uploading media"
-;;   [data-provider user params]
-;;   (let [files (parse-files params)
-;;         user-id (:_id user)
-;;         media-ids (accum-media data-provider files user-id)]
-;;     (println "files" files)
-;;     (println "media-ids" media-ids)
-;;     (let [result (upload-file (first files))]
-;;       (if (nil? @result)
-;;         (json-success media-ids)
-;;         (json-status 500 {:message "Media upload failed"})))))
+(defn post-media
+  "Route handler for uploading media"
+  [data-provider {user-id :_id} {:keys [files article-id]}]
+  (if (> (count files) 0)
+    (let [result (upload-file (first files))]
+      (if (nil? @result)
+        (let [media-ids (accum-media data-provider files user-id)]
+          (when article-id
+            (dp/update-blog-article-media data-provider article-id (first media-ids)))
+          (api/json-success media-ids))
+        (api/json-status 500 {:message "Media upload failed"})))
+    (api/json-status 400 {:message "No files specified"})))
+
+(defn update-media
+  "Route handler for updating an existing media"
+  [data-provider author params]
+  (let [user-id (:_id author)
+        media (sanitize-media params)
+        updated (dp/update-blog-media data-provider media user-id)]
+    (redir-response 302 (str "/blog/"))))
+
+(defn delete-media
+  "Route handler for deleting a media"
+  [data-provider media-id]
+  (dp/delete-blog-media-by-id data-provider media-id)
+  (redir-response 302 (str "/blog/media")))
 
 (defn sitemap
   "Route handler for the sitemap.txt response"
@@ -192,6 +213,12 @@
   (POST "/blog/articles/post" {:keys [user params]} (when (auth/editor? user) (post-article db/data-provider user params)))
   (POST "/blog/articles/:id" {:keys [user params]} (when (auth/editor? user) (update-article db/data-provider user params)))
 
+  (POST "/blog/media/post" {:keys [user params]} (when (auth/editor? user) (post-media db/data-provider user params)))
+;  (POST "/blog/media/:id" {:keys [user params]} (when (auth/editor? user) (update-media db/data-provider user params)))
+  (GET "/blog/media/delete" {:keys [user] {:keys [id]} :params} (when (auth/editor? user) (delete-media db/data-provider id)))
+  (GET "/blog/media/new" {:keys [user session params]} (when (auth/editor? user) (pages/upload-media user (session-anti-forgery-token session) params)))
+  (GET "/blog/media" {:keys [user params]} (when (auth/editor? user) (pages/media-list user (map #(hydrate/user db/data-provider %) (hydrate/medias (dp/blog-media db/data-provider params))) params)))
+
   ;; Admin
   (GET "/admin/users" {:keys [user params]} (when (auth/admin? user) (pages/admin-users user (dp/users db/data-provider params))))
 
@@ -202,8 +229,6 @@
   (GET "/blog/articles.json" {:keys [user params]} (when (auth/editor? user) (api/published db/data-provider params)))
   (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/article-by-id db/data-provider id)))
   (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (when (auth/editor? user) (api/article-by-slug db/data-provider slug)))
-
-;  (POST "/blog/media.json" {:keys [user params]} (when (auth/editor? user) (post-media db/data-provider user params)))
 
   (GET "/blog/drafts/articles.json" {:keys [user params]} (when (auth/editor? user) (api/drafts db/data-provider params)))
 

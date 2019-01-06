@@ -9,6 +9,8 @@
             [hiccup.element :refer :all]
             [hiccup.form :refer :all]))
 
+(def default-per-page 100)
+
 (defn header
   "Render the header"
   [title]
@@ -41,6 +43,7 @@
                                                  (link-to "/blog" "Blog")
                                                  (when (auth/editor? user) (link-to "/blog/new" "New"))
                                                  (when (auth/editor? user) (link-to "/blog/drafts" "Drafts"))
+                                                 (when (auth/editor? user) (link-to "/blog/media" "Media"))
                                                  (when (and article (auth/editor? user)) (link-to (str "/edit/" (:slug article)) "Edit"))
                                                  (if user
                                                    (link-to (str "/signout?redir=" redir) "Sign out")
@@ -124,7 +127,7 @@
        [:div.article-content rendered-content]]
       (footer)])))
 
-(defn page
+(defn render-page
   "Renders a page"
   [user title content & {:keys [show-toolbar show-footer redir]}]
   (html5 [:head (header title)]
@@ -137,22 +140,25 @@
 (defn root
   "Render the root page"
   [user]
-  (page user "4d4ms.com"
+  (render-page user "4d4ms.com"
         (list [:h2 (link-to "/blog" "Blog")]
               [:h2 (link-to "/photography" "Photography")]
               [:h2 (link-to "/about" "About")])))
 
 (defn article-list-item
   "Render an article list item"
-  [{:keys [slug title description]}]
+  [{:keys [slug title description media]}]
   [:div.article-list-item
    [:h2 (link-to (str "/blog/" slug) title)]
-   [:p description]])
+   [:div.row
+    [:p.col-50 description]
+    (when-let [thumb (first media)]
+      (image {:class "col-50"} (:src thumb)))]])
 
 (defn articles-list
   "Render a list of articles"
   [user list-title articles]
-  (page user list-title
+  (render-page user list-title
         (list
          [:h1 list-title]
          (map article-list-item articles))
@@ -163,7 +169,7 @@
 (defn photography
   "Render the photography page"
   [user]
-  (page user "Photography"
+  (render-page user "Photography"
         (list
          [:div.row
           [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
@@ -175,7 +181,7 @@
 (defn about
   "Render the about page"
   [user]
-  (page user "About"
+  (render-page user "About"
         (list
          [:h3 "Me"]
          [:p "I've been a professional software developer for almost 20 years. I live in beautiful San Francisco Bay area with my wife and our three children. I'm currently a Staff Software Engineer at " (link-to "https://twitter.com" "Twitter")]
@@ -195,13 +201,22 @@
 
 (defn submit-row
   "Render a form submit row"
-  [content]
-  [:div.row (submit-button content)])
+  [content & [attr-map]]
+  [:div.row (if attr-map
+              (submit-button attr-map content)
+              (submit-button content))])
+
+(defn file-select-row
+  "Render a file select row"
+  [content & [attr-map]]
+  [:div.row (if attr-map
+              (file-upload attr-map content)
+              (file-upload content))])
 
 (defn sign-in
   "Render the sign in page"
   [user anti-forgery-token & [message redir]]
-  (page user "Sign In"
+  (render-page user "Sign In"
         (list
          [:h1 "Sign In"]
          [:form {:name "signin" :action (str "/auth/signin?redir=" redir) :method "POST" :enctype "multipart/form-data"}
@@ -214,7 +229,7 @@
 (defn sign-out
   "Render the sign out page"
   [user anti-forgery-token & [message redir]]
-  (page user "Sign Out"
+  (render-page user "Sign Out"
         (list
          [:h1 "Sign Out?"]
          [:form {:name "signout" :action (str "/auth/signout?redir=" redir) :method "POST" :enctype "multipart/form-data"}
@@ -245,14 +260,14 @@
 (defn user-details
   "Render the user details page"
   [{:keys [username] :as user}]
-  (page user username
+  (render-page user username
         (user-item user)
         :show-footer true))
 
 (defn admin-users
   "Render user administration page."
   [user users]
-  (page user "Admin - Users"
+  (render-page user "Admin - Users"
         (interpose [:hr] (map user-item users))
         :show-toolbar true :show-footer true))
 
@@ -266,26 +281,85 @@
   [name values default-value]
   (drop-down name values default-value))
 
+(defn thumb-bar
+  "Renders an image bar of thumbnails"
+  [name media]
+  [:div.imagebar
+   (map (fn [{:keys [filename src]}] (image {:draggable true :ondragstart "mango.drag(event)" :filename filename} src filename)) media)])
+
 (defn edit-article
   "Render the editing in page"
-  [user anti-forgery-token & [{:keys [_id title description tags content created status]}]]
-  (page user "Edit"
+  [user anti-forgery-token & [{:keys [_id title description tags content created status media]}]]
+  (render-page user "Edit"
         (let [action (or _id "post")]
-          [:form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
-           (hidden-field "__anti-forgery-token" anti-forgery-token)
-           (when _id (hidden-field "_id" _id))
-           (field-row text-field "title" "Title" title)
-           (field-row text-field "description" "Description" description)
-           (field-row text-field "tags" "Tags" (apply str (interpose ", " tags)))
-           (field-row text-area "content" "Content" content)
-           (field-row date-field "created" "Date" (xform-time-to-string created))
-           (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
-           (submit-row "Submit")])))
+          (list
+           [:form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
+            (hidden-field "__anti-forgery-token" anti-forgery-token)
+            (hidden-field "media" (apply str (interpose ", " (map #(str (:_id %)) media))))
+            (when _id (hidden-field "_id" _id))
+            (field-row text-field "title" "Title" title)
+            (field-row text-field "description" "Description" description)
+            (field-row text-field "tags" "Tags" (apply str (interpose ", " tags)))
+            (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
+            (field-row thumb-bar "thumbs" "Media"  media)
+            (field-row date-field "created" "Date" (xform-time-to-string created))
+            (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
+            (submit-row "Submit")]
+           (include-js "/js/media-edit.js")
+           (link-to (str "/blog/media/new?article-id=" _id) "Add Media")))))
+
+(defn upload-media
+  "Render the media upload page"
+  [user anti-forgery-token & [{:keys [article-id]}]]
+  (render-page user "Upload Media"
+               (list
+                [:p article-id]
+                [:form {:id "upload-form" :name "uploadForm" :action "/blog/media/post" :method "POST" :enctype "multipart/form-data"}
+                 (hidden-field {:id "anti-forgery-token"} "__anti-forgery-token" anti-forgery-token)
+                 (when article-id (hidden-field {:id "article-id"} "article-id" article-id))
+                 (file-select-row "Choose Files..." {:id "file-select" :name "files" :multiple true})
+                 [:p {:id "upload-status"}]
+                 (submit-row "Upload" {:id "file-upload"})]
+                (include-js "/js/upload.js"))))
+
+
+(defn media-list-item
+  "Render a media list item"
+  [{:keys [src filename user] :as media-item}]
+  [:div.media-list-item
+   (image (or src filename))
+   [:p (or src filename)]
+   [:p (:username user)]
+   [:p (:_id media-item)]
+   (link-to (str "/blog/media/delete?id=" (:_id media-item)) "Delete")])
+
+(defn prev-next-media
+  [media prev-page next-page per-page]
+  (list
+   (when (and prev-page (> prev-page 0)) (link-to (str "/blog/media?page=" prev-page "&per-page=" per-page) "Previous"))
+   (when (and media (> (count media) 0)) (link-to (str "/blog/media?page=" next-page "&per-page=" per-page) "Next"))))
+
+(defn media-list
+  "Render a list of media"
+  [user media {:keys [page per-page]}]
+  (let [cur-page (if page (Integer. page) 1)
+        next-page (when cur-page (inc cur-page))
+        prev-page (when (> cur-page 0) (dec cur-page))
+        per-page (if per-page (Integer. per-page) default-per-page)]
+    (render-page user "Media"
+          (list
+           [:h1 "Media"]
+           (prev-next-media media prev-page next-page per-page)
+           (map media-list-item media)
+           (prev-next-media media prev-page next-page per-page))
+          :show-toolbar true
+          :show-footer true
+          :redir "/media")))
 
 (defn not-found
   "Render a page for when a URI is not found"
   [user]
-  (page user "Not Found"
+  (render-page user "Not Found"
         (list
          [:h1 "Not found!"]
          [:p "The page you are looking for could not be found"])))

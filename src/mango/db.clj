@@ -83,6 +83,10 @@
                  (conj {:_id (ObjectId. (:_id article))}))]
     (mc/save-and-return @DB config/db-article-collection article)))
 
+(defn update-blog-article-media
+  [article-id media-id]
+  (mc/update @DB config/db-article-collection {:_id (ObjectId. article-id)} {$addToSet {:media media-id}}))
+
 (defn blog-media
   "Lookup a page worth of media items"
   [{:keys [page per-page] :or {page 1 per-page default-per-page}}]
@@ -94,10 +98,25 @@
   [media user-id]
   (mc/insert-and-return @DB config/db-media-collection (assoc media :user user-id)))
 
+(defn update-blog-media
+  "Updates a media"
+  [media]
+  (mc/update-by-id @DB config/db-media-collection (:_id media) media))
+
+(defmulti delete-blog-media-by-id class)
+(defmethod delete-blog-media-by-id String [media-id] (delete-blog-media-by-id (ObjectId. media-id)))
+(defmethod delete-blog-media-by-id ObjectId [media-id]
+  (mc/remove-by-id @DB config/db-media-collection media-id))
+
+(defn delete-blog-media
+  "Deletes a media"
+  [media]
+  (delete-blog-media-by-id (:_id media)))
+
 (defn blog-media-by-id
   "Lookup a media item by its id"
-  [id]
-  (mc/find-map-by-id @DB config/db-media-collection (ObjectId. id)))
+  [media-id]
+  (mc/find-map-by-id @DB config/db-media-collection (ObjectId. media-id)))
 
 (defn blog-media-by-ids
   "Lookup a collection of media by their ids"
@@ -165,16 +184,19 @@
   dp/DataProvider
   (media-by-ids [this ids] (blog-media-by-ids ids))
   (blog-media [this options] (blog-media options))
-  (blog-media-by-id [this id] (blog-media-by-id id))
+  (blog-media-by-id [this media-id] (blog-media-by-id media-id))
+  (insert-blog-media [this media user-id] (insert-blog-media media user-id))
+  (delete-blog-media-by-id [this media-id] (delete-blog-media-by-id media-id))
   (users [this options] (users options))
   (user-by-id [this id] (user-by-id id))
-  (insert-blog-media [this media user-id] (insert-blog-media media user-id))
   (blog-articles [this status options] (blog-articles status options))
   (blog-articles-count [this status] (blog-articles-count status))
   (blog-article-by-id [this id options] (blog-article-by-id id options))
   (blog-article-by-slug [this slug options] (blog-article-by-slug slug options))
   (insert-blog-article [this article user-id] (insert-blog-article article user-id))
   (update-blog-article [this article user-id] (update-blog-article article user-id))
+  (update-blog-article-media [this article-id media-id] (update-blog-article-media article-id media-id))
+
   (insert-log-event [this event] (insert-log-event event)))
 
 (def data-provider (DBDataProvider.))

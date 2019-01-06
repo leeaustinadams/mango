@@ -64,7 +64,7 @@
 (defn list-media
   "Route handler to list media"
   [data-provider options]
-  (json-success (dp/blog-media data-provider options)))
+  (json-success (map hydrate/media (dp/blog-media data-provider options))))
 
 (defn media-by-id
   "Route handler for a single media description by id"
