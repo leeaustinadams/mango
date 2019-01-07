@@ -1,4 +1,5 @@
 ;; https://github.com/mcohen01/amazonica
+;; https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectOps.html
 (ns mango.storage
   (:require [mango.config :as config]
             [amazonica.aws.s3 :as s3])
@@ -20,3 +21,11 @@
     (println (str "Setting permissions " remote-name))
     (s3/set-object-acl remote-bucket remote-name (. CannedAccessControlList PublicRead))
     (println "Done")))
+
+(defn delete
+  "Delete a file in storage. Returns a future"
+  [remote-bucket remote-name]
+  (future
+    (println (str "Deleting " remote-bucket "/" remote-name))
+    (s3/delete-object :bucket-name remote-bucket
+                      :key remote-name)))

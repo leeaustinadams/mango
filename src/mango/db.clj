@@ -105,18 +105,16 @@
 
 (defmulti delete-blog-media-by-id class)
 (defmethod delete-blog-media-by-id String [media-id] (delete-blog-media-by-id (ObjectId. media-id)))
-(defmethod delete-blog-media-by-id ObjectId [media-id]
-  (mc/remove-by-id @DB config/db-media-collection media-id))
+(defmethod delete-blog-media-by-id ObjectId [media-id] (mc/remove-by-id @DB config/db-media-collection media-id))
 
 (defn delete-blog-media
   "Deletes a media"
   [media]
   (delete-blog-media-by-id (:_id media)))
 
-(defn blog-media-by-id
-  "Lookup a media item by its id"
-  [media-id]
-  (mc/find-map-by-id @DB config/db-media-collection (ObjectId. media-id)))
+(defmulti blog-media-by-id class)
+(defmethod blog-media-by-id String [media-id] (blog-media-by-id (ObjectId. media-id)))
+(defmethod blog-media-by-id ObjectId [media-id] (mc/find-map-by-id @DB config/db-media-collection media-id))
 
 (defn blog-media-by-ids
   "Lookup a collection of media by their ids"
