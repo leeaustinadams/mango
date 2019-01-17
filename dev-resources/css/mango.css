@@ -55,18 +55,39 @@ html, body {
 }
 
 .article-content img {
-    max-width: 100%;
+    max-width: 25%;
+    padding: 4px;
+    border-radius: 12px;
+    float: right;
 }
 
 .article-list-item {
     border-bottom: 1px solid #ddd;
-    box-sizing: border-box;
     padding-top: 10px;
+}
+
+.article-list-item img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.article-list-item-title {
+}
+
+.article-list-item-description {
+    margin: 4px 0 0 0;
+}
+
+.article-list-item-byline {
+    margin: 4px 0 0 0;
+    color: #888;
+}
+
+.article-list-item-media {
 }
 
 .media-list-item {
     border-bottom: 1px solid #ddd;
-    box-sizing: border-box;
     padding-top: 10px;
 }
 
@@ -148,25 +169,25 @@ html, body {
     padding:8px;
 }
 
-.left-thumbnail  {
-    float: left;
-    width: 33%;
-    height: auto;
-    margin: 8px 12px 8px 4px;
-}
+/* .left-thumbnail  { */
+/*     float: left; */
+/*     width: 33%; */
+/*     height: auto; */
+/*     margin: 8px 12px 8px 4px; */
+/* } */
 
-.middle-thumbnail {
-    width: 25%;
-    height: auto;
-    margin: 8px 12px 8px 4px;
-}
+/* .middle-thumbnail { */
+/*     width: 25%; */
+/*     height: auto; */
+/*     margin: 8px 12px 8px 4px; */
+/* } */
 
-.right-thumbnail  {
-    float: right;
-    width: 25%;
-    height: auto;
-    margin: 8px 12px 8px 4px;
-}
+/* .right-thumbnail  { */
+/*     float: right; */
+/*     width: 25%; */
+/*     height: auto; */
+/*     margin: 8px 12px 8px 4px; */
+/* } */
 
 .media-thumbnail {
     height:128px;
@@ -175,6 +196,12 @@ html, body {
 div.imagebar {
     overflow: auto;
     white-space: nowrap;
+}
+.article-content img {
+    max-width: 25%;
+    padding: 4px;
+    border-radius: 12px;
+    float: right;
 }
 
 div.imagebar a {
@@ -285,7 +312,7 @@ input[type=text], input[type=password] {
     font-size: large;
 }
 
-input[type=button], input[type=submit], input[type=reset], input[type=date], select {
+input[type=button], input[type=submit], input[type=file], input[type=reset], input[type=date], select {
     padding: 16px 32px;
     border-radius: 4px;
     background-color: #999;
@@ -302,27 +329,70 @@ textarea {
     font-size: large;
 }
 
-.col-25 {
+.col-5, .col-5-sm {
+    float: left;
+    width: 5%;
+    padding: 0 6px 0 6px;
+}
+
+.col-10, .col-10-sm {
+    float: left;
+    width: 10%;
+    padding: 0 6px 0 6px;
+}
+
+.col-20, .col-20-sm {
+    float: left;
+    width: 20%;
+    padding: 0 6px 0 6px;
+}
+
+.col-25, .col-25-sm {
     float: left;
     width: 25%;
-    margin-top: 6px;
+    padding: 0 6px 0 6px;
 }
 
-.col-50 {
+.col-50, .col-50-sm {
     float: left;
     width: 50%;
-    margin-top: 6px;
+    padding: 0 6px 0 6px;
 }
 
-.col-75 {
+.col-75, .col-75-sm {
     float: left;
     width: 75%;
-    margin-top: 6px;
+    padding: 0 6px 0 6px;
+}
+
+.col-80, .col-80-sm {
+    float: left;
+    width: 80%;
+    padding: 0 6px 0 6px;
+}
+
+.col-90, .col-90-sm {
+    float: left;
+    width: 90%;
+    padding: 0 6px 0 6px;
+}
+
+.col-95, .col-95-sm {
+    float: left;
+    width: 95%;
+    padding: 0 6px 0 6px;
+}
+
+
+.col-100 {
+    float: left;
+    width: 100%;
+    padding: 0 6px 0 6px;
 }
 
 /* Clear floats after the columns */
 .row, .field-row {
-    margin: 20px 0 0 0;
+    padding: 6px 0 0 0;
 }
 
 .row:after, .field-row:after {
@@ -333,17 +403,23 @@ textarea {
 
 /* Responsive layout - when the screen is less than 600px wide, make the columns stack on top of each other instead of next to each other */
 @media (max-width: 600px) {
-    .col-25, .col-50, .col-75, input[type=submit], input[type=button], input[type=reset], input[type=date], select {
+    .col-25, .col-50, .col-75, .col-80, .col-90, .col-95, input[type=submit], input[type=button], input[type=reset], input[type=date], select {
         width: 100%;
-        margin-top: 0;
     }
 
     .row {
-        margin: 0;
+        padding: 0;
     }
 
     li {
         margin-top: 4px;
+    }
+
+    .article-content img {
+        max-width: 50%;
+        padding: 4px;
+        border-radius: 12px;
+        float: right;
     }
 }
 

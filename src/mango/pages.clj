@@ -147,13 +147,19 @@
 
 (defn article-list-item
   "Render an article list item"
-  [{:keys [slug title description media]}]
+  [{:keys [slug title description media created]}]
   [:div.article-list-item
-   [:h2 (link-to (str "/blog/" slug) title)]
    [:div.row
-    [:p.col-50 description]
+    [:div.col-100
+     [:h2.article-list-item-title (link-to (str "/blog/" slug) title)]]]
+   [:div.row
+    [:div.col-25.article-list-item-byline "On: " (xform-time-to-string created)]]
+   [:div.row
     (when-let [thumb (first media)]
-      (image {:class "col-50"} (:src thumb)))]])
+      [:div.col-25-sm
+       (image {:class "article-list-item-media"} (:src thumb))])
+    [:div.col-75-sm description]]
+   ])
 
 (defn articles-list
   "Render a list of articles"
@@ -202,16 +208,20 @@
 (defn submit-row
   "Render a form submit row"
   [content & [attr-map]]
-  [:div.row (if attr-map
-              (submit-button attr-map content)
-              (submit-button content))])
+  [:div.field-row
+   [:div.col-100
+    (if attr-map
+      (submit-button attr-map content)
+      (submit-button content))]])
 
 (defn file-select-row
   "Render a file select row"
   [content & [attr-map]]
-  [:div.row (if attr-map
-              (file-upload attr-map content)
-              (file-upload content))])
+  [:div.field-row
+   [:div.col-100
+    (if attr-map
+      (file-upload attr-map content)
+      (file-upload content))]])
 
 (defn sign-in
   "Render the sign in page"
@@ -302,11 +312,16 @@
             (field-row text-field "tags" "Tags" (apply str (interpose ", " tags)))
             (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
             (field-row thumb-bar "thumbs" "Media"  media)
+            [:div.field-row
+             [:div.col-25
+              [:span "&nbsp;"]]
+             [:div.col-75
+              (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
             (field-row date-field "created" "Date" (xform-time-to-string created))
             (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
             (submit-row "Submit")]
            (include-js "/js/media-edit.js")
-           (link-to (str "/blog/media/new?article-id=" _id) "Add Media")))))
+           ))))
 
 (defn upload-media
   "Render the media upload page"
