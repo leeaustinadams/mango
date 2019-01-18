@@ -172,26 +172,6 @@ html, body {
     padding:8px;
 }
 
-/* .left-thumbnail  { */
-/*     float: left; */
-/*     width: 33%; */
-/*     height: auto; */
-/*     margin: 8px 12px 8px 4px; */
-/* } */
-
-/* .middle-thumbnail { */
-/*     width: 25%; */
-/*     height: auto; */
-/*     margin: 8px 12px 8px 4px; */
-/* } */
-
-/* .right-thumbnail  { */
-/*     float: right; */
-/*     width: 25%; */
-/*     height: auto; */
-/*     margin: 8px 12px 8px 4px; */
-/* } */
-
 .media-thumbnail {
     height:128px;
 }
@@ -204,6 +184,8 @@ div.imagebar {
 div.imagebar img {
     height: 240px;
     width: auto;
+    max-width: unset;
+    float: unset;
 }
 
 .mango .gray {
