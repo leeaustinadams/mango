@@ -16,11 +16,13 @@ html, body {
 }
 
 .mango {
-    margin: 2% 2% 2% 2%;
-    padding: 2% 2% 2% 2%;
+    margin: 4px auto auto auto;
+    padding: 12px;
     border: 1px solid #999;
     border-radius: 4px;
     background: white;
+    max-width: 900px;
+    width: 96%;
 }
 
 .article-header {
@@ -57,7 +59,7 @@ html, body {
 .article-content img {
     max-width: 25%;
     padding: 4px;
-    border-radius: 12px;
+    border-radius: 4px;
     float: right;
 }
 
@@ -68,10 +70,11 @@ html, body {
 
 .article-list-item img {
     max-width: 100%;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 .article-list-item-title {
+    margin: 4px 0 0 0;
 }
 
 .article-list-item-description {
@@ -197,15 +200,6 @@ div.imagebar {
     overflow: auto;
     white-space: nowrap;
 }
-.article-content img {
-    max-width: 25%;
-    padding: 4px;
-    border-radius: 12px;
-    float: right;
-}
-
-div.imagebar a {
-}
 
 div.imagebar img {
     height: 240px;
@@ -234,10 +228,6 @@ div.imagebar img {
 
 .mango .red {
     background: #ff8a80;
-}
-
-.main-view {
-    margin: 40 40 10 40;
 }
 
 .footer {
@@ -383,7 +373,6 @@ textarea {
     padding: 0 6px 0 6px;
 }
 
-
 .col-100 {
     float: left;
     width: 100%;
@@ -403,12 +392,16 @@ textarea {
 
 /* Responsive layout - when the screen is less than 600px wide, make the columns stack on top of each other instead of next to each other */
 @media (max-width: 600px) {
+    .mango {
+        max-width: 100%;
+        margin: 4px;
+    }
+
     .col-25, .col-50, .col-75, .col-80, .col-90, .col-95, input[type=submit], input[type=button], input[type=reset], input[type=date], select {
         width: 100%;
     }
 
     .row {
-        padding: 0;
     }
 
     li {
@@ -417,9 +410,6 @@ textarea {
 
     .article-content img {
         max-width: 50%;
-        padding: 4px;
-        border-radius: 12px;
-        float: right;
     }
 }
 

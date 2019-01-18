@@ -150,15 +150,16 @@
   [{:keys [slug title description media created]}]
   [:div.article-list-item
    [:div.row
-    [:div.col-100
-     [:h2.article-list-item-title (link-to (str "/blog/" slug) title)]]]
+    [:div.col-75
+     [:h2.article-list-item-title (link-to (str "/blog/" slug) title)]]
+    [:div.col-25.article-list-item-byline (xform-time-to-string created)]]
    [:div.row
-    [:div.col-25.article-list-item-byline "On: " (xform-time-to-string created)]]
-   [:div.row
-    (when-let [thumb (first media)]
-      [:div.col-25-sm
-       (image {:class "article-list-item-media"} (:src thumb))])
-    [:div.col-75-sm description]]
+    (if-let [thumb (first media)]
+      (list
+        [:div.col-25-sm
+         (image {:class "article-list-item-media"} (:src thumb))]
+        [:div.col-75-sm description])
+      [:div.col-100 description])]
    ])
 
 (defn articles-list

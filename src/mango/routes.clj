@@ -196,9 +196,9 @@
 
   ;; Blog
   (GET "/blog" {:keys [user]}
-       (pages/articles-list user "Articles" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged nil}))))
+       (pages/articles-list user "Blog" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged nil}))))
   (GET "/blog/tagged/:tag" {user :user {:keys [tag]} :params}
-       (pages/articles-list user (str "Articles Tagged \"" (url-decode tag) \") (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged (url-decode tag)}))))
+       (pages/articles-list user (str "Tagged \"" (url-decode tag) \") (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "published" {:page 0 :per-page 100 :tagged (url-decode tag)}))))
   (GET "/blog/drafts" {user :user {:keys [tag]} :params}
        (when (auth/editor? user)
          (pages/articles-list user "Drafts" (hydrate/articles db/data-provider (dp/blog-articles db/data-provider "draft" {:page 0 :per-page 100 :tagged tag})))))
