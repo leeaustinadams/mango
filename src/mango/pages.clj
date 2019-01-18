@@ -312,6 +312,11 @@
             (field-row text-field "title" "Title" title)
             (field-row text-field "description" "Description" description)
             (field-row text-field "tags" "Tags" (apply str (interpose ", " tags)))
+            [:div.field-row
+             [:div.col-25
+              [:span "&nbsp;"]]
+             [:div.col-75
+              (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
             (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
             (field-row thumb-bar "thumbs" "Media"  media)
             [:div.field-row
