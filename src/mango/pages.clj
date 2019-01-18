@@ -124,7 +124,8 @@
         [:div.article-socialline
          (tweet-button url description)
          (follow-button author-twitter-handle)]]
-       [:div.article-content rendered-content]]
+       [:div.article-content
+        (list rendered-content [:div.clearfix])]]
       (footer)])))
 
 (defn render-page
