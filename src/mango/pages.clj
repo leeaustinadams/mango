@@ -307,7 +307,6 @@
           (list
            [:form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
             (hidden-field "__anti-forgery-token" anti-forgery-token)
-            (hidden-field "media" (apply str (interpose ", " (map #(str (:_id %)) media))))
             (when _id (hidden-field "_id" _id))
             (field-row text-field "title" "Title" title)
             (field-row text-field "description" "Description" description)
