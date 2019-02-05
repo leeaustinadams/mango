@@ -52,4 +52,4 @@ Built with
 
 ## License
 
-Copyright © 2016-2018 Lee Austin Adams
+Copyright © 2016-2019 Lee Austin Adams
