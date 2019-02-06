@@ -184,7 +184,7 @@
 
   ;; Main
   (GET "/" {:keys [user]}
-       (pages/root user))
+       (pages/root user (hydrate/article db/data-provider (first (dp/blog-articles db/data-provider "published" {:page 0 :per-page 1 :tagged nil})))))
   (GET "/photography" {:keys [user]}
        (pages/photography user))
   (GET "/about" {:keys [user]}

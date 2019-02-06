@@ -138,14 +138,6 @@
            content]
           (when show-footer (footer))]))
 
-(defn root
-  "Render the root page"
-  [user]
-  (render-page user "4d4ms.com"
-        (list [:h2 (link-to "/blog" "Blog")]
-              [:h2 (link-to "/photography" "Photography")]
-              [:h2 (link-to "/about" "About")])))
-
 (defn article-list-item
   "Render an article list item"
   [{:keys [slug title description media created]}]
@@ -390,3 +382,16 @@
   [urls]
   (let [url-list (for [u urls] (hash-map :url u))]
     (stencil/render-file "templates/sitemap.txt" {:urls url-list})))
+
+(defn root
+  "Render the root page"
+  [user & [article]]
+  (render-page user "4d4ms.com"
+        (list [:div.row
+               [:h2.col-100 (link-to "/blog" "Blog")]]
+              (when article
+                (list [:div.row [:span.col-100 "Latest Article:"]] (article-list-item article)))
+              [:div.row
+               [:h2.col-100 (link-to "/photography" "Photography")]]
+              [:div.row
+               [:h2.col-100 (link-to "/about" "About")]])))
