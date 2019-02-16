@@ -17,4 +17,5 @@
   (insert-blog-article [this article user-id])
   (update-blog-article [this article user-id])
   (update-blog-article-media [this article-id media-id])
+  (blog-article-tags [this status])
   (insert-log-event [this event]))

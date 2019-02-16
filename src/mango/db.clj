@@ -150,6 +150,11 @@
 
 (defn delete-user [user])
 
+(defn blog-article-tags [status]
+  (let [query (merge {:tags {$ne nil}} status)
+        tags (flatten (map :tags (mc/find-maps @DB config/db-article-collection query {:tags 1})))]
+    (frequencies tags)))
+
 (defn delete-session
   "Delete a session from the database"
   [id]
@@ -194,7 +199,7 @@
   (insert-blog-article [this article user-id] (insert-blog-article article user-id))
   (update-blog-article [this article user-id] (update-blog-article article user-id))
   (update-blog-article-media [this article-id media-id] (update-blog-article-media article-id media-id))
-
+  (blog-article-tags [this status] (blog-article-tags status))
   (insert-log-event [this event] (insert-log-event event)))
 
 (def data-provider (DBDataProvider.))

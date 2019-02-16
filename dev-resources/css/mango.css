@@ -77,6 +77,10 @@ html, body {
     margin: 4px 0 0 0;
 }
 
+.article-list-item-title > a {
+    text-decoration-line: none;
+}
+
 .article-list-item-description {
     margin: 4px 0 0 0;
 }

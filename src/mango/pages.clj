@@ -41,6 +41,7 @@
   [:div.toolbar
    (unordered-list (filter #(not (nil? %)) (list (link-to "/" "Home")
                                                  (link-to "/blog" "Blog")
+                                                 (link-to "/blog/tagged" "Tags")
                                                  (when (auth/editor? user) (link-to "/blog/new" "New"))
                                                  (when (auth/editor? user) (link-to "/blog/drafts" "Drafts"))
                                                  (when (auth/editor? user) (link-to "/blog/media" "Media"))
@@ -165,6 +166,23 @@
         :show-toolbar true
         :show-footer true
         :redir "/blog"))
+
+(defn tag-and-count
+  [tag]
+  [:span
+   (link-to-tag (first tag))
+   (str "(" (second tag) ")")])
+
+(defn tags
+  "Render a page with a list of tags and their counts"
+  [user title tag-counts]
+  (render-page user title
+               (list
+                [:h1 title]
+                (divided-list tag-counts tag-and-count "-" "tags"))
+               :show-toolbar true
+               :show-footer true
+               :redir "/tagged"))
 
 (defn photography
   "Render the photography page"
