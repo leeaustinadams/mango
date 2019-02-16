@@ -63,7 +63,7 @@
     (merge article
            (when media {:media media})
            (when created {:created created})
-           {:slug (slugify (:title article) :limit 5)}
+           {:slug (slugify (:title article) :limit 10)}
            {:tags tags})))
 
 (defn- sanitize-media
