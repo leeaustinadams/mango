@@ -1,0 +1,16 @@
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+.hgignore
+.hg/
+/resources/public/js/mango*.js
+/resources/public/css/mango*.css
+/dev-resources/js/mango*.min.js
+/dev-resources/css/mango*.min.css
+/src/version.clj

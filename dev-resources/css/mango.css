@@ -1,0 +1,419 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eee;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.mango {
+    margin: 4px auto auto auto;
+    padding: 12px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background: white;
+    max-width: 900px;
+    width: 96%;
+}
+
+.article-header {
+}
+
+.article-title {
+    margin: 12px 0 12px 0;
+}
+
+.article-description {
+    margin: 12px 0 12px 0;
+}
+
+.article-byline {
+    margin: 12px 0 12px 0;
+}
+
+.article-infoline {
+    margin: 12px 0 12px 0;
+}
+
+.article-tagsline {
+    margin: 12px 0 12px 0;
+}
+
+.article-socialline {
+    margin: 12px 0 12px 0;
+}
+
+.twitter-follow-button, .twitter-share-button {
+    margin: 0 8px 0 0;
+}
+
+.article-content img {
+    max-width: 25%;
+    padding: 4px;
+    border-radius: 4px;
+    float: right;
+}
+
+.article-list-item {
+    border-bottom: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.article-list-item img {
+    max-width: 100%;
+    border-radius: 4px;
+}
+
+.article-list-item-title {
+    margin: 4px 0 0 0;
+}
+
+.article-list-item-title > a {
+    text-decoration-line: none;
+}
+
+.article-list-item-description {
+    margin: 4px 0 0 0;
+}
+
+.article-list-item-byline {
+    margin: 4px 0 0 0;
+    color: #888;
+}
+
+.article-list-item-media {
+}
+
+.media-list-item {
+    border-bottom: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.media-list-item img {
+    max-width: 33%;
+}
+
+.footnotes {
+    font-size: small;
+}
+
+.tags {
+    margin: 0 0 0 0;
+    display: inline-block;
+    list-style: none;
+    -webkit-padding-start: 0;
+    -moz-padding-start: 0;
+}
+
+.tags > li {
+    display: inline-block;
+    text-shadow: 0 1px 0 #ffffff;
+}
+
+.tags > li > .divider {
+    padding: 0 5px;
+    color: #ccc;
+}
+
+.roles {
+    margin: 0 0 0 0;
+    display: inline-block;
+    list-style: none;
+    -webkit-padding-start: 0;
+    -moz-padding-start: 0;
+}
+
+.roles > li {
+    display: inline-block;
+    text-shadow: 0 1px 0 #ffffff;
+}
+
+.roles > li > .divider {
+    padding: 0 5px;
+    color: #ccc;
+}
+
+.media-list {
+    margin: 12px 0 12px 0;
+    list-style: none;
+}
+
+.media-list > li {
+    display: inline-block;
+    text-shadow: 0 1px 0 #ffffff;
+}
+
+.media-list > li > .divider {
+    padding: 0 5px;
+    color: #ccc;
+}
+
+.media-list > li img {
+    height: 128px;
+    width: auto;
+    margin: 4px;
+}
+
+.tweet-button {
+    margin: 2px 0 2px 0;
+}
+
+.article-thumbnail {
+    height: 128px;
+    padding-right: 12px;
+}
+
+.article-list-item {
+    padding:8px;
+}
+
+.media-thumbnail {
+    height:128px;
+}
+
+div.imagebar {
+    overflow: auto;
+    white-space: nowrap;
+}
+
+div.imagebar img {
+    height: 240px;
+    width: auto;
+    max-width: unset;
+    float: unset;
+}
+
+.mango .gray {
+    background: #f5f5f5;
+}
+
+.mango .green {
+    background: #b9f6ca;
+}
+
+.mango .yellow {
+    background: #ffff8d;
+}
+
+.mango .blue {
+    background: #84ffff;
+}
+
+.mango .purple {
+    background: #b388ff;
+}
+
+.mango .red {
+    background: #ff8a80;
+}
+
+.footer {
+    top: 90%;
+    margin: 24px 8px 8px 8px;
+}
+
+.hljs {
+    display: inline;
+    background-color: transparent;
+    padding: 0;
+}
+
+pre {
+    padding: 0.5em;
+    border: 1px solid #999;
+    overflow-x: scroll;
+}
+
+.breadcrumb {
+    padding: 8px 15px;
+    margin: 0 0 20;
+    list-style: none;
+    background-color: #f5f5f5;
+}
+
+.breadcrumb > li {
+    display: inline-block;
+    text-shadow: 0 1px 0 #ffffff;
+}
+
+.breadcrumb > li > .divider {
+    padding: 0 5px;
+    color: #ccc;
+}
+
+.breadcrumb > .active {
+    color: #999999;
+}
+
+blockquote {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+    quotes: "\201C""\201D";
+}
+
+blockquote:before {
+    color: #ccc;
+    content: open-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    margin-right: 0.25em;
+    vertical-align: -0.4em;
+}
+
+blockquote p {
+    display: inline;
+}
+
+label {
+    margin: 4px 0 2px 0;
+    font-size: x-large;
+}
+
+input[type=text], input[type=password] {
+    width: 100%;
+    margin 4px 2px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    font-size: large;
+}
+
+input[type=button], input[type=submit], input[type=file], input[type=reset], input[type=date], select {
+    padding: 16px 32px;
+    border-radius: 4px;
+    background-color: #999;
+    color: white;
+    font-size: xx-large;
+    cursor: pointer;
+    float: right;
+}
+
+textarea {
+    width: 100%;
+    height: 400px;
+    border: 1px solid #999;
+    font-size: large;
+}
+
+.col-5, .col-5-sm {
+    float: left;
+    width: 5%;
+    padding: 0 6px 0 6px;
+}
+
+.col-10, .col-10-sm {
+    float: left;
+    width: 10%;
+    padding: 0 6px 0 6px;
+}
+
+.col-20, .col-20-sm {
+    float: left;
+    width: 20%;
+    padding: 0 6px 0 6px;
+}
+
+.col-25, .col-25-sm {
+    float: left;
+    width: 25%;
+    padding: 0 6px 0 6px;
+}
+
+.col-50, .col-50-sm {
+    float: left;
+    width: 50%;
+    padding: 0 6px 0 6px;
+}
+
+.col-75, .col-75-sm {
+    float: left;
+    width: 75%;
+    padding: 0 6px 0 6px;
+}
+
+.col-80, .col-80-sm {
+    float: left;
+    width: 80%;
+    padding: 0 6px 0 6px;
+}
+
+.col-90, .col-90-sm {
+    float: left;
+    width: 90%;
+    padding: 0 6px 0 6px;
+}
+
+.col-95, .col-95-sm {
+    float: left;
+    width: 95%;
+    padding: 0 6px 0 6px;
+}
+
+.col-100 {
+    float: left;
+    width: 100%;
+    padding: 0 6px 0 6px;
+}
+
+/* Clear floats after the columns */
+.row, .field-row {
+    padding: 6px 0 0 0;
+}
+
+.row:after, .field-row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Responsive layout - when the screen is less than 600px wide, make the columns stack on top of each other instead of next to each other */
+@media (max-width: 600px) {
+    .mango {
+        max-width: 100%;
+        margin: 4px;
+    }
+
+    .col-25, .col-50, .col-75, .col-80, .col-90, .col-95, input[type=submit], input[type=button], input[type=reset], input[type=date], select {
+        width: 100%;
+    }
+
+    .row {
+    }
+
+    li {
+        margin-top: 4px;
+    }
+
+    .article-content img {
+        max-width: 50%;
+    }
+}
+
+.toolbar {
+    margin: 8px 0 12px 0;
+    padding: 2px 0 2px 0;
+    border-bottom: solid 1px #999;
+}
+
+.toolbar ul {
+    margin: 0 0 0 0;
+    display: inline-block;
+    list-style: none;
+    -webkit-padding-start: 0;
+    -moz-padding-start: 0;
+}
+
+.toolbar ul > li {
+    display: inline-block;
+    margin: 0 8px 0 8px;
+}

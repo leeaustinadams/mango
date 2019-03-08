@@ -1,0 +1,17 @@
+{
+ :db-name "test-blog"
+ :db-article-collection "test-articles"
+ :db-media-collection "test-media"
+ :db-users-collection "test-users"
+ :site-url "http://localhost"
+ :site-title "TEST - BLOG - TEST"
+ :site-description "TEST - BLOG - TEST"
+ :site-copyright "test copyright"
+ :twitter-site-handle "@null"
+ :twitter-creator-handle "@"
+ :admin-email ""
+ :port 8080
+ :cdn-url "http://localhost/blog/"
+ :logo-url "http://localhost/img/logo.png"
+ :aws-media-bucket "test-media"
+ :aws-region "us-west-1"}

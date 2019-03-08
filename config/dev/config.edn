@@ -1,0 +1,17 @@
+{
+ :db-name "dev-blog"
+ :db-article-collection "dev-articles"
+ :db-media-collection "dev-media"
+ :db-users-collection "dev-users"
+ :site-url "http://localhost"
+ :site-title "DEV - BLOG - DEV"
+ :site-description "DEV - BLOG - DEV"
+ :site-copyright "dev copyright"
+ :twitter-site-handle "@null"
+ :twitter-creator-handle "@"
+ :admin-email ""
+ :port 8080
+ :cdn-url ""
+ :logo-url ""
+ :aws-media-bucket "dev-media"
+ :aws-region "us-west-1"}

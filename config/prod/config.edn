@@ -1,0 +1,17 @@
+{
+ :db-name "prod-blog"
+ :db-article-collection "prod-articles"
+ :db-media-collection "prod-media"
+ :db-users-collection "prod-users"
+ :site-url "http://localhost"
+ :site-title "TODO: Site Title"
+ :site-description "TODO: Site Description"
+ :site-copyright "TODO: copyright"
+ :twitter-site-handle "@null"
+ :twitter-creator-handle "@"
+ :admin-email ""
+ :port 8080
+ :cdn-url ""
+ :logo-url ""
+ :aws-media-bucket "prod-media"
+ :aws-region "us-west-1"}
