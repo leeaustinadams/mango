@@ -197,6 +197,11 @@
       (file-upload attr-map content)
       (file-upload content))]])
 
+(defn dropdown-field
+  "Renders a dropdown select input"
+  [name values default-value]
+  (drop-down name values default-value))
+
 (defn sign-in
   "Render the sign in page"
   [user anti-forgery-token & [message redir]]
@@ -226,15 +231,31 @@
   [roles]
   (divided-list roles identity "·" "roles"))
 
+(defn new-user
+  "Render a user form"
+  [user anti-forgery-token & [message]]
+  (render-page user "New User"
+               [:form {:name "newuser" :action (str "/users/new") :method "POST" :enctype "multipart/form-data"}
+                (hidden-field "__anti-forgery-token" anti-forgery-token)
+                (field-row text-field "username" "Username")
+                (field-row text-field "first" "First")
+                (field-row text-field "last" "Last")
+                (field-row text-field "email" "Email Address")
+                (field-row text-field "twitter-handle" "Twitter Handle")
+                (field-row password-field "password" "Password")
+                (field-row password-field "password2" "Confirm Password")
+                (field-row dropdown-field "role" "Role" (list ["Editor" "editor"] ["Administrator" "admin"] ["User" "user"]) "user")
+                (submit-row "Submit")
+                (when message [:p.error message])]))
+
 (defn user-item
   "Render a user's details"
-  [{:keys [username displayName firstName lastName email twitter-handle roles created]}]
+  [{:keys [username first-name last-name email twitter-handle roles created]}]
   (list
    [:div.row "Username: " username]
    [:div.row
-    [:div.col-25 "Display Name: " displayName]
-    [:div.col-25 "First Name: " firstName]
-    [:div.col-25 "Last Name: " lastName]]
+    [:div.col-25 "First Name: " first-name]
+    [:div.col-25 "Last Name: " last-name]]
    [:div.row
     [:div.col-50 "Email: " (mail-to email email)]
     (when twitter-handle [:div.col-50 "Twitter: " (link-to (str "https://twitter.com/" twitter-handle) twitter-handle)])]
@@ -259,11 +280,6 @@
   "Renders a date input"
   [name value]
   [:input {:name name :type "date" :value value}])
-
-(defn dropdown-field
-  "Renders a dropdown select input"
-  [name values default-value]
-  (drop-down name values default-value))
 
 (defn thumb-bar
   "Renders an image bar of thumbnails"

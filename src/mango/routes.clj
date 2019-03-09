@@ -19,6 +19,10 @@
             [mango.storage :as storage]
             [mango.util :refer [slugify xform-ids xform-tags xform-time-to-string xform-string-to-time url-decode]]))
 
+(defn session-anti-forgery-token
+  [session]
+  (get session :ring.middleware.anti-forgery/anti-forgery-token))
+
 (defn accum-media
   "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
   [data-provider files user-id]
@@ -133,6 +137,15 @@
         (api/json-status 500 {:message "Media upload failed"})))
     (api/json-status 400 {:message "No files specified"})))
 
+(defn new-user
+  "Route handler creating a new user"
+  [data-provider user session {:keys [username first last email twitter-handle password password2 role]}]
+  (if (= password password2)
+    (if (auth/new-user username first last email twitter-handle password [role])
+      (redir-response 302 "/blog")
+      (pages/new-user user (session-anti-forgery-token session) "Couldn't add user"))
+    (pages/new-user user (session-anti-forgery-token session) "Passwords didn't match")))
+
 (defn update-media
   "Route handler for updating an existing media"
   [data-provider author params]
@@ -159,10 +172,6 @@
      :headers {"Content-Type" "text/plain"}
      :body (pages/sitemap (str config/site-url "/blog/") articles)
      }))
-
-(defn session-anti-forgery-token
-  [session]
-  (get session :ring.middleware.anti-forgery/anti-forgery-token))
 
 (defn signin
   "Route handler for signing in"
@@ -239,6 +248,8 @@
   (GET "/users.json" {:keys [user params]} (when (auth/editor? user) (api/list-users db/data-provider params)))
   (GET "/users/me.json" {:keys [user]} (when (auth/editor? user) (api/me db/data-provider user)))
   (GET "/users/:id.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/user-by-id db/data-provider id)))
+  (GET "/users/new" {:keys [user session params]} (when (auth/admin? user) (pages/new-user user (session-anti-forgery-token session) params)))
+  (POST "/users/new" {:keys [user session params]} (when (auth/admin? user) (new-user db/data-provider user session params)))
 
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})

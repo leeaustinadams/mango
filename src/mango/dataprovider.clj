@@ -5,6 +5,7 @@
   (blog-media [this options])
   (blog-media-by-id [this id])
   (users [this options])
+  (insert-user [this user])
   (user-by-id [this id])
   (insert-blog-media [this media user-id])
   (update-blog-media [this media user-id])
