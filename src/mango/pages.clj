@@ -29,7 +29,8 @@
   "Render the footer"
   []
   [:div.footer {:align "center"}
-   [:small.copyright config/site-copyright " " (mail-to config/admin-email "contact")][:br]
+   [:small.copyright "Content " config/site-copyright " " (mail-to config/admin-email "contact")][:br]
+   [:small.copyright "Powered by " (link-to "https://4d4ms.com/mango" "Mango")][:br]
    [:small.version config/version]])
 
 (defn toolbar
@@ -119,11 +120,11 @@
 
 (defn render-page
   "Renders a page"
-  [user title content & {:keys [show-toolbar show-footer redir]}]
+  [user title content & {:keys [show-toolbar show-footer redir] :or { show-toolbar true show-footer true redir "/" }}]
   (html5 [:head (header title)]
          [:body
           [:div.mango
-           (when show-toolbar (toolbar user nil (or redir "/")))
+           (when show-toolbar (toolbar user nil redir))
            content]
           (when show-footer (footer))]))
 
@@ -252,15 +253,18 @@
   "Render a user's details"
   [{:keys [username first-name last-name email twitter-handle roles created]}]
   (list
-   [:div.row "Username: " username]
    [:div.row
-    [:div.col-25 "First Name: " first-name]
-    [:div.col-25 "Last Name: " last-name]]
+    [:div.col-25 "Username: " username]]
+   [:div.row
+    [:div.col-50 "First Name: " first-name]
+    [:div.col-50 "Last Name: " last-name]]
    [:div.row
     [:div.col-50 "Email: " (mail-to email email)]
     (when twitter-handle [:div.col-50 "Twitter: " (link-to (str "https://twitter.com/" twitter-handle) twitter-handle)])]
-   [:div.row "Roles: " (roles-list roles)]
-   [:div.row "Created: " (xform-time-to-string created)]))
+   [:div.row
+    [:div.col-25 "Roles: " (roles-list roles)]]
+   [:div.row
+    [:div.col-25 "Created: " (xform-time-to-string created)]]))
 
 (defn user-details
   "Render the user details page"
