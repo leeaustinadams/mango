@@ -2,7 +2,9 @@
   (:require [mango.db :as db]
             [mango.auth :as auth]
             [mango.config :as config]
-            [mango.util :refer [slugify]]))
+            [mango.util :refer [slugify]]
+            [mango.storage :as storage]
+            [taoensso.timbre :refer [info]]))
 
 
 (def default-user
@@ -33,8 +35,9 @@
   "Bootstrap an empty site"
   []
   (when (< (count (db/users {})) 1)
-    (println "No users found, bootstrapping users")
+    (info "No users found, bootstrapping users")
     (if-let [user (auth/new-user default-user)]
       (when (< (db/blog-articles-count "published" {}) 1)
-        (println "No articles found, bootstrapping default article")
-        (db/insert-blog-article default-article (:_id user))))))
+        (info "No articles found, bootstrapping default article")
+        (db/insert-blog-article default-article (:_id user)))))
+  (storage/init-bucket config/aws-media-bucket))

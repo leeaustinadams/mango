@@ -17,7 +17,8 @@
             [mango.json-api :as api]
             [mango.pages :as pages]
             [mango.storage :as storage]
-            [mango.util :refer [slugify xform-ids xform-tags xform-time-to-string xform-string-to-time url-decode]]))
+            [mango.util :refer [slugify xform-ids xform-tags xform-time-to-string xform-string-to-time url-decode]]
+            [taoensso.timbre :as timbre :refer [tracef debugf info]]))
 
 (defn session-anti-forgery-token
   [session]
@@ -131,7 +132,8 @@
     (let [result (upload-file (first files))]
       (if (nil? @result)
         (let [media-ids (accum-media data-provider files user-id)]
-          (when article-id
+          (when-not (str/blank? article-id)
+            (debugf "Article id %s" article-id)
             (dp/update-blog-article-media data-provider article-id (first media-ids)))
           (api/json-success media-ids))
         (api/json-status 500 {:message "Media upload failed"})))
@@ -309,7 +311,7 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-  (println (str (select-keys request [:session :user :uri :request-method :query-string :params]) "\n"))
+  (info (select-keys request [:uri :request-method :query-string]) (select-keys (:user request) [:username :roles]) (dissoc (:params request) :password))
   request)
 
 (defn wrap-logger
