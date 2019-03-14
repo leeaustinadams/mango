@@ -11,7 +11,7 @@
  :twitter-creator-handle ""
  :admin-email ""
  :port 8080
- :cdn-url ""
  :logo-url ""
- :aws-media-bucket "dev-media"
- :aws-region "us-west-1"}
+ :aws-media-bucket "dev-mango-media"
+ :aws-region "us-west-1"
+ :cdn-url "https://s3-us-west-1.amazonaws.com/dev-mango-media/blog/"}
