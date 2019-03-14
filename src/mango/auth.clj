@@ -1,6 +1,12 @@
 (ns mango.auth
   (:require [mango.db :as db]
-            [crypto.password.pbkdf2 :as password]))
+            [crypto.password.pbkdf2 :as password]
+            [clj-time.core :refer [now]]))
+
+(defn encrypt-user-password
+  "Add/replace the :password field with its encrypted form of password"
+  [user plaintext-password]
+  (when user (assoc user :password (password/encrypt plaintext-password))))
 
 (defn user
   "Authenticate the user with username and password"
@@ -9,10 +15,20 @@
     (let [encrypted-password (:password user)]
       (when (and (not (nil? encrypted-password)) (password/check plaintext-password encrypted-password)) user))))
 
-(defn encrypt-user-password
-  "Add/replace the :password field with its encrypted form of password"
-  [user plaintext-password]
-  (when user (assoc user :password (password/encrypt plaintext-password))))
+(defn new-user
+  "Add a new user"
+  ([username first-name last-name email twitter-handle plaintext-password roles]
+   (let [user {:username username
+               :first-name first-name
+               :last-name last-name
+               :email email
+               :twitter-handle twitter-handle
+               :password plaintext-password
+               :roles roles}]
+     (new-user user)))
+  ([user]
+   (when (not (db/user-by-username (:username user)))
+     (db/insert-user (assoc user :password (password/encrypt (:password user)) :created (now))))))
 
 (defn private-user
   "Remove fields that should usually not be necessary internally"

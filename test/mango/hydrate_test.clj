@@ -1,6 +1,7 @@
 (ns mango.hydrate-test
   (:require [clojure.test :refer :all]
             [mango.auth :refer [public-user]]
+            [mango.config :as config]
             [mango.hydrate :refer :all]
             [mango.fixtures :as fixtures]))
 
@@ -9,13 +10,13 @@
   (is (= (user fixtures/data-provider {:user 1234}) {:user (public-user fixtures/user)}))
   (is (= (user fixtures/data-provider {:user 1234 :other-stuff "Untouched"}) {:user (public-user fixtures/user) :other-stuff "Untouched"})))
 
-(deftest test-hydrate-media
-  (is (= (media fixtures/data-provider {}) {}))
-  (is (= (media fixtures/data-provider {:media [1 2 3 4]}) 
-         {:media [{:_id 1 :src "http://test-cdn.4d4ms.com/blog/1.jpg"}
-                  {:_id 2 :src "http://test-cdn.4d4ms.com/blog/2.jpg"}
-                  {:_id 3 :src "http://test-cdn.4d4ms.com/blog/3.jpg"}
-                  {:_id 4 :src "http://test-cdn.4d4ms.com/blog/4.jpg"}]})))
+(deftest test-hydrate-media-collection
+  (is (= (media-collection fixtures/data-provider {}) {}))
+  (is (= (media-collection fixtures/data-provider {:media [1 2 3 4]})
+         {:media [{:_id 1 :filename "1.jpg" :src (str config/cdn-url "1.jpg")}
+                  {:_id 2 :filename "2.jpg" :src (str config/cdn-url "2.jpg")}
+                  {:_id 3 :filename "3.jpg" :src (str config/cdn-url "3.jpg")}
+                  {:_id 4 :filename "4.jpg" :src (str config/cdn-url "4.jpg")}]})))
 
 (deftest test-hydrate-content
   (is (= (content {}) {}))

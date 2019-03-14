@@ -10,8 +10,7 @@
 (defn media
   "Hydrates a media item"
   [item]
-  (let [filename (or (:filename item) (:src item))]
-    (assoc item :src (str config/cdn-url "/" (url-encode filename)))))
+  (assoc item :src (str config/cdn-url (url-encode (:filename item)))))
 
 (defn medias
   "Hydrates a collection of media"

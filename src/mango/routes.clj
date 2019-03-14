@@ -17,7 +17,12 @@
             [mango.json-api :as api]
             [mango.pages :as pages]
             [mango.storage :as storage]
-            [mango.util :refer [slugify xform-ids xform-tags xform-time-to-string xform-string-to-time url-decode]]))
+            [mango.util :refer [slugify xform-ids xform-tags xform-time-to-string xform-string-to-time url-decode]]
+            [taoensso.timbre :as timbre :refer [tracef debugf info]]))
+
+(defn session-anti-forgery-token
+  [session]
+  (get session :ring.middleware.anti-forgery/anti-forgery-token))
 
 (defn accum-media
   "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
@@ -127,11 +132,21 @@
     (let [result (upload-file (first files))]
       (if (nil? @result)
         (let [media-ids (accum-media data-provider files user-id)]
-          (when article-id
+          (when-not (str/blank? article-id)
+            (debugf "Article id %s" article-id)
             (dp/update-blog-article-media data-provider article-id (first media-ids)))
           (api/json-success media-ids))
         (api/json-status 500 {:message "Media upload failed"})))
     (api/json-status 400 {:message "No files specified"})))
+
+(defn new-user
+  "Route handler creating a new user"
+  [data-provider user session {:keys [username first last email twitter-handle password password2 role]}]
+  (if (= password password2)
+    (if (auth/new-user username first last email twitter-handle password [role])
+      (redir-response 302 "/blog")
+      (pages/new-user user (session-anti-forgery-token session) "Couldn't add user"))
+    (pages/new-user user (session-anti-forgery-token session) "Passwords didn't match")))
 
 (defn update-media
   "Route handler for updating an existing media"
@@ -145,24 +160,19 @@
   "Route handler for deleting a media"
   [data-provider media-id]
   (if-let [media (dp/blog-media-by-id data-provider media-id)]
-    (let [filename (or (:src media) (:filename media))]
-      (when (not (nil? (storage/delete config/aws-media-bucket (str "blog/" filename))))
-        (dp/delete-blog-media-by-id data-provider media-id))
-      (redir-response 302 (str "/blog/media")))))
+    (when-not (nil? (storage/delete config/aws-media-bucket (str "blog/" (:filename media))))
+      (dp/delete-blog-media-by-id data-provider media-id))
+    (redir-response 302 (str "/blog/media"))))
 
 (defn sitemap
   "Route handler for the sitemap.txt response"
   [data-provider]
-  (let [urls (mapv #(str (or (:slug %) (:_id %))) (dp/blog-articles data-provider "published" {:page 1 :per-page 100}))]
+  (let [articles (mapv #(str (or (:slug %) (:_id %))) (dp/blog-articles data-provider "published" {:page 1 :per-page 100}))]
     {
      :status 200
      :headers {"Content-Type" "text/plain"}
-     :body (pages/sitemap urls)
+     :body (pages/sitemap (str config/site-url "/blog/") articles)
      }))
-
-(defn session-anti-forgery-token
-  [session]
-  (get session :ring.middleware.anti-forgery/anti-forgery-token))
 
 (defn signin
   "Route handler for signing in"
@@ -226,6 +236,8 @@
 
   ;; Admin
   (GET "/admin/users" {:keys [user params]} (when (auth/admin? user) (pages/admin-users user (dp/users db/data-provider params))))
+  (GET "/users/new" {:keys [user session params]} (when (auth/admin? user) (pages/new-user user (session-anti-forgery-token session) params)))
+  (POST "/users/new" {:keys [user session params]} (when (auth/admin? user) (new-user db/data-provider user session params)))
 
   ;; JSON API -- All accesses should require authorization
   (GET "/blog/count.json" {:keys [user params]} (when (auth/editor? user) (api/article-count db/data-provider)))
@@ -303,7 +315,7 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-  (println (str (select-keys request [:session :user :uri :request-method :query-string :params]) "\n"))
+  (info (select-keys request [:uri :request-method :query-string]) (select-keys (:user request) [:username :roles]) (dissoc (:params request) :password))
   request)
 
 (defn wrap-logger

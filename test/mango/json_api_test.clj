@@ -57,11 +57,11 @@
          {:status 200
           :headers json-headers
           :body (str "[{\"content\":\"Hello\",\"media\":"
-          "[{\"_id\":1,\"src\":\"http://test-cdn.4d4ms.com/blog/1.jpg\"},{\"_id\":2,\"src\":\"http://test-cdn.4d4ms.com/blog/2.jpg\"}],"
+          "[{\"_id\":1,\"filename\":\"1.jpg\",\"src\":\"http://localhost/blog/1.jpg\"},{\"_id\":2,\"filename\":\"2.jpg\",\"src\":\"http://localhost/blog/2.jpg\"}],"
           "\"user\":{\"username\":\"User\",\"roles\":[]},"
           "\"rendered-content\":\"<p>Hello</p>\"},"
           "{\"content\":\"Howdy\",\"media\":"
-          "[{\"_id\":3,\"src\":\"http://test-cdn.4d4ms.com/blog/3.jpg\"},{\"_id\":4,\"src\":\"http://test-cdn.4d4ms.com/blog/4.jpg\"}],"
+          "[{\"_id\":3,\"filename\":\"3.jpg\",\"src\":\"http://localhost/blog/3.jpg\"},{\"_id\":4,\"filename\":\"4.jpg\",\"src\":\"http://localhost/blog/4.jpg\"}],"
           "\"user\":{\"username\":\"Editor\",\"roles\":[\"editor\"]},"
           "\"rendered-content\":\"<p>Howdy</p>\"}]")})))
 

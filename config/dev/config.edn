@@ -12,6 +12,7 @@
  :twitter-creator-handle "@beamjack"
  :admin-email "admin@4d4ms.com"
  :port 8080
+ :logo-url ""
  :cdn-url "https://s3-us-west-1.amazonaws.com/4d4ms-dev/blog"
  :aws-media-bucket "4d4ms-dev"
  :aws-region "us-west-1"

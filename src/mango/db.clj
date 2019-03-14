@@ -132,16 +132,8 @@
 
 (defn insert-user
   "Add a new user record"
-  [username first-name last-name display-name email twitter-handle password roles]
-  (let [user {:username username
-              :first-name first-name
-              :last-name last-name
-              :display-name display-name
-              :email email
-              :twitter-handle twitter-handle
-              :password password
-              :roles roles}]
-    (mc/insert-and-return @DB config/db-users-collection user)))
+  [user]
+  (mc/insert-and-return @DB config/db-users-collection user))
 
 (defn update-user
   "Updates a user record"
@@ -192,6 +184,7 @@
   (delete-blog-media-by-id [this media-id] (delete-blog-media-by-id media-id))
   (users [this options] (users options))
   (user-by-id [this id] (user-by-id id))
+  (insert-user [this user] (insert-user user))
   (blog-articles [this status options] (blog-articles status options))
   (blog-articles-count [this status] (blog-articles-count status))
   (blog-article-by-id [this id options] (blog-article-by-id id options))

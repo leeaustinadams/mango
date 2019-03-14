@@ -5,35 +5,27 @@ A blog written in Clojure for learning Clojure... and blogging.
 ## To Cut a Version
 `$ lein v update {patch|minor|major}`
 
-## To Deploy
-`$ ./deploy.sh`
+## Configuring
+You can configure three profiles: `dev`, `test`, and `prod`. Each profile can have separate urls, databases, and other fields configured to isolate them from each other.
+
+### Database
+Mango is currently strictly tied to mongoDB and you must have an instance running that you can connect to.
+
+## Developing
+Running locally for development: `$ lein with-profile dev run`.
+
+## Testing
+- To run the default tests: `$ lein test`
+- To run integration tests (requires database connection): `$ lein test :integration`
+
+## Deploying / Hosting
+For now I just build an uberjar and run it on an instance somewhere: `$ lein with-profile prod uberjar`
 
 ## Changelog
-**v0.4**
-4/8/2018
-
-* Security updates
-* More configuration for Google analytics
-* Navigation improvements
-
-**v0.3**
-3/9/2018
-
-* More cleanup
-
-**v0.2**
-3/3/2018
-
-* Dropping AngularJS
-* Styling and fixes
-* Improved editing
-
 **v0.1**
-9/2/2016
+2019/02/19
 
-* Basic routing, database, pages
-* Posting and editing, simple sign in
-* Twitter cards response when crawled by Twitterbot
+* First commit in prep for open source. Hope all my secrets are scrubbed!
 
 ## Acknowledgements
 Built with
@@ -48,7 +40,7 @@ Built with
   * [markdown-clj](https://github.com/yogthos/markdown-clj)
   * [leiningen](http://leiningen.org/)
 * [Javascript](https://en.wikipedia.org/wiki/JavaScript)
-
+  * [highlight-js](https://highlightjs.org/)
 
 ## License
 

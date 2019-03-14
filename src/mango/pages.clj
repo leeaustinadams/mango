@@ -32,7 +32,8 @@
   "Render the footer"
   []
   [:div.footer {:align "center"}
-   [:small.copyright "&copy; 2014-2018 Lee Adams " (mail-to config/admin-email "contact")][:br]
+   [:small.copyright "Content " config/site-copyright " " (mail-to config/admin-email "contact")][:br]
+   [:small.copyright "Powered by " (link-to "https://4d4ms.com/mango" "Mango")][:br]
    [:small.version config/version]])
 
 (defn toolbar
@@ -45,6 +46,7 @@
                                                  (when (auth/editor? user) (link-to "/blog/new" "New"))
                                                  (when (auth/editor? user) (link-to "/blog/drafts" "Drafts"))
                                                  (when (auth/editor? user) (link-to "/blog/media" "Media"))
+                                                 (when (auth/admin? user) (link-to "/admin/users" "Users"))
                                                  (when (and article (auth/editor? user)) (link-to (str "/edit/" (:slug article)) "Edit"))
                                                  (if user
                                                    (link-to (str "/signout?redir=" redir) "Sign out")
@@ -89,9 +91,7 @@
   "Render an article. Expects media to have been hydrated"
   [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
   (let [img (let [img_src (get (first media) :src)]
-              (if (empty? img_src)
-                "https://cdn.4d4ms.com/img/A.jpg"
-                img_src))]
+              (if (empty? img_src) config/logo-url img_src))]
     (html5
      [:head
       (header title)
@@ -131,11 +131,11 @@
 
 (defn render-page
   "Renders a page"
-  [user title content & {:keys [show-toolbar show-footer redir]}]
+  [user title content & {:keys [show-toolbar show-footer redir] :or { show-toolbar true show-footer true redir "/" }}]
   (html5 [:head (header title)]
          [:body
           [:div.mango
-           (when show-toolbar (toolbar user nil (or redir "/")))
+           (when show-toolbar (toolbar user nil redir))
            content]
           (when show-footer (footer))]))
 
@@ -235,6 +235,11 @@
       (file-upload attr-map content)
       (file-upload content))]])
 
+(defn dropdown-field
+  "Renders a dropdown select input"
+  [name values default-value]
+  (drop-down name values default-value))
+
 (defn sign-in
   "Render the sign in page"
   [user anti-forgery-token & [message redir]]
@@ -264,20 +269,39 @@
   [roles]
   (divided-list roles identity "·" "roles"))
 
+(defn new-user
+  "Render a user form"
+  [user anti-forgery-token & [message]]
+  (render-page user "New User"
+               [:form {:name "newuser" :action (str "/users/new") :method "POST" :enctype "multipart/form-data"}
+                (hidden-field "__anti-forgery-token" anti-forgery-token)
+                (field-row text-field "username" "Username")
+                (field-row text-field "first" "First")
+                (field-row text-field "last" "Last")
+                (field-row text-field "email" "Email Address")
+                (field-row text-field "twitter-handle" "Twitter Handle")
+                (field-row password-field "password" "Password")
+                (field-row password-field "password2" "Confirm Password")
+                (field-row dropdown-field "role" "Role" (list ["Editor" "editor"] ["Administrator" "admin"] ["User" "user"]) "user")
+                (submit-row "Submit")
+                (when message [:p.error message])]))
+
 (defn user-item
   "Render a user's details"
-  [{:keys [username displayName firstName lastName email twitter-handle roles created]}]
+  [{:keys [username first-name last-name email twitter-handle roles created]}]
   (list
-   [:div.row "Username: " username]
    [:div.row
-    [:div.col-25 "Display Name: " displayName]
-    [:div.col-25 "First Name: " firstName]
-    [:div.col-25 "Last Name: " lastName]]
+    [:div.col-25 "Username: " username]]
+   [:div.row
+    [:div.col-50 "First Name: " first-name]
+    [:div.col-50 "Last Name: " last-name]]
    [:div.row
     [:div.col-50 "Email: " (mail-to email email)]
     (when twitter-handle [:div.col-50 "Twitter: " (link-to (str "https://twitter.com/" twitter-handle) twitter-handle)])]
-   [:div.row "Roles: " (roles-list roles)]
-   [:div.row "Created: " (xform-time-to-string created)]))
+   [:div.row
+    [:div.col-25 "Roles: " (roles-list roles)]]
+   [:div.row
+    [:div.col-25 "Created: " (xform-time-to-string created)]]))
 
 (defn user-details
   "Render the user details page"
@@ -297,11 +321,6 @@
   "Renders a date input"
   [name value]
   [:input {:name name :type "date" :value value}])
-
-(defn dropdown-field
-  "Renders a dropdown select input"
-  [name values default-value]
-  (drop-down name values default-value))
 
 (defn thumb-bar
   "Renders an image bar of thumbnails"
@@ -397,19 +416,15 @@
 
 (defn sitemap
   "Render a sitemap for indexing"
-  [urls]
-  (let [url-list (for [u urls] (hash-map :url u))]
-    (stencil/render-file "templates/sitemap.txt" {:urls url-list})))
+  [path articles]
+  (let [article-list (for [a articles] (hash-map :article a))]
+    (stencil/render-file "templates/sitemap.txt" {:path path :articles article-list})))
 
 (defn root
   "Render the root page"
   [user & [article]]
-  (render-page user "4d4ms.com"
+  (render-page user config/site-title
         (list [:div.row
                [:h2.col-100 (link-to "/blog" "Blog")]]
               (when article
-                (list [:div.row [:span.col-100 "Latest Article:"]] (article-list-item article)))
-              [:div.row
-               [:h2.col-100 (link-to "/photography" "Photography")]]
-              [:div.row
-               [:h2.col-100 (link-to "/about" "About")]])))
+                (list [:div.row [:span.col-100 "Latest Article:"]] (article-list-item article))))))
