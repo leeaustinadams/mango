@@ -158,10 +158,9 @@
   "Route handler for deleting a media"
   [data-provider media-id]
   (if-let [media (dp/blog-media-by-id data-provider media-id)]
-    (let [filename (or (:src media) (:filename media))]
-      (when (not (nil? (storage/delete config/aws-media-bucket (str "blog/" filename))))
-        (dp/delete-blog-media-by-id data-provider media-id))
-      (redir-response 302 (str "/blog/media")))))
+    (when-not (nil? (storage/delete config/aws-media-bucket (str "blog/" (:filename media))))
+      (dp/delete-blog-media-by-id data-provider media-id))
+    (redir-response 302 (str "/blog/media"))))
 
 (defn sitemap
   "Route handler for the sitemap.txt response"

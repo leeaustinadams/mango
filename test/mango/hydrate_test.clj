@@ -13,10 +13,10 @@
 (deftest test-hydrate-media-collection
   (is (= (media-collection fixtures/data-provider {}) {}))
   (is (= (media-collection fixtures/data-provider {:media [1 2 3 4]})
-         {:media [{:_id 1 :src (str config/cdn-url "1.jpg")}
-                  {:_id 2 :src (str config/cdn-url "2.jpg")}
-                  {:_id 3 :src (str config/cdn-url "3.jpg")}
-                  {:_id 4 :src (str config/cdn-url "4.jpg")}]})))
+         {:media [{:_id 1 :filename "1.jpg" :src (str config/cdn-url "1.jpg")}
+                  {:_id 2 :filename "2.jpg" :src (str config/cdn-url "2.jpg")}
+                  {:_id 3 :filename "3.jpg" :src (str config/cdn-url "3.jpg")}
+                  {:_id 4 :filename "4.jpg" :src (str config/cdn-url "4.jpg")}]})))
 
 (deftest test-hydrate-content
   (is (= (content {}) {}))

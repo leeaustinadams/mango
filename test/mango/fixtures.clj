@@ -32,11 +32,11 @@
 
 (def users {1234 user 5678 editor 91011 admin})
 
-(def media0 {:_id 0 :src "0.jpg"})
-(def media1 {:_id 1 :src "1.jpg"})
-(def media2 {:_id 2 :src "2.jpg"})
-(def media3 {:_id 3 :src "3.jpg"})
-(def media4 {:_id 4 :src "4.jpg"})
+(def media0 {:_id 0 :filename "0.jpg"})
+(def media1 {:_id 1 :filename "1.jpg"})
+(def media2 {:_id 2 :filename "2.jpg"})
+(def media3 {:_id 3 :filename "3.jpg"})
+(def media4 {:_id 4 :filename "4.jpg"})
 (def media [media0 media1 media2 media3 media4])
 
 (def article {:content "Hello"
@@ -46,8 +46,8 @@
 (def hydrated-article {:content "Hello"
                        :rendered-content "<p>Hello</p>"
                        :user (public-user user)
-                       :media [{:_id 1 :src (str config/cdn-url "1.jpg")}
-                               {:_id 2 :src (str config/cdn-url "2.jpg")}]})
+                       :media [{:_id 1 :filename "1.jpg" :src (str config/cdn-url "1.jpg")}
+                               {:_id 2 :filename "2.jpg" :src (str config/cdn-url "2.jpg")}]})
 
 (def article2 {:content "Howdy"
                :media [3 4]
@@ -56,8 +56,8 @@
 (def hydrated-article2 {:content "Howdy"
                         :rendered-content "<p>Howdy</p>"
                         :user (public-user editor)
-                        :media [{:_id 3 :src (str config/cdn-url "3.jpg")}
-                                {:_id 4 :src (str config/cdn-url "4.jpg")}]})
+                        :media [{:_id 3 :filename "3.jpg" :src (str config/cdn-url "3.jpg")}
+                                {:_id 4 :filename "4.jpg" :src (str config/cdn-url "4.jpg")}]})
 
 (def articles [article article2])
 
