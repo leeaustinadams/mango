@@ -232,6 +232,8 @@
 
   ;; Admin
   (GET "/admin/users" {:keys [user params]} (when (auth/admin? user) (pages/admin-users user (dp/users db/data-provider params))))
+  (GET "/users/new" {:keys [user session params]} (when (auth/admin? user) (pages/new-user user (session-anti-forgery-token session) params)))
+  (POST "/users/new" {:keys [user session params]} (when (auth/admin? user) (new-user db/data-provider user session params)))
 
   ;; JSON API -- All accesses should require authorization
   (GET "/blog/count.json" {:keys [user params]} (when (auth/editor? user) (api/article-count db/data-provider)))
@@ -249,8 +251,6 @@
   (GET "/users.json" {:keys [user params]} (when (auth/editor? user) (api/list-users db/data-provider params)))
   (GET "/users/me.json" {:keys [user]} (when (auth/editor? user) (api/me db/data-provider user)))
   (GET "/users/:id.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/user-by-id db/data-provider id)))
-  (GET "/users/new" {:keys [user session params]} (when (auth/admin? user) (pages/new-user user (session-anti-forgery-token session) params)))
-  (POST "/users/new" {:keys [user session params]} (when (auth/admin? user) (new-user db/data-provider user session params)))
 
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})
