@@ -61,6 +61,29 @@
 
 (def articles [article article2])
 
+(def page
+  {:title "Hi"
+   :content "Hello World"
+   :slug "hi"})
+
+(def hydrated-page
+  {:title "Hi"
+   :content "Hello World"
+   :rendered-content "<p>Hello World</p>"
+   :slug "hi"})
+
+(def page2 {:title "Howdy"
+            :content "Hey there"
+            :rendered-content "<p>Hey there</p>"
+            :slug "howdy"})
+
+(def pages [page page2])
+
+(def hydrated-page2
+  {:title "Howdy"
+   :content "Hey there"
+   :slug "howdy"})
+
 (deftype MockDataProvider []
   DataProvider
   (media-by-ids
@@ -87,6 +110,10 @@
   (blog-article-by-slug [this slug options] nil)
   (insert-blog-article [this article user-id] nil)
   (update-blog-article [this article user-id] nil)
-  (insert-log-event [this event] nil))
+  (insert-log-event [this event] nil)
+  (pages [this options] pages)
+  (page-by-slug [this slug options] (first (filter #(= (:slug %) slug) pages)))
+  (insert-page [this page user-id] nil)
+  (update-page [this page user-id] nil))
 
 (def data-provider (MockDataProvider.))

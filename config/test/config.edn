@@ -1,6 +1,7 @@
 {
  :db-name "test-blog"
  :db-article-collection "test-articles"
+ :db-page-collection "test-pages"
  :db-media-collection "test-media"
  :db-users-collection "test-users"
  :site-url "http://localhost"

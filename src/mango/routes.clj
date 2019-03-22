@@ -71,6 +71,17 @@
            {:slug (slugify (:title article) :limit 10)}
            {:tags tags})))
 
+(defn- sanitize-page
+  "Cleans and prepares a page from parameters posted"
+  [params]
+  (let [page (-> params
+                 keywordize-keys
+                 (select-keys [:_id :title :content :media :status]))
+        media (xform-ids (:media page))]
+    (merge page
+           (when media {:media media})
+           {:slug (slugify (:title page) :limit 10)})))
+
 (defn- sanitize-media
   "Cleans and prepares media from parameters posted"
   [params]
@@ -93,6 +104,22 @@
         article (sanitize-article params)
         updated (dp/update-blog-article data-provider article user-id)]
     (redir-response 302 (str "/blog/" (:slug article)))))
+
+(defn post-page
+  "Route handler for posting a page"
+  [data-provider author params]
+  (let [user-id (:_id author)
+        page (sanitize-page params)
+        inserted (dp/insert-page data-provider page user-id)]
+    (redir-response 302 (str "/pages/" (:slug page)))))
+
+(defn update-page
+  "Route handler for updating an existing page"
+  [data-provider author params]
+  (let [user-id (:_id author)
+        page (sanitize-page params)
+        updated (dp/update-page data-provider page user-id)]
+    (redir-response 302 (str "/pages/" (:slug page)))))
 
 (defn parse-file-keys
   "Returns a collection of keys for files"
@@ -194,7 +221,9 @@
 
   ;; Main
   (GET "/" {:keys [user]}
-       (pages/root user (hydrate/article db/data-provider (first (dp/blog-articles db/data-provider "published" {:page 0 :per-page 1 :tagged nil})))))
+       (if-let [page (dp/page-by-slug db/data-provider (slugify config/site-title :limit 10) {:status ["published"]})]
+         (pages/page user (hydrate/page db/data-provider page) "/")
+         (pages/root user (hydrate/article db/data-provider (first (dp/blog-articles db/data-provider "published" {:page 0 :per-page 1 :tagged nil}))))))
   (GET "/signin" {:keys [user session] {:keys [redir]} :params}
        (pages/sign-in user (session-anti-forgery-token session) "" redir))
   (GET "/signout" {:keys [user session] {:keys [redir]} :params}
@@ -215,7 +244,7 @@
   (GET "/blog/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params :as request}
        (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
          (pages/article user (hydrate/article db/data-provider article) (request-url request))))
-  (GET "/edit/:slug{[0-9a-z-]+}" {:keys [user session] {:keys [slug]} :params}
+  (GET "/blog/edit/:slug{[0-9a-z-]+}" {:keys [user session] {:keys [slug]} :params}
        (when (auth/editor? user)
          (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" "draft"]})]
            (pages/edit-article user (session-anti-forgery-token session) (hydrate/article db/data-provider article)))))
@@ -229,6 +258,21 @@
   (GET "/blog/media/delete" {:keys [user] {:keys [id]} :params} (when (auth/editor? user) (delete-media db/data-provider id)))
   (GET "/blog/media/new" {:keys [user session params]} (when (auth/editor? user) (pages/upload-media user (session-anti-forgery-token session) params)))
   (GET "/blog/media" {:keys [user params]} (when (auth/editor? user) (pages/media-list user (map #(hydrate/user db/data-provider %) (hydrate/medias (dp/blog-media db/data-provider params))) params)))
+
+  (GET "/pages" {user :user {:keys [slug]} :params :as request}
+       (when (auth/editor? user)
+         (pages/pages-list user "Pages" (hydrate/pages db/data-provider (dp/pages db/data-provider {:page 0 :per-page 100})))))
+  (GET "/pages/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params :as request}
+       (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
+         (pages/page user (hydrate/page db/data-provider page) (request-url request))))
+  (GET "/pages/new" {:keys [user session]}
+       (when (auth/editor? user) (pages/edit-page user (session-anti-forgery-token session))))
+  (GET "/pages/edit/:slug{[0-9a-z-]+}" {:keys [user session] {:keys [slug]} :params}
+       (when (auth/editor? user)
+         (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" "draft"]})]
+           (pages/edit-page user (session-anti-forgery-token session) (hydrate/page db/data-provider page)))))
+  (POST "/pages/post" {:keys [user params]} (when (auth/editor? user) (post-page db/data-provider user params)))
+  (POST "/pages/:id" {:keys [user params]} (when (auth/editor? user) (update-page db/data-provider user params)))
 
   ;; Admin
   (GET "/admin/users" {:keys [user params]} (when (auth/admin? user) (pages/admin-users user (dp/users db/data-provider params))))

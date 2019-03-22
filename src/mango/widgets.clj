@@ -38,11 +38,13 @@
    (unordered-list (filter #(not (nil? %)) (list (link-to "/" "Home")
                                                  (link-to "/blog" "Blog")
                                                  (link-to "/blog/tagged" "Tags")
-                                                 (when (auth/editor? user) (link-to "/blog/new" "New"))
+                                                 (when (auth/editor? user) (link-to "/blog/new" "New Article"))
                                                  (when (auth/editor? user) (link-to "/blog/drafts" "Drafts"))
+                                                 (when (auth/editor? user) (link-to "/pages/new" "New Page"))
+                                                 (when (auth/editor? user) (link-to "/pages" "Pages"))
                                                  (when (auth/editor? user) (link-to "/blog/media" "Media"))
                                                  (when (auth/admin? user) (link-to "/admin/users" "Users"))
-                                                 (when (and article (auth/editor? user)) (link-to (str "/edit/" (:slug article)) "Edit"))
+                                                 (when (and article (auth/editor? user)) (link-to (str "/blog/edit/" (:slug article)) "Edit"))
                                                  (if user
                                                    (link-to (str "/signout?redir=" redir) "Sign out")
                                                    (link-to (str "/signin?redir=" redir) "Sign in")))))])
@@ -98,6 +100,17 @@
         [:div.col-75-sm description])
       [:div.col-100 description])]
    ])
+
+(defn page-list-item
+  "Render an page list item"
+  [{:keys [slug title media]}]
+  [:div.page-list-item
+   [:div.row
+    [:div.col-75
+     [:h2.page-list-item-title (link-to (str "/pages/" slug) title)]]]
+   (when-let [thumb (first media)]
+     [:div.row
+      [:div.col-25-sm (image {:class "page-list-item-media"} (:src thumb))]])])
 
 (defn tag-and-count
   [tag]

@@ -18,11 +18,11 @@
   (map media items))
 
 (defn media-collection
-  "Hydrates the media collection of x"
-  [data-provider {media-ids :media :as x}]
+  "Hydrates the media collection of item"
+  [data-provider {media-ids :media :as item}]
   (if-let [media-items (dp/media-by-ids data-provider media-ids)]
-    (assoc x :media (map media media-items))
-    x))
+    (assoc item :media (map media media-items))
+    item))
 
 (defn user
   "Hydrates the user field of x"
@@ -32,11 +32,11 @@
     x))
 
 (defn content
-  "Hydrates the content for an article."
-  [{content :content :as article}]
+  "Hydrates the content for an item."
+  [{content :content :as item}]
   (if (not (nil? content))
-    (assoc article :rendered-content (md/md-to-html-string content :footnotes? true :inhibit-separator "|"))
-    article))
+    (assoc item :rendered-content (md/md-to-html-string content :footnotes? true :inhibit-separator "|"))
+    item))
 
 (defn article
   "Hydrates a single article with content, users, and media"
@@ -50,3 +50,15 @@
   "Hydrates articles with content, users, and media"
   [data-provider articles]
   (map #(article data-provider %) articles))
+
+(defn page
+  "Hydrates a page with content and media"
+  [data-provider page]
+  (->> page
+       (content)
+       (media-collection data-provider)))
+
+(defn pages
+  "Hydrates pages with content and media"
+  [data-provider pages]
+  (map #(page data-provider %) pages))

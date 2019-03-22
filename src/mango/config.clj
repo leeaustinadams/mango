@@ -4,6 +4,7 @@
 
 (def db-name (:db-name env))
 (def db-article-collection (:db-article-collection env))
+(def db-page-collection (:db-page-collection env))
 (def db-media-collection (:db-media-collection env))
 (def db-users-collection (:db-users-collection env))
 (def db-sessions-collection (:db-sessions-collection env))

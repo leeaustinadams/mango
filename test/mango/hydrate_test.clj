@@ -33,3 +33,6 @@
 (deftest test-hydrate-articles
   (is (= (articles fixtures/data-provider [fixtures/article fixtures/article2])
          [fixtures/hydrated-article fixtures/hydrated-article2])))
+
+(deftest test-hydrate-page
+  (is (= (page fixtures/data-provider fixtures/page) fixtures/hydrated-page)))

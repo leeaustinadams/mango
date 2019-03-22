@@ -175,6 +175,42 @@
   [event]
   (mc/insert-and-return @DB config/db-log-collection event))
 
+(defn pages-by-query
+  "Query pages"
+  [query {:keys [page per-page] :or {page 1 per-page default-per-page}}]
+  (mq/with-collection @DB config/db-page-collection
+    (mq/find query)
+    (mq/sort {:title -1})
+    (mq/paginate :page (Integer. page) :per-page (Integer. per-page))))
+
+(defn pages
+  "Query pages"
+  [params]
+  (pages-by-query {} params))
+
+(defn page-by-slug
+  "Query a single page by slug"
+  [slug {:keys [status]}]
+  (mc/find-one-as-map @DB config/db-page-collection {$and [{:slug slug}, {:status {$in status}}]}))
+
+(defn insert-page
+  "Adds a single page"
+  [page user-id]
+  (mc/insert-and-return @DB config/db-page-collection (merge page {:user user-id})))
+
+(defn update-page
+  "Updates a single page"
+  [page user-id]
+  (let [page (->
+                 page
+                 (conj {:user user-id})
+                 (conj {:_id (ObjectId. (:_id page))}))]
+    (mc/save-and-return @DB config/db-page-collection page)))
+
+(defn update-page-media
+  [page-id media-id]
+  (mc/update @DB config/db-page-collection {:_id (ObjectId. page-id)} {$addToSet {:media media-id}}))
+
 (deftype DBDataProvider []
   dp/DataProvider
   (media-by-ids [this ids] (blog-media-by-ids ids))
@@ -193,6 +229,10 @@
   (update-blog-article [this article user-id] (update-blog-article article user-id))
   (update-blog-article-media [this article-id media-id] (update-blog-article-media article-id media-id))
   (blog-article-tags [this status] (blog-article-tags status))
-  (insert-log-event [this event] (insert-log-event event)))
+  (insert-log-event [this event] (insert-log-event event))
+  (pages [this options] (pages options))
+  (page-by-slug [this slug options] (page-by-slug slug options))
+  (insert-page [this page user-id] (insert-page page user-id))
+  (update-page [this page user-id] (update-page page user-id)))
 
 (def data-provider (DBDataProvider.))

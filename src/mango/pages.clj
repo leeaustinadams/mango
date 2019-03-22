@@ -56,6 +56,52 @@
            content]
           (when show-footer (footer))]))
 
+(defn page
+  "Render a page"
+  [user {:keys [title rendered-content]} redir]
+  (render-page user title
+               (list
+                rendered-content
+                [:div.clearfix])
+               :show-toolbar true :show-footer true :redir redir))
+
+(defn edit-page
+  "Render the editing in page"
+  [user anti-forgery-token & [{:keys [_id title content status media]}]]
+  (render-page user "Edit"
+        (let [action (or _id "post")]
+          (list
+           [:form {:name "pageForm" :action (str "/pages/" action) :method "POST" :enctype "multipart/form-data"}
+            (hidden-field "__anti-forgery-token" anti-forgery-token)
+            (when _id (hidden-field "_id" _id))
+            (field-row text-field "title" "Title" title)
+            [:div.field-row
+             [:div.col-25
+              [:span "&nbsp;"]]
+             [:div.col-75
+              (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
+            (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
+            (field-row thumb-bar "thumbs" "Media"  media)
+            [:div.field-row
+             [:div.col-25
+              [:span "&nbsp;"]]
+             [:div.col-75
+              (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
+            (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
+            (submit-row "Submit")]
+           (include-js "/js/media-edit.js")))))
+
+(defn pages-list
+  "Render a list of pages"
+  [user list-title pages]
+  (render-page user list-title
+        (list
+         [:h1 list-title]
+         (map page-list-item pages))
+        :show-toolbar true
+        :show-footer true
+        :redir "/blog"))
+
 (defn articles-list
   "Render a list of articles"
   [user list-title articles]

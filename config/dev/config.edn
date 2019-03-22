@@ -1,6 +1,7 @@
 {
  :db-name "dev-blog"
  :db-article-collection "dev-articles"
+ :db-page-collection "dev-pages"
  :db-media-collection "dev-media"
  :db-users-collection "dev-users"
  :site-url "http://localhost"
