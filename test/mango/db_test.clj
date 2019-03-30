@@ -36,15 +36,8 @@
   (is (= (db/blog-media-by-ids {}) nil)))
 
 (deftest test-user-by-id
-  (let [test-user (db/insert-user "tester" "Bob" "Testerson" "Bob Testerson" "bob@test.org" "@testersontweets" "alphabravo" [])]
-    (is (= (dissoc test-user :_id)
-         {:username "tester"
-          :first-name "Bob"
-          :last-name "Testerson"
-          :display-name "Bob Testerson"
-          :email "bob@test.org"
-          :twitter-handle "@testersontweets"
-          :password "alphabravo"
-          :roles []}))
-    (is (= (db/user-by-id (:_id test-user)) test-user))
-    (is (= (db/user-by-id (.toString (:_id test-user))) test-user))))
+  (let [test-user (db/insert-user fixtures/user)
+        test-user-id (:_id test-user)]
+    (is (= (dissoc test-user :_id) fixtures/user))
+    (is (= (db/user-by-id test-user-id) test-user))
+    (is (= (db/user-by-id (.toString test-user-id)) test-user))))

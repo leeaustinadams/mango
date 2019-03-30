@@ -9,25 +9,28 @@
                        :headers {"Content-Type" "application/json"}
                        :body (generate-string {:message "Forbidden"})})
 
-(def user {:_id 1234
-           :username "User"
-           :password "foo"
-           :provider :local
+(def user {:username "User"
+           :first-name "Foo"
+           :last-name "Bar"
            :email "user@foo.com"
+           :twitter-handle "foouser"
+           :password "passwd"
            :roles []})
 
-(def editor {:_id 5678
-             :username "Editor"
-             :password "bar"
-             :provider :local
-             :email "editor@bar.com"
+(def editor {:username "Editor"
+             :first-name "Ed"
+             :last-name "Itor"
+             :email "editor@foo.com"
+             :twitter-handle "editoruser"
+             :password "passwde"
              :roles ["editor"]})
 
-(def admin {:_id 91011
-            :username "Admin"
-            :password "baz"
-            :provider :local
-            :email "admin@bar.com"
+(def admin {:username "Admin"
+            :first-name "Ad"
+            :last-name "Min"
+            :email "admin@foo.com"
+            :twitter-handle "adminuser"
+            :password "passwda"
             :roles ["admin"]})
 
 (def users {1234 user 5678 editor 91011 admin})

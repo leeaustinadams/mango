@@ -166,7 +166,7 @@
         (api/json-status 500 {:message "Media upload failed"})))
     (api/json-status 400 {:message "No files specified"})))
 
-(defn new-user
+(defn- new-user
   "Route handler creating a new user"
   [data-provider user session {:keys [username first last email twitter-handle password password2 role]}]
   (if (= password password2)
