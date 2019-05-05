@@ -12,7 +12,7 @@
  :twitter-creator-handle "@test"
  :admin-email "admin@4d4ms.com"
  :port 8080
- :cdn-url "http://test-cdn.4d4ms.com/blog"
+ :cdn-url "http://test-cdn.4d4ms.com/blog/"
  ;; :aws-credentials {:access-key (:aws-access-key env)
  ;;                   :secret-key (:aws-secret-key env)
  ;;                   :endpoint (:aws-endpoint env)}
