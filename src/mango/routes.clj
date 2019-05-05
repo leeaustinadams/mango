@@ -121,32 +121,6 @@
         updated (dp/update-page data-provider page user-id)]
     (redir-response 302 (str "/pages/" (:slug page)))))
 
-(defn parse-file-keys
-  "Returns a collection of keys for files"
-  [params]
-  (filter (fn [x]
-            (and (string? x)
-                 (not (nil? (re-matches #"files\[[0-9]+\]" x))))) (keys params)))
-
-(defn parse-files
-  "Returns a collection of files from params"
-  [params]
-  (let [file-keys (parse-file-keys params)]
-    (vals (select-keys params file-keys))))
-
-(defn parse-media-keys
-  "Returns a collection of keys for media"
-  [params]
-  (filter (fn [x]
-            (and (string? x)
-                 (not (nil? (re-matches #"media\[[0-9]+\]\[_id\]" x))))) (keys params)))
-
-(defn parse-media
-  "Returns a collection of media ids from params"
-  [params]
-  (let [media-keys (parse-media-keys params)]
-    (vals (select-keys params media-keys))))
-
 (defn upload-file
   "Uploads files to storage. Returns a future"
   [{:keys [filename tempfile content-type]}]
