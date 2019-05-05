@@ -77,11 +77,11 @@
 (defn update-blog-article
   "Updates a single blog article"
   [article user-id]
-  (let [article (->
-                 article
-                 (conj {:user user-id})
-                 (conj {:_id (ObjectId. (:_id article))}))]
-    (mc/save-and-return @DB config/db-article-collection article)))
+  (let [article-id {:_id (ObjectId. (:_id article))}
+        article (-> article
+                    (conj {:user user-id})
+                    (conj article-id))]
+    (mc/update @DB config/db-article-collection article-id {$set article})))
 
 (defn update-blog-article-media
   [article-id media-id]
@@ -201,11 +201,11 @@
 (defn update-page
   "Updates a single page"
   [page user-id]
-  (let [page (->
-                 page
+  (let [page-id {:_id (ObjectId. (:_id page))}
+        page (-> page
                  (conj {:user user-id})
-                 (conj {:_id (ObjectId. (:_id page))}))]
-    (mc/save-and-return @DB config/db-page-collection page)))
+                 (conj page-id))]
+    (mc/update @DB config/db-page-collection page-id {$set page})))
 
 (defn update-page-media
   [page-id media-id]
