@@ -31,13 +31,42 @@
          :status "published"
          :slug (slugify title :limit 10)}))
 
+(def default-root-page
+  (let [title config/site-title]
+    {:title title
+     :content (str "## [Blog](/blog)\n\n"
+                   "## [First Page: Making New Pages](/pages/making-new-pages)")
+     :status "published"
+     :slug (slugify title :limit 10)}))
+
+(def default-making-new-pages
+  (let [title "Making New Pages"]
+    {
+     :title title
+     :content (str "1. Log in\n"
+                   "1. Tap [New Page](/pages/new)\n"
+                   "1. Fill in the page's title\n"
+                   "1. Add media as needed.\n"
+                   "1. Fill in the page's content, Markdown or HTML is supported too!\n"
+                   "1. Set the page's status to `Published`\n"
+                   "1. Hit Submit\n"
+                   "1. Link to the new page from the root page or any other pages you've created!")
+     :status "published"
+     :slug (slugify title)
+     }))
+
 (defn run
   "Bootstrap an empty site"
   []
   (when (< (count (db/users {})) 1)
     (info "No users found, bootstrapping users")
-    (if-let [user (auth/new-user default-user)]
+    (when-let [user (auth/new-user default-user)]
       (when (< (db/blog-articles-count "published" {}) 1)
         (info "No articles found, bootstrapping default article")
-        (db/insert-blog-article default-article (:_id user)))))
+        (db/insert-blog-article default-article (:_id user)))
+      (when (empty? (db/pages {}))
+        (info "No root page found, bootstrapping default pages")
+        (let [user-id (:_id user)]
+          (db/insert-page default-root-page user-id)
+          (db/insert-page default-making-new-pages user-id)))))
   (storage/init-bucket config/aws-media-bucket))

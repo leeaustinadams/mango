@@ -66,12 +66,10 @@
           "\"rendered-content\":\"<p>Howdy</p>\"}]")})))
 
 (deftest test-drafts
-  (is (not (nil? (drafts fixtures/data-provider nil))))
-  )
+  (is (not (nil? (drafts fixtures/data-provider nil)))))
 
 (deftest test-list-users
   (is (= (list-users fixtures/data-provider nil)
          {:status 200,
           :headers {"Content-Type" "application/json"},
-          :body "[{\"username\":\"User\",\"roles\":[]},{\"username\":\"Editor\",\"roles\":[\"editor\"]},{\"username\":\"Admin\",\"roles\":[\"admin\"]}]"}))
-  )
+          :body "[{\"username\":\"User\",\"roles\":[]},{\"username\":\"Editor\",\"roles\":[\"editor\"]},{\"username\":\"Admin\",\"roles\":[\"admin\"]}]"})))

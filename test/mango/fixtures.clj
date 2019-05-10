@@ -9,25 +9,28 @@
                        :headers {"Content-Type" "application/json"}
                        :body (generate-string {:message "Forbidden"})})
 
-(def user {:_id 1234
-           :username "User"
-           :password "foo"
-           :provider :local
+(def user {:username "User"
+           :first-name "Foo"
+           :last-name "Bar"
            :email "user@foo.com"
+           :twitter-handle "foouser"
+           :password "passwd"
            :roles []})
 
-(def editor {:_id 5678
-             :username "Editor"
-             :password "bar"
-             :provider :local
-             :email "editor@bar.com"
+(def editor {:username "Editor"
+             :first-name "Ed"
+             :last-name "Itor"
+             :email "editor@foo.com"
+             :twitter-handle "editoruser"
+             :password "passwde"
              :roles ["editor"]})
 
-(def admin {:_id 91011
-            :username "Admin"
-            :password "baz"
-            :provider :local
-            :email "admin@bar.com"
+(def admin {:username "Admin"
+            :first-name "Ad"
+            :last-name "Min"
+            :email "admin@foo.com"
+            :twitter-handle "adminuser"
+            :password "passwda"
             :roles ["admin"]})
 
 (def users {1234 user 5678 editor 91011 admin})
@@ -61,6 +64,29 @@
 
 (def articles [article article2])
 
+(def page
+  {:title "Hi"
+   :content "Hello World"
+   :slug "hi"})
+
+(def hydrated-page
+  {:title "Hi"
+   :content "Hello World"
+   :rendered-content "<p>Hello World</p>"
+   :slug "hi"})
+
+(def page2 {:title "Howdy"
+            :content "Hey there"
+            :rendered-content "<p>Hey there</p>"
+            :slug "howdy"})
+
+(def pages [page page2])
+
+(def hydrated-page2
+  {:title "Howdy"
+   :content "Hey there"
+   :slug "howdy"})
+
 (deftype MockDataProvider []
   DataProvider
   (media-by-ids
@@ -87,6 +113,10 @@
   (blog-article-by-slug [this slug options] nil)
   (insert-blog-article [this article user-id] nil)
   (update-blog-article [this article user-id] nil)
-  (insert-log-event [this event] nil))
+  (insert-log-event [this event] nil)
+  (pages [this options] pages)
+  (page-by-slug [this slug options] (first (filter #(= (:slug %) slug) pages)))
+  (insert-page [this page user-id] nil)
+  (update-page [this page user-id] nil))
 
 (def data-provider (MockDataProvider.))
