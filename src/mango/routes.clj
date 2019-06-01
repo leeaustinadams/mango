@@ -235,7 +235,7 @@
 
   (GET "/pages" {user :user {:keys [slug]} :params :as request}
        (when (auth/editor? user)
-         (pages/pages-list user "Pages" (hydrate/pages db/data-provider (dp/pages db/data-provider {:page 0 :per-page 100})))))
+         (pages/pages-list user "Pages" (hydrate/pages db/data-provider (dp/pages db/data-provider {:page 0 :per-page 100 :status ["published" "draft"]})))))
   (GET "/pages/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params :as request}
        (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
          (pages/page user (hydrate/page db/data-provider page) (request-url request))))

@@ -185,8 +185,8 @@
 
 (defn pages
   "Query pages"
-  [params]
-  (pages-by-query {} params))
+  [{:keys [status] :as params}]
+  (pages-by-query {:status {$in status}} params))
 
 (defn page-by-slug
   "Query a single page by slug"
