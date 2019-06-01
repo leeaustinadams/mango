@@ -195,7 +195,7 @@
 
   ;; Main
   (GET "/" {:keys [user]}
-       (if-let [page (dp/page-by-slug db/data-provider (slugify config/site-title :limit 10) {:status ["published"]})]
+       (if-let [page (first (dp/pages db/data-provider {:status ["root"]}))]
          (pages/page user (hydrate/page db/data-provider page) "/")
          (pages/root user (hydrate/article db/data-provider (first (dp/blog-articles db/data-provider "published" {:page 0 :per-page 1 :tagged nil}))))))
   (GET "/signin" {:keys [user session] {:keys [redir]} :params}
@@ -235,15 +235,15 @@
 
   (GET "/pages" {user :user {:keys [slug]} :params :as request}
        (when (auth/editor? user)
-         (pages/pages-list user "Pages" (hydrate/pages db/data-provider (dp/pages db/data-provider {:page 0 :per-page 100 :status ["published" "draft"]})))))
+         (pages/pages-list user "Pages" (hydrate/pages db/data-provider (dp/pages db/data-provider {:page 0 :per-page 100 :status ["published" "draft" "root"]})))))
   (GET "/pages/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params :as request}
-       (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
+       (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" "root" (when (auth/editor? user) "draft")]})]
          (pages/page user (hydrate/page db/data-provider page) (request-url request))))
   (GET "/pages/new" {:keys [user session]}
        (when (auth/editor? user) (pages/edit-page user (session-anti-forgery-token session))))
   (GET "/pages/edit/:slug{[0-9a-z-]+}" {:keys [user session] {:keys [slug]} :params}
        (when (auth/editor? user)
-         (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" "draft"]})]
+         (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" "draft" "root"]})]
            (pages/edit-page user (session-anti-forgery-token session) (hydrate/page db/data-provider page)))))
   (POST "/pages/post" {:keys [user params]} (when (auth/editor? user) (post-page db/data-provider user params)))
   (POST "/pages/:id" {:keys [user params]} (when (auth/editor? user) (update-page db/data-provider user params)))
