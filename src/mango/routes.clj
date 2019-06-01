@@ -294,7 +294,7 @@
   (route/resources "/")
 
   ;; all other requests
-  (rfn {:keys [user]} (pages/not-found user)))
+  (rfn {:keys [user]} (html-response 404 (pages/not-found user))))
 
 (defn wrap-user
   "Add a user to the request object if there is a user id in the session"
