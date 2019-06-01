@@ -132,7 +132,7 @@
          [:h1 "Sign In"]
          [:form {:name "signin" :action (str "/auth/signin?redir=" redir) :method "POST" :enctype "multipart/form-data"}
           (hidden-field "__anti-forgery-token" anti-forgery-token)
-          (field-row text-field "username" "Username")
+          (field-row (partial text-field {:autoFocus "autoFocus"}) "username" "Username")
           (field-row password-field "password" "Password")
           (submit-row "Sign In")
           (when message [:p message])])))
