@@ -138,7 +138,7 @@
 (defn update-user
   "Updates a user record"
   [user]
-  (mc/update-by-id @DB config/db-users-collection (:_id user) user))
+  (mc/update-by-id @DB config/db-users-collection (:_id user) {$set user}))
 
 (defn delete-user [user])
 

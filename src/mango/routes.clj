@@ -149,6 +149,17 @@
       (pages/new-user user (session-anti-forgery-token session) "Couldn't add user"))
     (pages/new-user user (session-anti-forgery-token session) "Passwords didn't match")))
 
+(defn- change-password
+  "Route handler for changing a user's password"
+  [data-provider {:keys [username _id] :as user} session {:keys [password new-password new-password2]}]
+  (if (auth/check-password username password)
+    (if (= new-password new-password2)
+      (do
+        (auth/set-password _id new-password)
+        (redir-response 302 "/"))
+      (pages/change-password user (session-anti-forgery-token session) "Passwords didn't match"))
+    (pages/change-password user (session-anti-forgery-token session) "Current password wrong")))
+
 (defn update-media
   "Route handler for updating an existing media"
   [data-provider author params]
@@ -223,7 +234,7 @@
          (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" "draft"]})]
            (pages/edit-article user (session-anti-forgery-token session) (hydrate/article db/data-provider article)))))
   (GET "/me" {:keys [user]}
-       (when user (pages/user-details user)))
+       (when user (pages/user-details user user)))
   (POST "/blog/articles/post" {:keys [user params]} (when (auth/editor? user) (post-article db/data-provider user params)))
   (POST "/blog/articles/:id" {:keys [user params]} (when (auth/editor? user) (update-article db/data-provider user params)))
 
@@ -273,8 +284,8 @@
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})
 
-  ;; (POST "/users/password" [request]
-  ;;       {})
+  (GET "/users/password" {:keys [user session params]} (when user (pages/change-password user (session-anti-forgery-token session))))
+  (POST "/users/password" {:keys [user session params]} (change-password db/data-provider user session params))
 
   ;; (POST "/users/forgot" []
   ;;       {})

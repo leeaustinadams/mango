@@ -15,6 +15,17 @@
     (let [encrypted-password (:password user)]
       (when (and (not (nil? encrypted-password)) (password/check plaintext-password encrypted-password)) user))))
 
+(defn check-password
+  "Checks that plaintext-password is the user's password"
+  [username plaintext-password]
+  (when-let [user (db/user-by-username username)]
+    (let [encrypted-password (:password user)]
+      (password/check plaintext-password encrypted-password))))
+
+(defn set-password
+  [user-id plaintext-password]
+  (db/update-user {:_id user-id :password (password/encrypt plaintext-password)}))
+
 (defn new-user
   "Add a new user"
   ([username first-name last-name email twitter-handle plaintext-password roles]
