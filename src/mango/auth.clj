@@ -1,5 +1,5 @@
 (ns mango.auth
-  (:require [mango.db :as db]
+  (:require [mango.dataprovider :as dp]
             [crypto.password.pbkdf2 :as password]
             [clj-time.core :refer [now]]))
 
@@ -10,25 +10,25 @@
 
 (defn user
   "Authenticate the user with username and password"
-  [username plaintext-password]
-  (when-let [user (db/user-by-username username)]
+  [data-provider username plaintext-password]
+  (when-let [user (dp/user-by-username data-provider username)]
     (let [encrypted-password (:password user)]
       (when (and (not (nil? encrypted-password)) (password/check plaintext-password encrypted-password)) user))))
 
 (defn check-password
   "Checks that plaintext-password is the user's password"
-  [username plaintext-password]
-  (when-let [user (db/user-by-username username)]
+  [data-provider username plaintext-password]
+  (when-let [user (dp/user-by-username data-provider username)]
     (let [encrypted-password (:password user)]
       (password/check plaintext-password encrypted-password))))
 
 (defn set-password
-  [user-id plaintext-password]
-  (db/update-user {:_id user-id :password (password/encrypt plaintext-password)}))
+  [data-provider user-id plaintext-password]
+  (dp/update-user data-provider {:_id user-id :password (password/encrypt plaintext-password)}))
 
 (defn new-user
   "Add a new user"
-  ([username first-name last-name email twitter-handle plaintext-password roles]
+  ([data-provider username first-name last-name email twitter-handle plaintext-password roles]
    (let [user {:username username
                :first-name first-name
                :last-name last-name
@@ -36,10 +36,10 @@
                :twitter-handle twitter-handle
                :password plaintext-password
                :roles roles}]
-     (new-user user)))
-  ([user]
-   (when (not (db/user-by-username (:username user)))
-     (db/insert-user (assoc user :password (password/encrypt (:password user)) :created (now))))))
+     (new-user data-provider user)))
+  ([data-provider user]
+   (when (not (dp/user-by-username data-provider (:username user)))
+     (dp/insert-user data-provider (assoc user :password (password/encrypt (:password user)) :created (now))))))
 
 (defn private-user
   "Remove fields that should usually not be necessary internally"

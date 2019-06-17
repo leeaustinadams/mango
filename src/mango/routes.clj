@@ -144,7 +144,7 @@
   "Route handler creating a new user"
   [data-provider user session {:keys [username first last email twitter-handle password password2 role]}]
   (if (= password password2)
-    (if (auth/new-user username first last email twitter-handle password [role])
+    (if (auth/new-user data-provider username first last email twitter-handle password [role])
       (redir-response 302 "/blog")
       (pages/new-user user (session-anti-forgery-token session) "Couldn't add user"))
     (pages/new-user user (session-anti-forgery-token session) "Passwords didn't match")))
@@ -152,10 +152,10 @@
 (defn- change-password
   "Route handler for changing a user's password"
   [data-provider {:keys [username _id] :as user} session {:keys [password new-password new-password2]}]
-  (if (auth/check-password username password)
+  (if (auth/check-password data-provider username password)
     (if (= new-password new-password2)
       (do
-        (auth/set-password _id new-password)
+        (auth/set-password data-provider _id new-password)
         (redir-response 302 "/"))
       (pages/change-password user (session-anti-forgery-token session) "Passwords didn't match"))
     (pages/change-password user (session-anti-forgery-token session) "Current password wrong")))
@@ -189,7 +189,7 @@
 (defn signin
   "Route handler for signing in"
   [data-provider session username password redir]
-  (if-let [user (auth/user username password)]
+  (if-let [user (auth/user data-provider username password)]
     (let [sess (assoc session :user (str (:_id user)))]
       (merge (redir-response 302 (or redir "/"))
              {:session sess}))
