@@ -1,6 +1,7 @@
 (ns mango.fixtures
   (:require
    [cheshire.core :refer [generate-string]]
+   [crypto.password.pbkdf2 :as password]
    [mango.auth :refer [public-user]]
    [mango.config :as config]
    [mango.dataprovider :refer [DataProvider]]))
@@ -14,7 +15,7 @@
            :last-name "Bar"
            :email "user@foo.com"
            :twitter-handle "foouser"
-           :password "passwd"
+           :password (password/encrypt "passwd")
            :roles []})
 
 (def editor {:username "Editor"
@@ -22,7 +23,7 @@
              :last-name "Itor"
              :email "editor@foo.com"
              :twitter-handle "editoruser"
-             :password "passwde"
+             :password (password/encrypt "passwde")
              :roles ["editor"]})
 
 (def admin {:username "Admin"
@@ -30,10 +31,11 @@
             :last-name "Min"
             :email "admin@foo.com"
             :twitter-handle "adminuser"
-            :password "passwda"
+            :password (password/encrypt "passwda")
             :roles ["admin"]})
 
-(def users {1234 user 5678 editor 91011 admin})
+(def users-by-id {1234 user 5678 editor 91011 admin})
+(def users-by-username {"User" user "Editor" editor "Admin" admin})
 
 (def media0 {:_id 0 :filename "0.jpg"})
 (def media1 {:_id 1 :filename "1.jpg"})
@@ -96,8 +98,9 @@
       (for [i ids] (get media i))))
   (blog-media [this options] nil)
   (blog-media-by-id [this id] nil)
-  (users [this options] (vals users))
-  (user-by-id [this id] (get users id))
+  (users [this options] (vals users-by-id))
+  (user-by-id [this id] (get users-by-id id))
+  (user-by-username [this username] (get users-by-username username))
   (insert-blog-media [this media user-id] nil)
   (blog-articles
     [this status options]
