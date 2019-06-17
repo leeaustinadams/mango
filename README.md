@@ -44,4 +44,4 @@ Built with
 
 ## License
 
-Copyright © 2016-2019 Lee Austin Adams
+See [LICENSE.txt](LICENSE.txt)
