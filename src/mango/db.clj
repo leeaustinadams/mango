@@ -138,7 +138,7 @@
 (defn update-user
   "Updates a user record"
   [user]
-  (mc/update-by-id @DB config/db-users-collection (:_id user) user))
+  (mc/update-by-id @DB config/db-users-collection (:_id user) {$set user}))
 
 (defn delete-user [user])
 
@@ -185,8 +185,8 @@
 
 (defn pages
   "Query pages"
-  [params]
-  (pages-by-query {} params))
+  [{:keys [status] :as params}]
+  (pages-by-query {:status {$in status}} params))
 
 (defn page-by-slug
   "Query a single page by slug"

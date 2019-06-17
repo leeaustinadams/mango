@@ -149,6 +149,17 @@
       (pages/new-user user (session-anti-forgery-token session) "Couldn't add user"))
     (pages/new-user user (session-anti-forgery-token session) "Passwords didn't match")))
 
+(defn- change-password
+  "Route handler for changing a user's password"
+  [data-provider {:keys [username _id] :as user} session {:keys [password new-password new-password2]}]
+  (if (auth/check-password username password)
+    (if (= new-password new-password2)
+      (do
+        (auth/set-password _id new-password)
+        (redir-response 302 "/"))
+      (pages/change-password user (session-anti-forgery-token session) "Passwords didn't match"))
+    (pages/change-password user (session-anti-forgery-token session) "Current password wrong")))
+
 (defn update-media
   "Route handler for updating an existing media"
   [data-provider author params]
@@ -195,7 +206,7 @@
 
   ;; Main
   (GET "/" {:keys [user]}
-       (if-let [page (dp/page-by-slug db/data-provider (slugify config/site-title :limit 10) {:status ["published"]})]
+       (if-let [page (first (dp/pages db/data-provider {:status ["root"]}))]
          (pages/page user (hydrate/page db/data-provider page) "/")
          (pages/root user (hydrate/article db/data-provider (first (dp/blog-articles db/data-provider "published" {:page 0 :per-page 1 :tagged nil}))))))
   (GET "/photography" {:keys [user]}
@@ -227,7 +238,7 @@
          (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" "draft"]})]
            (pages/edit-article user (session-anti-forgery-token session) (hydrate/article db/data-provider article)))))
   (GET "/me" {:keys [user]}
-       (when user (pages/user-details user)))
+       (when user (pages/user-details user user)))
   (POST "/blog/articles/post" {:keys [user params]} (when (auth/editor? user) (post-article db/data-provider user params)))
   (POST "/blog/articles/:id" {:keys [user params]} (when (auth/editor? user) (update-article db/data-provider user params)))
 
@@ -239,15 +250,15 @@
 
   (GET "/pages" {user :user {:keys [slug]} :params :as request}
        (when (auth/editor? user)
-         (pages/pages-list user "Pages" (hydrate/pages db/data-provider (dp/pages db/data-provider {:page 0 :per-page 100})))))
+         (pages/pages-list user "Pages" (hydrate/pages db/data-provider (dp/pages db/data-provider {:page 0 :per-page 100 :status ["published" "draft" "root"]})))))
   (GET "/pages/:slug{[0-9a-z-]+}" {user :user {:keys [slug]} :params :as request}
-       (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
+       (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" "root" (when (auth/editor? user) "draft")]})]
          (pages/page user (hydrate/page db/data-provider page) (request-url request))))
   (GET "/pages/new" {:keys [user session]}
        (when (auth/editor? user) (pages/edit-page user (session-anti-forgery-token session))))
   (GET "/pages/edit/:slug{[0-9a-z-]+}" {:keys [user session] {:keys [slug]} :params}
        (when (auth/editor? user)
-         (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" "draft"]})]
+         (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" "draft" "root"]})]
            (pages/edit-page user (session-anti-forgery-token session) (hydrate/page db/data-provider page)))))
   (POST "/pages/post" {:keys [user params]} (when (auth/editor? user) (post-page db/data-provider user params)))
   (POST "/pages/:id" {:keys [user params]} (when (auth/editor? user) (update-page db/data-provider user params)))
@@ -277,8 +288,8 @@
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})
 
-  ;; (POST "/users/password" [request]
-  ;;       {})
+  (GET "/users/password" {:keys [user session params]} (when user (pages/change-password user (session-anti-forgery-token session))))
+  (POST "/users/password" {:keys [user session params]} (change-password db/data-provider user session params))
 
   ;; (POST "/users/forgot" []
   ;;       {})
@@ -298,7 +309,7 @@
   (route/resources "/")
 
   ;; all other requests
-  (rfn {:keys [user]} (pages/not-found user)))
+  (rfn {:keys [user]} (html-response 404 (pages/not-found user))))
 
 (defn wrap-user
   "Add a user to the request object if there is a user id in the session"

@@ -49,8 +49,9 @@
                                                  (when (auth/admin? user) (link-to "/admin/users" "Users"))
                                                  (when (and article (auth/editor? user)) (link-to (str "/blog/edit/" (:slug article)) "Edit"))
                                                  (if user
-                                                   (link-to (str "/signout?redir=" redir) "Sign out")
-                                                   (link-to (str "/signin?redir=" redir) "Sign in")))))])
+                                                   (link-to (str "/signout?redir=" redir) "Sign Out")
+                                                   (link-to (str "/signin?redir=" redir) "Sign In"))
+                                                 (when user (link-to "/me" "My Account")))))])
 
 (defn divided-list
   "Render a divided list"
@@ -159,7 +160,7 @@
 
 (defn user-item
   "Render a user's details"
-  [{:keys [username first-name last-name email twitter-handle roles created]}]
+  [{:keys [username first-name last-name email twitter-handle roles created]} auth-user]
   (list
    [:div.row
     [:div.col-25 "Username: " username]]
@@ -172,7 +173,9 @@
    [:div.row
     [:div.col-25 "Roles: " (roles-list roles)]]
    [:div.row
-    [:div.col-25 "Created: " (xform-time-to-string created)]]))
+    [:div.col-25 "Created: " (xform-time-to-string created)]
+    (when (= (:username auth-user) username)
+      [:div.col-25 (link-to "/users/password" "Change Password")])]))
 
 (defn date-field
   "Renders a date input"

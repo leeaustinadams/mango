@@ -95,7 +95,8 @@
               [:span "&nbsp;"]]
     [:div.col-75
               (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
-            (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
+            (when (not (= status "root"))
+              (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft")))
             (submit-row "Submit")]
            (include-js "/js/media-edit.js")))))
 
@@ -166,7 +167,7 @@
          [:h1 "Sign In"]
          [:form {:name "signin" :action (str "/auth/signin?redir=" redir) :method "POST" :enctype "multipart/form-data"}
           (hidden-field "__anti-forgery-token" anti-forgery-token)
-          (field-row text-field "username" "Username")
+          (field-row (partial text-field {:autoFocus "autoFocus"}) "username" "Username")
           (field-row password-field "password" "Password")
           (submit-row "Sign In")
           (when message [:p message])])))
@@ -188,7 +189,7 @@
   (render-page user "New User"
                [:form {:name "newuser" :action (str "/users/new") :method "POST" :enctype "multipart/form-data"}
                 (hidden-field "__anti-forgery-token" anti-forgery-token)
-                (field-row text-field "username" "Username")
+                (field-row (partial text-field {:autoFocus "autoFocus"}) "username" "Username")
                 (field-row text-field "first" "First")
                 (field-row text-field "last" "Last")
                 (field-row text-field "email" "Email Address")
@@ -199,18 +200,35 @@
                 (submit-row "Submit")
                 (when message [:p.error message])]))
 
+(defn change-password
+  "Render a change password form"
+  [user anti-forgery-token & [message]]
+  (render-page user "Change Password"
+               (let [{:keys [username first-name last-name]} user]
+                 (list
+                  [:div.row
+                   [:div.col-25 "Username: " username]]
+                  [:div.row
+                   [:div.col-50 "First Name: " first-name]
+                   [:div.col-50 "Last Name: " last-name]]
+                  [:form {:name "changepassword" :action (str "/users/password") :method "POST" :enctype "multipart/form-data"}
+                   (hidden-field "__anti-forgery-token" anti-forgery-token)
+                   (field-row (partial password-field {:autoFocus "autoFocus"}) "password" "Current Password")
+                   (field-row password-field "new-password" "New Password")
+                   (field-row password-field "new-password2" "Confirm New Password")
+                   (submit-row "Submit")
+                   (when message [:p.error message])]))))
+
 (defn user-details
   "Render the user details page"
-  [{:keys [username] :as user}]
-  (render-page user username
-        (user-item user)
-        :show-footer true))
+  [{:keys [username] :as user} auth-user]
+  (render-page user username (user-item user auth-user) :show-footer true))
 
 (defn admin-users
   "Render user administration page."
-  [user users]
-  (render-page user "Admin - Users"
-        (interpose [:hr] (map user-item users))
+  [auth-user users]
+  (render-page auth-user "Admin - Users"
+        (interpose [:hr] (map #(user-item % auth-user) users))
         :show-toolbar true :show-footer true))
 
 (defn edit-article
