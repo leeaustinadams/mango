@@ -94,8 +94,12 @@
   [data-provider author params]
   (let [user-id (:_id author)
         article (sanitize-article params)
-        inserted (dp/insert-blog-article data-provider article user-id)]
-    (redir-response 302 (str "/blog/" (:slug article)))))
+        exists (not (nil? (dp/blog-article-by-slug data-provider (slugify (:title article)) {:status [:published :draft]})))]
+    (if exists
+      (html-response 400 (pages/error nil "Name Clash" "An article with that title already exists"))
+      (do
+        (dp/insert-blog-article data-provider article user-id)
+        (redir-response 302 (str "/blog/" (:slug article)))))))
 
 (defn update-article
   "Route handler for updating an existing article"

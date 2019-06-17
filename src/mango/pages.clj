@@ -258,13 +258,18 @@
           :show-footer true
           :redir "/media")))
 
+(defn error
+  "Render and error page"
+  [user headline body]
+  (render-page user headline
+               (list
+                [:h1.error headline]
+                [:p.error body])))
+
 (defn not-found
   "Render a page for when a URI is not found"
   [user]
-  (render-page user "Not Found"
-        (list
-         [:h1 "Not found!"]
-         [:p "The page you are looking for could not be found"])))
+  (error user "Not Found" "The page you are looking for could not be found"))
 
 (defn sitemap
   "Render a sitemap for indexing"
