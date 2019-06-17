@@ -168,7 +168,7 @@
     [:div.col-50 "Email: " (mail-to email email)]
     (when twitter-handle [:div.col-50 "Twitter: " (link-to (str "https://twitter.com/" twitter-handle) twitter-handle)])]
    [:div.row
-    [:div.col-25 "Roles: " (roles-list roles)]]
+    [:div.col-100 "Roles: " (roles-list roles)]]
    [:div.row
     [:div.col-25 "Created: " (xform-time-to-string created)]
     (when (= (:username auth-user) username)
