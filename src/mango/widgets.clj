@@ -87,7 +87,7 @@
 
 (defn article-list-item
   "Render an article list item"
-  [{:keys [slug title description media created]}]
+  [{:keys [slug title description tags media created]}]
   [:div.article-list-item
    [:div.row
     [:div.col-75
@@ -100,6 +100,8 @@
          (image {:class "article-list-item-media"} (:src thumb))]
         [:div.col-75-sm description])
       [:div.col-100 description])]
+   [:div.row
+    [:div.col-100 (tags-list tags)]]
    ])
 
 (defn page-list-item
