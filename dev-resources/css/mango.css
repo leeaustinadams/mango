@@ -117,6 +117,8 @@ html, body {
 .tags > li {
     display: inline-block;
     text-shadow: 0 1px 0 #ffffff;
+    padding: 0 0 4px 2px;
+    font-size: large;
 }
 
 .tags > li > .divider {
@@ -415,5 +417,5 @@ textarea {
 
 .toolbar ul > li {
     display: inline-block;
-    margin: 0 8px 0 8px;
+    margin: 0 8px 8px 0;
 }
