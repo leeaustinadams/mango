@@ -7,12 +7,13 @@
  :site-url "https://4d4ms.com"
  :site-title "TEST - Lee Austin Adams - TEST"
  :site-description "TEST - Lee's Website - TEST"
- :site-copyright "© 2014-2018 Lee Adams"
+ :site-copyright "© 2019 Lee Adams"
  :twitter-site-handle "@test"
  :twitter-creator-handle "@test"
  :admin-email "admin@4d4ms.com"
  :port 8080
  :cdn-url "http://test-cdn.4d4ms.com/blog/"
+ :logo-url "https://cdn.4d4ms.com/img/A.jpg"
  :aws-media-bucket "4d4ms-test"
  :ads-enabled false
  :google-analytics-id ""}

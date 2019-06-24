@@ -5,14 +5,15 @@
  :db-media-collection "blogmedia"
  :db-users-collection "users"
  :site-url "https://4d4ms.com"
- :site-title "Lee Austin Adams"
+ :site-title "4d4ms.com"
  :site-description "Lee's Website"
- :site-copyright "© 2014-2018 Lee Adams"
+ :site-copyright "© 2019 Lee Adams"
  :twitter-site-handle "@beamjack"
  :twitter-creator-handle "@beamjack"
  :admin-email "admin@4d4ms.com"
  :port 8080
  :cdn-url "https://cdn.4d4ms.com/blog/"
+ :logo-url "https://cdn.4d4ms.com/img/A.jpg"
  :aws-media-bucket "4d4ms"
  :aws-region "us-west-1"
  :ads-enabled true
