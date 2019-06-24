@@ -18,7 +18,7 @@
                  [markdown-clj "1.0.8"]
                  [clj-time "0.14.2"]
                  [amazonica "0.3.76"]
-                 [yogthos/config "0.8"]
+                 [yogthos/config "1.1.4"]
                  [com.taoensso/timbre "4.10.0"]]
   :plugins [[lein-asset-minifier "0.4.4"]
             [com.roomkey/lein-v "6.2.2"]
