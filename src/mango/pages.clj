@@ -4,6 +4,7 @@
             [mango.config :as config]
             [mango.util :refer [xform-time-to-string xform-string-to-time url-encode]]
             [mango.widgets :refer :all]
+            [mango.ads :as ads]
             [clojure.core.strint :refer [<<]]
             [stencil.core :as stencil]
             [hiccup.page :refer [html5 include-css include-js]]
@@ -33,13 +34,7 @@
      [:body
       [:div.mango
        (when (and config/ads-enabled (not (= "draft" status)))
-         [:div {:align "center"}
-          [:ins {:class "adsbygoogle"
-                 :style "display:block"
-                 :data-ad-client "ca-pub-8004927313720287"
-                 :data-ad-slot "5968146561"
-                 :data-ad-format "auto"}]
-          (javascript-tag "(adsbygoogle = window.adsbygoogle || []).push({});")])
+         (ads/google))
        (toolbar user article url)
        [:div.article-header
         [:h1.article-title title]
