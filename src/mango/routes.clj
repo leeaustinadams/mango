@@ -268,23 +268,6 @@
   (GET "/users/new" {:keys [user session params]} (when (auth/admin? user) (pages/new-user user (session-anti-forgery-token session) params)))
   (POST "/users/new" {:keys [user session params]} (when (auth/admin? user) (new-user db/data-provider user session params)))
 
-  ;; JSON API -- All accesses should require authorization
-  (GET "/blog/count.json" {:keys [user params]} (when (auth/editor? user) (api/article-count db/data-provider)))
-  (GET "/blog/drafts/count.json" {:keys [user params]} (when (auth/editor? user) (api/draft-article-count db/data-provider user)))
-
-  (GET "/blog/articles.json" {:keys [user params]} (when (auth/editor? user) (api/published db/data-provider params)))
-  (GET "/blog/articles/:id{[0-9a-f]+}.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/article-by-id db/data-provider id)))
-  (GET "/blog/articles/:slug{[0-9a-z-]+}.json" {user :user {:keys [slug]} :params} (when (auth/editor? user) (api/article-by-slug db/data-provider slug)))
-
-  (GET "/blog/drafts/articles.json" {:keys [user params]} (when (auth/editor? user) (api/drafts db/data-provider params)))
-
-  (GET "/blog/media.json" {:keys [user params]} (when (auth/editor? user) (api/list-media db/data-provider params)))
-  (GET "/blog/media/:id.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/media-by-id db/data-provider id)))
-
-  (GET "/users.json" {:keys [user params]} (when (auth/editor? user) (api/list-users db/data-provider params)))
-  (GET "/users/me.json" {:keys [user]} (when (auth/editor? user) (api/me db/data-provider user)))
-  (GET "/users/:id.json" {user :user {:keys [id]} :params} (when (auth/editor? user) (api/user-by-id db/data-provider id)))
-
   ;; (GET "/admin/users/:id.json" [id]
   ;;      {})
 
