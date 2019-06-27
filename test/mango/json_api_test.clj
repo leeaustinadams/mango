@@ -39,37 +39,3 @@
           :headers json-headers
           :body "{\"message\":\"unauthorized\"}"
           :other "thing"})))
-
-(deftest test-article-count
-  (is (= (article-count fixtures/data-provider)
-         {:status 200,
-          :headers json-headers
-          :body "{\"count\":2}"})))
-
-(deftest test-draft-article-count
-  (is (= (draft-article-count fixtures/data-provider)
-         {:status 200,
-          :headers json-headers
-          :body "{\"count\":0}"})))
-
-(deftest test-published
-  (is (= (published fixtures/data-provider nil)
-         {:status 200
-          :headers json-headers
-          :body (str "[{\"content\":\"Hello\",\"media\":"
-          "[{\"_id\":1,\"filename\":\"1.jpg\",\"src\":\"http://localhost/blog/1.jpg\"},{\"_id\":2,\"filename\":\"2.jpg\",\"src\":\"http://localhost/blog/2.jpg\"}],"
-          "\"user\":{\"username\":\"User\",\"roles\":[]},"
-          "\"rendered-content\":\"<p>Hello</p>\"},"
-          "{\"content\":\"Howdy\",\"media\":"
-          "[{\"_id\":3,\"filename\":\"3.jpg\",\"src\":\"http://localhost/blog/3.jpg\"},{\"_id\":4,\"filename\":\"4.jpg\",\"src\":\"http://localhost/blog/4.jpg\"}],"
-          "\"user\":{\"username\":\"Editor\",\"roles\":[\"editor\"]},"
-          "\"rendered-content\":\"<p>Howdy</p>\"}]")})))
-
-(deftest test-drafts
-  (is (not (nil? (drafts fixtures/data-provider nil)))))
-
-(deftest test-list-users
-  (is (= (list-users fixtures/data-provider nil)
-         {:status 200,
-          :headers {"Content-Type" "application/json"},
-          :body "[{\"username\":\"User\",\"roles\":[]},{\"username\":\"Editor\",\"roles\":[\"editor\"]},{\"username\":\"Admin\",\"roles\":[\"admin\"]}]"})))
