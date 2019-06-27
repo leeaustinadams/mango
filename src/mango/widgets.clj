@@ -9,8 +9,8 @@
             [hiccup.element :refer :all]
             [hiccup.form :refer :all]))
 
-(defn header
-  "Render the header"
+(defn head
+  "Render the head"
   [title]
   (list
    [:title title]
