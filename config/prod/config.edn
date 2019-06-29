@@ -13,6 +13,8 @@
  :admin-email ""
  :port 8080
  :logo-url ""
- :aws-media-bucket "prod-media"
+ :aws-media-bucket "prod-mango-media"
  :aws-region "us-west-1"
- :cdn-url "https://s3-us-west-1.amazonaws.com/prod-media/blog/"}
+ :cdn-url "https://s3-us-west-1.amazonaws.com/prod-mango-media/blog/"
+ :app-css "/css/mango.css"
+ :app-js "/js/prod-main.js"}

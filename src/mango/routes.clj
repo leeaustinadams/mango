@@ -24,17 +24,6 @@
   [session]
   (get session :ring.middleware.anti-forgery/anti-forgery-token))
 
-(defn accum-media
-  "Inserts media item for each file in files and returns a sequence of the inserted media ids (or nil)"
-  [data-provider files user-id]
-  (loop [files files
-         media '()]
-    (let [file (first files)]
-      (if (nil? file)
-        media
-        (let [m (dp/insert-blog-media data-provider {:filename (:filename file)} user-id)]
-          (recur (rest files) (conj media (:_id m))))))))
-
 (defn html-response
   "An HTML response with code."
   [code body]
@@ -139,16 +128,19 @@
 (defn post-media
   "Route handler for uploading media"
   [data-provider {user-id :_id} {:keys [files article-id]}]
-  (if (> (count files) 0)
-    (let [result (upload-file (first files))]
-      (if (nil? @result)
-        (let [media-ids (accum-media data-provider files user-id)]
-          (when-not (str/blank? article-id)
-            (debugf "Article id %s" article-id)
-            (dp/update-blog-article-media data-provider article-id (first media-ids)))
-          (api/json-success media-ids))
-        (api/json-status 500 {:message "Media upload failed"})))
-    (api/json-status 400 {:message "No files specified"})))
+    (try
+      (if (and (not (str/blank? article-id)) (> (count files) 0))
+        (do
+          (debugf "Article id %s" article-id)
+          (doseq [file (flatten files)]
+            (let [result (upload-file file)]
+              (when (nil? @result)
+                (let [media (dp/insert-blog-media data-provider {:filename (:filename file)} user-id)]
+                  (debugf "Media uploaded: %s" (:filename file))
+                  (dp/update-blog-article-media data-provider article-id (:_id media))))))
+          (api/json-success {:message "Success"}))
+        (api/json-status 400 {:message "No files specified"}))
+      (catch Exception e (api/json-status 500 {:message "Media upload failed"}))))
 
 (defn- new-user
   "Route handler creating a new user"
@@ -342,11 +334,16 @@
   (info (select-keys request [:remote-addr :request-method :request-url]) (select-keys (:user request) [:username :roles]) (dissoc (:params request) :password))
   request)
 
+(defn log-response
+  [response & [options]]
+  (info (select-keys response [:headers]))
+  response)
+
 (defn wrap-logger
   "Log stuff"
   [handler & [options]]
   (fn [request]
-    (handler (log-request request options))))
+    (log-response (handler (log-request request options)) options)))
 
 (def this-site-defaults
   (-> site-defaults

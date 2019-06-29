@@ -15,4 +15,6 @@
  :logo-url "https://s3-us-west-1.amazonaws.com/dev-mango-media/logo.png"
  :aws-media-bucket "dev-mango-media"
  :aws-region "us-west-1"
- :cdn-url "https://s3-us-west-1.amazonaws.com/dev-mango-media/blog/"}
+ :cdn-url "https://s3-us-west-1.amazonaws.com/dev-mango-media/blog/"
+ :app-css "/css/mango.css"
+ :app-js "/js/dev-main.js"}

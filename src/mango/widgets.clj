@@ -19,9 +19,9 @@
    [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
    [:meta {:name "viewport" :content "width=device-width,initial-scale=1"}]
    (include-css "/css/styles/github-gist.css")
-   (include-css (str "/" config/app-css))
-   (include-js "/js/highlight.pack.js")
-   (include-js (str "/" config/app-js))))
+   (include-css config/app-css)
+   (include-js "/js/lib/highlight.pack.js")
+   (include-js config/app-js)))
 
 (defn footer
   "Render the footer"
@@ -218,7 +218,9 @@
   "Renders an image bar of thumbnails"
   [name media]
   [:div.imagebar
-   (map (fn [{:keys [filename src]}] (image {:draggable true :ondragstart "mango.drag(event)" :filename filename} src filename)) media)])
+   (map (fn [{:keys [filename src]}] (image {:draggable true
+                                             :ondragstart "mango.media.mediaDragStart(event)"
+                                             :filename filename} src filename)) media)])
 
 
 (defn media-list-item
