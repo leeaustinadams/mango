@@ -2,7 +2,7 @@
 (ns mango.pages
   (:require [mango.auth :as auth]
             [mango.config :as config]
-            [mango.util :refer [xform-time-to-string xform-string-to-time url-encode]]
+            [mango.util :refer [xform-time-to-string xform-string-to-time url-encode str-or-nil]]
             [mango.widgets :refer :all]
             [clojure.core.strint :refer [<<]]
             [stencil.core :as stencil]
@@ -16,22 +16,21 @@
   "Renders metadata for a page"
   [url title description image-url twitter-handle]
   (list
-      [:meta {:name "twitter:card" :content "summary"}]
+   [:meta {:name "twitter:card" :content "summary"}]
    [:meta {:name "twitter:site" :content twitter-handle}]
-      [:meta {:name "twitter:title" :content title}]
-   [:meta {:name "twitter:image" :content image-url}]
-      [:meta {:name "twitter:description" :content description}]
-      [:meta {:property "og:url" :content url}]
-      [:meta {:property "og:type" :content "article"}]
-      [:meta {:property "og:title" :content title}]
-      [:meta {:property "og:description" :content description}]
+   [:meta {:name "twitter:title" :content title}]
+   [:meta {:name "twitter:image" :content (or image-url config/logo-url)}]
+   [:meta {:name "twitter:description" :content description}]
+   [:meta {:property "og:url" :content url}]
+   [:meta {:property "og:type" :content "article"}]
+   [:meta {:property "og:title" :content title}]
+   [:meta {:property "og:description" :content description}]
    [:meta {:property "og:image" :content image-url}]))
 
 (defn- render-page
   "Renders a page"
-  [user title description url header content & {:keys [show-toolbar show-footer show-social] :or { show-toolbar true show-footer true show-social true }}]
+  [user title description url header image-url content & {:keys [show-toolbar show-footer show-social] :or { show-toolbar true show-footer true show-social true }}]
   (let [description (or description config/site-description)
-        image-url config/logo-url
         twitter-handle config/twitter-site-handle]
     (html5 [:head (head title)
             (render-meta url title description image-url twitter-handle)]
@@ -50,21 +49,19 @@
 (defn article
   "Render an article. Expects media to have been hydrated"
   [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
-  (let [img (let [img_src (get (first media) :src)]
-              (if (empty? img_src) config/logo-url img_src))]
-    (render-page user
-                 title
-                 description
-                 url
-                 [:div.article-header
-                  [:h1.article-title title]
-                  [:h2.article-description description]
-                  [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
-                  [:div.article-infoline "On: " (xform-time-to-string created)]
-                  [:div.article-tagsline "Tagged: " (tags-list tags)]]
-                 [:div.article-content
-                  (list rendered-content [:div.clearfix])]
-                 :show-ad (and config/ads-enabled (not (= "draft" status))))))
+  (render-page user
+               title
+               description
+               url
+               (str-or-nil (get (first media) :src))
+               [:div.article-header
+                [:h1.article-title title]
+                [:h2.article-description description]
+                [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
+                [:div.article-infoline "On: " (xform-time-to-string created)]
+                [:div.article-tagsline "Tagged: " (tags-list tags)]]
+               [:div.article-content
+                (list rendered-content [:div.clearfix])]))
 
 (defn page
   "Render a page"
@@ -73,6 +70,7 @@
                title
                nil
                url
+               nil
                nil
                (list rendered-content [:div.clearfix])))
 
@@ -83,6 +81,7 @@
                "Edit"
                nil
                "url"
+               nil
                nil
                (let [action (or _id "post")]
                  (list
@@ -116,6 +115,7 @@
                nil
                url
                nil
+               nil
                (list
                 [:h1 list-title]
                 (map page-list-item pages))))
@@ -127,6 +127,7 @@
                list-title
                nil
                url
+               nil
                nil
                (list
                 [:h1 list-title]
@@ -140,6 +141,7 @@
                nil
                url
                nil
+               nil
                (list
                 [:h1 title]
                 (divided-list tag-counts tag-and-count "-" "tags"))))
@@ -151,6 +153,7 @@
                "Sign In"
                nil
                "url"
+               nil
                nil
                (list
                 [:h1 "Sign In"]
@@ -171,6 +174,7 @@
                nil
                "url"
                nil
+               nil
                (list
                 [:h1 "Sign Out?"]
                 [:form {:name "signout" :action (str "/auth/signout?redir=" redir) :method "POST" :enctype "multipart/form-data"}
@@ -187,6 +191,7 @@
                "New User"
                nil
                "url"
+               nil
                nil
                [:form {:name "newuser" :action (str "/users/new") :method "POST" :enctype "multipart/form-data"}
                 (hidden-field "__anti-forgery-token" anti-forgery-token)
@@ -210,6 +215,7 @@
                "Change Password"
                nil
                "url"
+               nil
                nil
                (let [{:keys [username first-name last-name]} user]
                  (list
@@ -236,6 +242,7 @@
                nil
                url
                nil
+               nil
                (user-item user auth-user)
                :show-social false))
 
@@ -247,6 +254,7 @@
                nil
                url
                nil
+               nil
                (interpose [:hr] (map #(user-item % auth-user) users))
                :show-social false))
 
@@ -257,6 +265,7 @@
                "Edit"
                nil
                "url"
+               nil
                nil
                (let [action (or _id "post")]
                  (list
@@ -292,6 +301,7 @@
                nil
                "url"
                nil
+               nil
                (list
                 [:p article-id]
                 [:form {:id "upload-form" :name "uploadForm" :action "/blog/media/post" :method "POST" :enctype "multipart/form-data"}
@@ -316,6 +326,7 @@
                  nil
                  url
                  nil
+                 nil
                  (list
                   [:h1 "Media"]
                   (prev-next-media media prev-page next-page per-page)
@@ -330,6 +341,7 @@
                headline
                nil
                request-url
+               nil
                nil
                (list
                 [:h1.error headline]
@@ -356,7 +368,8 @@
                url
                [:div.row
                 [:h1.col-100 config/site-title]]
+               nil
                (list [:div.row
                       [:h2.col-100 (link-to "/blog" "Blog")]]
                      (when article
-                (list [:div.row [:span.col-100 "Latest Article:"]] (article-list-item article))))))
+                       [:div.row [:span.col-100 "Latest Article:"]] (article-list-item article)))))

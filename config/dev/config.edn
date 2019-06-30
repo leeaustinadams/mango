@@ -8,11 +8,11 @@
  :site-title "DEV - BLOG - DEV"
  :site-description "DEV - BLOG - DEV"
  :site-copyright "dev copyright"
- :twitter-site-handle ""
- :twitter-creator-handle ""
+ :twitter-site-handle "site"
+ :twitter-creator-handle "creator"
  :admin-email ""
  :port 8080
- :logo-url ""
+ :logo-url "https://s3-us-west-1.amazonaws.com/dev-mango-media/logo.png"
  :aws-media-bucket "dev-mango-media"
  :aws-region "us-west-1"
  :cdn-url "https://s3-us-west-1.amazonaws.com/dev-mango-media/blog/"}
