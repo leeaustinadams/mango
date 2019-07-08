@@ -2,7 +2,8 @@
 (ns mango.pages
   (:require [mango.auth :as auth]
             [mango.config :as config]
-            [mango.util :refer [xform-time-to-string xform-string-to-time url-encode]]
+            [mango.meta-tags :refer :all]
+            [mango.util :refer [xform-time-to-string xform-string-to-time url-encode str-or-nil]]
             [mango.widgets :refer :all]
             [mango.ads :as ads]
             [clojure.core.strint :refer [<<]]
@@ -13,33 +14,34 @@
 
 (def default-per-page 100)
 
-(defn- render-meta
+(def site-meta-tags (-> (fn [options] '())
+                        wrap-default
+                        wrap-twitter
+                        wrap-og))
+
+(defn render-page-meta
   "Renders metadata for a page"
-  [url title description image-url twitter-handle]
-  (list
-      [:meta {:name "twitter:card" :content "summary"}]
-   [:meta {:name "twitter:site" :content twitter-handle}]
-      [:meta {:name "twitter:title" :content title}]
-   [:meta {:name "twitter:image" :content image-url}]
-      [:meta {:name "twitter:description" :content description}]
-      [:meta {:property "og:url" :content url}]
-      [:meta {:property "og:type" :content "article"}]
-      [:meta {:property "og:title" :content title}]
-      [:meta {:property "og:description" :content description}]
-   [:meta {:property "og:image" :content image-url}]))
+  [options]
+  (site-meta-tags options))
 
 (defn- render-page
   "Renders a page"
-  [user title description url header content & {:keys [show-toolbar show-footer show-ad show-social] :or { show-toolbar true show-footer true show-ad true show-social true }}]
+  [user title description url header image-url content & {:keys [show-toolbar show-footer show-ad show-social]
+                                                          :or { show-toolbar {:user user :redir url} show-footer true show-ad true show-social true }}]
   (let [description (or description config/site-description)
-        image-url config/logo-url
         twitter-handle config/twitter-site-handle]
     (html5 [:head (head title)
-            (render-meta url title description image-url twitter-handle)]
-     [:body
-      [:div.mango
+            (render-page-meta {:url url
+                               :title title
+                               :description description
+                               :image-url image-url
+                               :twitter-handle twitter-handle
+                               :twitter-card "summary"
+                               :og-type "article"})]
+           [:body
+            [:div.mango
              (when show-ad (ads/google))
-             (when show-toolbar (toolbar user nil url))
+             (when show-toolbar (toolbar show-toolbar))
              (when header header)
              (when show-social
                [:div.article-socialline
@@ -52,31 +54,32 @@
 (defn article
   "Render an article. Expects media to have been hydrated"
   [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
-  (let [img (let [img_src (get (first media) :src)]
-              (if (empty? img_src) config/logo-url img_src))]
     (render-page user
                  title
                  description
                  url
-       [:div.article-header
-        [:h1.article-title title]
-        [:h2.article-description description]
-        [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
-        [:div.article-infoline "On: " (xform-time-to-string created)]
+                 [:div.article-header
+                  [:h1.article-title title]
+                  [:h2.article-description description]
+                  [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
+                  [:div.article-infoline "On: " (xform-time-to-string created)]
                   [:div.article-tagsline "Tagged: " (tags-list tags)]]
-       [:div.article-content
+               (str-or-nil (get (first media) :src))
+                 [:div.article-content
                   (list rendered-content [:div.clearfix])]
-                 :show-ad (and config/ads-enabled (not (= "draft" status))))))
+               :show-toolbar {:user user :redir url :article article}))
 
 (defn page
   "Render a page"
-  [user {:keys [title rendered-content]} url]
+  [user {:keys [title rendered-content] :as page} url]
   (render-page user
                title
                nil
                url
                nil
-               (list rendered-content [:div.clearfix])))
+               nil
+               (list rendered-content [:div.clearfix])
+               :show-toolbar {:user user :redir url :page page}))
 
 (defn edit-page
   "Render the editing in page"
@@ -86,27 +89,28 @@
                nil
                "url"
                nil
-        (let [action (or _id "post")]
-          (list
-           [:form {:name "pageForm" :action (str "/pages/" action) :method "POST" :enctype "multipart/form-data"}
-            (hidden-field "__anti-forgery-token" anti-forgery-token)
-            (when _id (hidden-field "_id" _id))
-            (field-row text-field "title" "Title" title)
-            [:div.field-row
-             [:div.col-25
-              [:span "&nbsp;"]]
-             [:div.col-75
-              (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
-            (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
-            (field-row thumb-bar "thumbs" "Media"  media)
-            [:div.field-row
-             [:div.col-25
-              [:span "&nbsp;"]]
-             [:div.col-75
-              (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
-            (when (not (= status "root"))
-              (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft")))
-            (submit-row "Submit")]
+               nil
+               (let [action (or _id "post")]
+                 (list
+                  [:form {:name "pageForm" :action (str "/pages/" action) :method "POST" :enctype "multipart/form-data"}
+                   (hidden-field "__anti-forgery-token" anti-forgery-token)
+                   (when _id (hidden-field "_id" _id))
+                   (field-row text-field "title" "Title" title)
+                   [:div.field-row
+                    [:div.col-25
+                     [:span "&nbsp;"]]
+                    [:div.col-75
+                     (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
+                   (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
+                   (field-row thumb-bar "thumbs" "Media"  media)
+                   [:div.field-row
+                    [:div.col-25
+                     [:span "&nbsp;"]]
+                    [:div.col-75
+                     (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
+                   (when (not (= status "root"))
+                     (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft")))
+                   (submit-row "Submit")]
                   (include-js "/js/media-edit.js")))
                :show-social false))
 
@@ -118,8 +122,9 @@
                nil
                url
                nil
-        (list
-         [:h1 list-title]
+               nil
+               (list
+                [:h1 list-title]
                 (map page-list-item pages))))
 
 (defn articles-list
@@ -130,8 +135,9 @@
                nil
                url
                nil
-        (list
-         [:h1 list-title]
+               nil
+               (list
+                [:h1 list-title]
                 (map article-list-item articles))))
 
 (defn tags
@@ -141,6 +147,7 @@
                title
                nil
                url
+               nil
                nil
                (list
                 [:h1 title]
@@ -153,6 +160,7 @@
                "Photography"
                nil
                url
+               nil
                nil
                (list
                 [:div.row
@@ -169,6 +177,7 @@
                "About"
                nil
                url
+               nil
                nil
                (list
                 [:h3 "Me"]
@@ -188,13 +197,14 @@
                nil
                "url"
                nil
-        (list
-         [:h1 "Sign In"]
-         [:form {:name "signin" :action (str "/auth/signin?redir=" redir) :method "POST" :enctype "multipart/form-data"}
-          (hidden-field "__anti-forgery-token" anti-forgery-token)
-          (field-row (partial text-field {:autoFocus "autoFocus"}) "username" "Username")
-          (field-row password-field "password" "Password")
-          (submit-row "Sign In")
+               nil
+               (list
+                [:h1 "Sign In"]
+                [:form {:name "signin" :action (str "/auth/signin?redir=" redir) :method "POST" :enctype "multipart/form-data"}
+                 (hidden-field "__anti-forgery-token" anti-forgery-token)
+                 (field-row (partial text-field {:autoFocus "autoFocus"}) "username" "Username")
+                 (field-row password-field "password" "Password")
+                 (submit-row "Sign In")
                  (when message [:p message])])
                :show-social false
                :show-toolbar false))
@@ -207,11 +217,12 @@
                nil
                "url"
                nil
-        (list
-         [:h1 "Sign Out?"]
-         [:form {:name "signout" :action (str "/auth/signout?redir=" redir) :method "POST" :enctype "multipart/form-data"}
-          (hidden-field "__anti-forgery-token" anti-forgery-token)
-          (submit-row "Sign Out")
+               nil
+               (list
+                [:h1 "Sign Out?"]
+                [:form {:name "signout" :action (str "/auth/signout?redir=" redir) :method "POST" :enctype "multipart/form-data"}
+                 (hidden-field "__anti-forgery-token" anti-forgery-token)
+                 (submit-row "Sign Out")
                  (when message [:p message])])
                :show-social false
                :show-toolbar false))
@@ -223,6 +234,7 @@
                "New User"
                nil
                "url"
+               nil
                nil
                [:form {:name "newuser" :action (str "/users/new") :method "POST" :enctype "multipart/form-data"}
                 (hidden-field "__anti-forgery-token" anti-forgery-token)
@@ -246,6 +258,7 @@
                "Change Password"
                nil
                "url"
+               nil
                nil
                (let [{:keys [username first-name last-name]} user]
                  (list
@@ -272,6 +285,7 @@
                nil
                url
                nil
+               nil
                (user-item user auth-user)
                :show-social false))
 
@@ -283,7 +297,8 @@
                nil
                url
                nil
-        (interpose [:hr] (map #(user-item % auth-user) users))
+               nil
+               (interpose [:hr] (map #(user-item % auth-user) users))
                :show-social false))
 
 (defn edit-article
@@ -294,29 +309,30 @@
                nil
                "url"
                nil
-        (let [action (or _id "post")]
-          (list
-           [:form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
-            (hidden-field "__anti-forgery-token" anti-forgery-token)
-            (when _id (hidden-field "_id" _id))
-            (field-row text-field "title" "Title" title)
-            (field-row text-field "description" "Description" description)
-            (field-row text-field "tags" "Tags" (apply str (interpose ", " tags)))
-            [:div.field-row
-             [:div.col-25
-              [:span "&nbsp;"]]
-             [:div.col-75
-              (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
-            (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
-            (field-row thumb-bar "thumbs" "Media"  media)
-            [:div.field-row
-             [:div.col-25
-              [:span "&nbsp;"]]
-             [:div.col-75
-              (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
-            (field-row date-field "created" "Date" (xform-time-to-string created))
-            (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
-            (submit-row "Submit")]
+               nil
+               (let [action (or _id "post")]
+                 (list
+                  [:form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
+                   (hidden-field "__anti-forgery-token" anti-forgery-token)
+                   (when _id (hidden-field "_id" _id))
+                   (field-row text-field "title" "Title" title)
+                   (field-row text-field "description" "Description" description)
+                   (field-row text-field "tags" "Tags" (apply str (interpose ", " tags)))
+                   [:div.field-row
+                    [:div.col-25
+                     [:span "&nbsp;"]]
+                    [:div.col-75
+                     (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
+                   (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
+                   (field-row thumb-bar "thumbs" "Media"  media)
+                   [:div.field-row
+                    [:div.col-25
+                     [:span "&nbsp;"]]
+                    [:div.col-75
+                     (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
+                   (field-row date-field "created" "Date" (xform-time-to-string created))
+                   (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
+                   (submit-row "Submit")]
                   (include-js "/js/media-edit.js")))
                :show-social false))
 
@@ -327,6 +343,7 @@
                "Upload Media"
                nil
                "url"
+               nil
                nil
                (list
                 [:p article-id]
@@ -352,11 +369,12 @@
                  nil
                  url
                  nil
-          (list
-           [:h1 "Media"]
-           (prev-next-media media prev-page next-page per-page)
-           (map media-list-item media)
-           (prev-next-media media prev-page next-page per-page))
+                 nil
+                 (list
+                  [:h1 "Media"]
+                  (prev-next-media media prev-page next-page per-page)
+                  (map media-list-item media)
+                  (prev-next-media media prev-page next-page per-page))
                  :show-social false)))
 
 (defn error
@@ -366,6 +384,7 @@
                headline
                nil
                request-url
+               nil
                nil
                (list
                 [:h1.error headline]
@@ -392,12 +411,12 @@
                url
                [:div.row
                 [:h1.col-100 config/site-title]]
-        (list [:div.row
-               [:h2.col-100 (link-to "/blog" "Blog")]]
-              (when article
+               nil
+               (list [:div.row
+                      [:h2.col-100 (link-to "/blog" "Blog")]]
+                     (when article
                        (list [:div.row [:span.col-100 "Latest Article:"]] (article-list-item article)))
                      [:div.row
                       [:h2.col-100 (link-to "/photography" "Photography")]]
                      [:div.row
-                      [:h2.col-100 (link-to "/about" "About")]])
-               :show-ad false))
+                      [:h2.col-100 (link-to "/about" "About")]])))

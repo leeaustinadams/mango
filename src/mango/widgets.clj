@@ -34,24 +34,51 @@
    [:small.copyright "Powered by " (link-to "https://4d4ms.com/mango" "Mango")][:br]
    [:small.version config/version]])
 
+(defn- wrap-base-toolbar
+  [toolbar]
+  (fn [{:keys [user redir] :as options}]
+    (let [items (toolbar options)]
+      (conj items (link-to "/" "Home")
+            (link-to "/blog" "Blog")
+            (link-to "/blog/tagged" "Tags")
+            (if user
+              (link-to (str "/signout?redir=" redir) "Sign Out")
+              (link-to (str "/signin?redir=" redir) "Sign In"))
+            (when user (link-to "/me" "My Account"))))))
+
+(defn- wrap-editor-toolbar
+  [toolbar]
+  (fn [{:keys [user article page] :as options}]
+    (let [items (toolbar options)]
+      (if (auth/editor? user)
+        (conj items
+              (link-to "/blog/new" "New Article")
+              (when article (link-to (str "/blog/edit/" (:slug article)) "Edit Article"))
+              (link-to "/blog/drafts" "Drafts")
+              (link-to "/pages/new" "New Page")
+              (when page (link-to (str "/pages/edit/" (:slug page)) "Edit Page"))
+              (link-to "/pages" "Pages")
+              (link-to "/blog/media" "Media"))
+        items))))
+
+(defn- wrap-admin-toolbar
+  [toolbar]
+  (fn [{:keys [user] :as options}]
+    (let [items (toolbar options)]
+      (if (auth/admin? user)
+        (conj items
+              (link-to "/admin/users" "Users")
+              (link-to "/users/new" "New User"))
+        items))))
+
+(def site-toolbar (-> (fn [options] [])
+                      wrap-base-toolbar
+                      wrap-editor-toolbar
+                      wrap-admin-toolbar))
 (defn toolbar
-  "Render the toolbar"
-  [user & [article redir]]
+  [options]
   [:div.toolbar
-   (unordered-list (filter #(not (nil? %)) (list (link-to "/" "Home")
-                                                 (link-to "/blog" "Blog")
-                                                 (link-to "/blog/tagged" "Tags")
-                                                 (when (auth/editor? user) (link-to "/blog/new" "New Article"))
-                                                 (when (auth/editor? user) (link-to "/blog/drafts" "Drafts"))
-                                                 (when (auth/editor? user) (link-to "/pages/new" "New Page"))
-                                                 (when (auth/editor? user) (link-to "/pages" "Pages"))
-                                                 (when (auth/editor? user) (link-to "/blog/media" "Media"))
-                                                 (when (auth/admin? user) (link-to "/admin/users" "Users"))
-                                                 (when (and article (auth/editor? user)) (link-to (str "/blog/edit/" (:slug article)) "Edit"))
-                                                 (if user
-                                                   (link-to (str "/signout?redir=" redir) "Sign Out")
-                                                   (link-to (str "/signin?redir=" redir) "Sign In"))
-                                                 (when user (link-to "/me" "My Account")))))])
+   (unordered-list (filter (comp not nil?) (site-toolbar options)))])
 
 (defn divided-list
   "Render a divided list"
@@ -109,11 +136,12 @@
 
 (defn page-list-item
   "Render an page list item"
-  [{:keys [slug title media]}]
+  [{:keys [slug title media status]}]
   [:div.page-list-item
    [:div.row
     [:div.col-75
-     [:h2.page-list-item-title (link-to (str "/pages/" slug) title)]]]
+     [:h2.page-list-item-title (link-to (str "/pages/" slug) title)]]
+    [:div.col-25.article-list-item-byline status]]
    (when-let [thumb (first media)]
      [:div.row
       [:div.col-25-sm (image {:class "page-list-item-media"} (:src thumb))]])])

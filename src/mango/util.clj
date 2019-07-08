@@ -48,3 +48,7 @@
   "URL decodes a string"
   [s]
   (URLDecoder/decode s))
+
+(defn str-or-nil
+  [s]
+  (when (not (clojure.string/blank? s)) s))

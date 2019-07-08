@@ -6,7 +6,6 @@
             [mango.storage :as storage]
             [taoensso.timbre :refer [info]]))
 
-
 (def default-user
   {:username "admin"
    :first-name ""
@@ -83,7 +82,7 @@
   []
   (when (< (count (db/users {})) 1)
     (info "No users found, bootstrapping users")
-    (when-let [user (auth/new-user default-user)]
+    (when-let [user (auth/new-user db/data-provider default-user)]
       (let [user-id (:_id user)]
         (when (< (db/blog-articles-count "published" {}) 1)
           (info "No articles found, bootstrapping default article")
