@@ -94,9 +94,10 @@
   [data-provider author params]
   (let [user-id (:_id author)
         article (sanitize-article params)
-        exists (not (nil? (dp/blog-article-by-slug data-provider (slugify (:title article)) {:status [:published :draft]})))]
+        title (slugify (:title article))
+        exists (not (nil? (dp/blog-article-by-slug data-provider title {:status [:published :draft]})))]
     (if exists
-      (html-response 400 (pages/error nil "Name Clash" "An article with that title already exists"))
+      (html-response 400 (pages/error author "Name Clash" (str "An article with the title '" title "' already exists") nil))
       (do
         (dp/insert-blog-article data-provider article user-id)
         (redir-response 302 (str "/blog/" (:slug article)))))))
@@ -114,8 +115,13 @@
   [data-provider author params]
   (let [user-id (:_id author)
         page (sanitize-page params)
-        inserted (dp/insert-page data-provider page user-id)]
-    (redir-response 302 (str "/pages/" (:slug page)))))
+        title (slugify (:title page))
+        exists (not (nil? (dp/page-by-slug data-provider title {:status [:published :draft :root]})))]
+    (if exists
+      (html-response 400 (pages/error author "Name Clash" (str "A page with the title '" title "' already exists") nil))
+      (do
+        (dp/insert-page data-provider page user-id)
+        (redir-response 302 (str "/pages/" (:slug page)))))))
 
 (defn update-page
   "Route handler for updating an existing page"
