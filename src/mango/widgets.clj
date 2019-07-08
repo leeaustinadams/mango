@@ -133,11 +133,12 @@
 
 (defn page-list-item
   "Render an page list item"
-  [{:keys [slug title media]}]
+  [{:keys [slug title media status]}]
   [:div.page-list-item
    [:div.row
     [:div.col-75
-     [:h2.page-list-item-title (link-to (str "/pages/" slug) title)]]]
+     [:h2.page-list-item-title (link-to (str "/pages/" slug) title)]]
+    [:div.col-25.article-list-item-byline status]]
    (when-let [thumb (first media)]
      [:div.row
       [:div.col-25-sm (image {:class "page-list-item-media"} (:src thumb))]])])
