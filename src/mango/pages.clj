@@ -2,6 +2,7 @@
 (ns mango.pages
   (:require [mango.auth :as auth]
             [mango.config :as config]
+            [mango.meta-tags :refer :all]
             [mango.util :refer [xform-time-to-string xform-string-to-time url-encode str-or-nil]]
             [mango.widgets :refer :all]
             [clojure.core.strint :refer [<<]]
@@ -12,28 +13,30 @@
 
 (def default-per-page 100)
 
-(defn- render-meta
+(def site-meta-tags (-> (fn [options] '())
+                        wrap-default
+                        wrap-twitter
+                        wrap-og))
+
+(defn render-page-meta
   "Renders metadata for a page"
-  [url title description image-url twitter-handle]
-  (list
-   [:meta {:name "twitter:card" :content "summary"}]
-   [:meta {:name "twitter:site" :content twitter-handle}]
-   [:meta {:name "twitter:title" :content title}]
-   [:meta {:name "twitter:image" :content (or image-url config/logo-url)}]
-   [:meta {:name "twitter:description" :content description}]
-   [:meta {:property "og:url" :content url}]
-   [:meta {:property "og:type" :content "article"}]
-   [:meta {:property "og:title" :content title}]
-   [:meta {:property "og:description" :content description}]
-   [:meta {:property "og:image" :content image-url}]))
+  [options]
+  (site-meta-tags options))
 
 (defn- render-page
   "Renders a page"
-  [user title description url header image-url content & {:keys [show-toolbar show-footer show-social] :or { show-toolbar true show-footer true show-social true }}]
+  [user title description url header image-url content & {:keys [show-toolbar show-footer show-social]
+                                                          :or { show-toolbar true show-footer true show-social true }}]
   (let [description (or description config/site-description)
         twitter-handle config/twitter-site-handle]
     (html5 [:head (head title)
-            (render-meta url title description image-url twitter-handle)]
+            (render-page-meta {:url url
+                               :title title
+                               :description description
+                               :image-url image-url
+                               :twitter-handle twitter-handle
+                               :twitter-card "summary"
+                               :og-type "article"})]
            [:body
             [:div.mango
              (when show-toolbar (toolbar user nil url))
