@@ -26,7 +26,7 @@
 (defn- render-page
   "Renders a page"
   [user title description url header image-url content & {:keys [show-toolbar show-footer show-social]
-                                                          :or { show-toolbar true show-footer true show-social true }}]
+                                                          :or { show-toolbar {:user user :redir url} show-footer true show-social true }}]
   (let [description (or description config/site-description)
         twitter-handle config/twitter-site-handle]
     (html5 [:head (head title)
@@ -39,7 +39,7 @@
                                :og-type "article"})]
            [:body
             [:div.mango
-             (when show-toolbar (toolbar user nil url))
+             (when show-toolbar (toolbar show-toolbar))
              (when header header)
              (when show-social
                [:div.article-socialline
@@ -64,18 +64,20 @@
                 [:div.article-tagsline "Tagged: " (tags-list tags)]]
                (str-or-nil (get (first media) :src))
                [:div.article-content
-                (list rendered-content [:div.clearfix])]))
+                (list rendered-content [:div.clearfix])]
+               :show-toolbar {:user user :redir url :article article}))
 
 (defn page
   "Render a page"
-  [user {:keys [title rendered-content]} url]
+  [user {:keys [title rendered-content] :as page} url]
   (render-page user
                title
                nil
                url
                nil
                nil
-               (list rendered-content [:div.clearfix])))
+               (list rendered-content [:div.clearfix])
+               :show-toolbar {:user user :redir url :page page}))
 
 (defn edit-page
   "Render the editing in page"
