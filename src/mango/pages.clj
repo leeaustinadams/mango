@@ -53,13 +53,13 @@
                title
                description
                url
-               (str-or-nil (get (first media) :src))
                [:div.article-header
                 [:h1.article-title title]
                 [:h2.article-description description]
                 [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
                 [:div.article-infoline "On: " (xform-time-to-string created)]
                 [:div.article-tagsline "Tagged: " (tags-list tags)]]
+               (str-or-nil (get (first media) :src))
                [:div.article-content
                 (list rendered-content [:div.clearfix])]))
 
