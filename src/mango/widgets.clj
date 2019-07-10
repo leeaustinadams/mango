@@ -209,6 +209,11 @@
   [name value]
   [:input {:name name :type "date" :value value}])
 
+(def required-text-field (partial text-field {:required ""}))
+(def required-username-field (partial text-field {:autoFocus "" :autocomplete "username" :required ""}))
+(def required-password-field (partial password-field {:autocomplete "current-password" :required ""}))
+(def required-new-password-field (partial password-field {:autocomplete "new-password" :required ""}))
+
 (defn thumb-bar
   "Renders an image bar of thumbnails"
   [name media]
