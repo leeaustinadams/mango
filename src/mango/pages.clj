@@ -95,7 +95,7 @@
                   [:form {:name "pageForm" :action (str "/pages/" action) :method "POST" :enctype "multipart/form-data"}
                    (hidden-field "__anti-forgery-token" anti-forgery-token)
                    (when _id (hidden-field "_id" _id))
-                   (field-row text-field "title" "Title" title)
+                   (field-row required-text-field "title" "Title" title)
                    [:div.field-row
                     [:div.col-25
                      [:span "&nbsp;"]]
@@ -202,8 +202,8 @@
                 [:h1 "Sign In"]
                 [:form {:name "signin" :action (str "/auth/signin?redir=" redir) :method "POST" :enctype "multipart/form-data"}
                  (hidden-field "__anti-forgery-token" anti-forgery-token)
-                 (field-row (partial text-field {:autoFocus "autoFocus"}) "username" "Username")
-                 (field-row password-field "password" "Password")
+                 (field-row required-username-field "username" "Username")
+                 (field-row required-password-field "password" "Password")
                  (submit-row "Sign In")
                  (when message [:p message])])
                :show-social false
@@ -238,13 +238,13 @@
                nil
                [:form {:name "newuser" :action (str "/users/new") :method "POST" :enctype "multipart/form-data"}
                 (hidden-field "__anti-forgery-token" anti-forgery-token)
-                (field-row (partial text-field {:autoFocus "autoFocus"}) "username" "Username")
+                (field-row (partial text-field {:autoFocus "autoFocus" :autocomplete "username" :required "required"}) "username" "Username")
                 (field-row text-field "first" "First")
                 (field-row text-field "last" "Last")
-                (field-row text-field "email" "Email Address")
+                (field-row required-text-field "email" "Email Address")
                 (field-row text-field "twitter-handle" "Twitter Handle")
-                (field-row password-field "password" "Password")
-                (field-row password-field "password2" "Confirm Password")
+                (field-row required-new-password-field "password" "Password")
+                (field-row required-new-password-field "password2" "Confirm Password")
                 (field-row dropdown-field "role" "Role" (list ["Editor" "editor"] ["Administrator" "admin"] ["User" "user"]) "user")
                 (submit-row "Submit")
                 (when message [:p.error message])]
@@ -269,9 +269,9 @@
                    [:div.col-50 "Last Name: " last-name]]
                   [:form {:name "changepassword" :action (str "/users/password") :method "POST" :enctype "multipart/form-data"}
                    (hidden-field "__anti-forgery-token" anti-forgery-token)
-                   (field-row (partial password-field {:autoFocus "autoFocus"}) "password" "Current Password")
-                   (field-row password-field "new-password" "New Password")
-                   (field-row password-field "new-password2" "Confirm New Password")
+                   (field-row (partial password-field {:autoFocus "" :required ""}) "password" "Current Password")
+                   (field-row required-new-password-field "new-password" "New Password")
+                   (field-row required-new-password-field "new-password2" "Confirm New Password")
                    (submit-row "Submit")
                    (when message [:p.error message])]))
                :show-social false
@@ -315,7 +315,7 @@
                   [:form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
                    (hidden-field "__anti-forgery-token" anti-forgery-token)
                    (when _id (hidden-field "_id" _id))
-                   (field-row text-field "title" "Title" title)
+                   (field-row required-text-field "title" "Title" title)
                    (field-row text-field "description" "Description" description)
                    (field-row text-field "tags" "Tags" (apply str (interpose ", " tags)))
                    [:div.field-row
@@ -330,7 +330,7 @@
                      [:span "&nbsp;"]]
                     [:div.col-75
                      (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
-                   (field-row date-field "created" "Date" (xform-time-to-string created))
+                   (field-row date-field "created" "Date" (xform-time-to-string (or created (clj-time.core/now))))
                    (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
                    (submit-row "Submit")]
                   (include-js "/js/media-edit.js")))

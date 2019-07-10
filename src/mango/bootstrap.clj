@@ -26,6 +26,16 @@
          :status "published"
          :slug (slugify title :limit 10)}))
 
+(def default-draft
+  (let [title "This is a draft"]
+    {:title title
+     :description "This article exists but is not publicly accessible"
+     :content "You can draft up articles without publishing them. Once you're ready for it to go live, just change the status to \"Published\" from \"Draft\" and submit it."
+     :created (clj-time.core/now)
+     :tags ["dev"]
+     :status "draft"
+     :slug (slugify title :limit 10)}))
+
 (def default-root-page
   (let [title config/site-title]
     {:title title
@@ -75,6 +85,7 @@
      :slug (slugify title)
      }))
 
+(def default-articles [default-article default-draft])
 (def default-pages [getting-started default-root-page making-new-pages about-the-root-page])
 
 (defn run
@@ -85,8 +96,8 @@
     (when-let [user (auth/new-user db/data-provider default-user)]
       (let [user-id (:_id user)]
         (when (< (db/blog-articles-count "published" {}) 1)
-          (info "No articles found, bootstrapping default article")
-          (db/insert-blog-article default-article user-id))
+          (info "No articles found, bootstrapping default articles")
+          (doseq [article default-articles] (db/insert-blog-article article user-id)))
         (when (empty? (db/pages {:status ["root"]}))
           (info "No root page found, bootstrapping default pages")
           (doseq [page default-pages] (db/insert-page page user-id))))))
