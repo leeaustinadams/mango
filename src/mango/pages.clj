@@ -292,7 +292,7 @@
                      [:span "&nbsp;"]]
                     [:div.col-75
                      (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
-                   (field-row date-field "created" "Date" (xform-time-to-string created))
+                   (field-row date-field "created" "Date" (xform-time-to-string (or created (clj-time.core/now))))
                    (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
                    (submit-row "Submit")]
                   (include-js "/js/media-edit.js")))
