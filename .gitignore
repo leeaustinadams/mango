@@ -14,3 +14,4 @@ pom.xml.asc
 /dev-resources/js/mango*.min.js
 /dev-resources/css/mango*.min.css
 /src/version.clj
+/scripts/tunnel.sh
