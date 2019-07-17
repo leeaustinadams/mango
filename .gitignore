@@ -1,6 +1,9 @@
 /target
 /classes
 /checkouts
+/resources/public/cljs-out
+/resources/public/js/cljs-out-prod
+/resources/public/js/*.js
 pom.xml
 pom.xml.asc
 *.jar
@@ -9,9 +12,5 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
-run-4d4ms.sh
-/resources/public/js/mango*.js
-/resources/public/css/mango*.css
-/dev-resources/js/mango*.min.js
-/dev-resources/css/mango*.min.css
 /src/version.clj
+figwheel_server.log

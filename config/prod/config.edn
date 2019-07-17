@@ -16,5 +16,7 @@
  :logo-url "https://cdn.4d4ms.com/img/A.jpg"
  :aws-media-bucket "4d4ms"
  :aws-region "us-west-1"
+ :app-css "/css/mango.css"
+ :app-js "/js/prod-main.js"
  :ads-enabled true
  :google-analytics-id "UA-43198629-1"}

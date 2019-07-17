@@ -1,0 +1,6 @@
+^{:open-url "http://localhost:8080"}
+{:main mango.core
+ :output-to "resources/public/js/prod-main.js"
+ :infer-externs true
+ :closure-warnings {:externs-validation :off}
+ :optimizations :whitespace}

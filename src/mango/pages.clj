@@ -54,19 +54,19 @@
 (defn article
   "Render an article. Expects media to have been hydrated"
   [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
-    (render-page user
-                 title
-                 description
-                 url
-                 [:div.article-header
-                  [:h1.article-title title]
-                  [:h2.article-description description]
-                  [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
-                  [:div.article-infoline "On: " (xform-time-to-string created)]
-                  [:div.article-tagsline "Tagged: " (tags-list tags)]]
+  (render-page user
+               title
+               description
+               url
+               [:div.article-header
+                [:h1.article-title title]
+                [:h2.article-description description]
+                [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
+                [:div.article-infoline "On: " (xform-time-to-string created)]
+                [:div.article-tagsline "Tagged: " (tags-list tags)]]
                (str-or-nil (get (first media) :src))
-                 [:div.article-content
-                  (list rendered-content [:div.clearfix])]
+               [:div.article-content
+                (list rendered-content [:div.clearfix])]
                :show-toolbar {:user user :redir url :article article}))
 
 (defn page
@@ -101,7 +101,10 @@
                      [:span "&nbsp;"]]
                     [:div.col-75
                      (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
-                   (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
+                   (field-row (partial text-area {:id "content"
+                                                  :ondragover "mango.media.allowMediaDrop(event)"
+                                                  :ondrop "mango.media.mediaDrop(event)"})
+                              "content" "Content" content)
                    (field-row thumb-bar "thumbs" "Media"  media)
                    [:div.field-row
                     [:div.col-25
@@ -110,8 +113,7 @@
                      (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
                    (when (not (= status "root"))
                      (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft")))
-                   (submit-row "Submit")]
-                  (include-js "/js/media-edit.js")))
+                   (submit-row "Submit")]))
                :show-social false))
 
 (defn pages-list
@@ -323,7 +325,10 @@
                      [:span "&nbsp;"]]
                     [:div.col-75
                      (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
-                   (field-row (partial text-area {:id "content" :ondragover "mango.allowDrop(event)" :ondrop "mango.drop(event)"}) "content" "Content" content)
+                   (field-row (partial text-area {:id "content"
+                                                  :ondragover "mango.media.allowMediaDrop(event)"
+                                                  :ondrop "mango.media.mediaDrop(event)"})
+                              "content" "Content" content)
                    (field-row thumb-bar "thumbs" "Media"  media)
                    [:div.field-row
                     [:div.col-25
@@ -332,8 +337,7 @@
                      (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
                    (field-row date-field "created" "Date" (xform-time-to-string (or created (clj-time.core/now))))
                    (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
-                   (submit-row "Submit")]
-                  (include-js "/js/media-edit.js")))
+                   (submit-row "Submit")]))
                :show-social false))
 
 (defn upload-media
@@ -352,8 +356,7 @@
                  (when article-id (hidden-field {:id "article-id"} "article-id" article-id))
                  (file-select-row "Choose Files..." {:id "file-select" :name "files" :multiple true})
                  [:p {:id "upload-status"}]
-                 (submit-row "Upload" {:id "file-upload"})]
-                (include-js "/js/upload.js"))
+                 (submit-row "Upload" {:id "file-upload"})])
                :show-social false
                :show-toolbar false))
 

@@ -1,11 +1,13 @@
 (defproject mango :lein-v
   :description "Lee's Website"
   :url "https://www.4d4ms.com"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :license {:name "MIT License"
+            :url "https://tldrlegal.com/license/mit-license"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/core.incubator "0.1.4"]
+                 [org.clojure/clojurescript "1.10.339"]
+                 [com.bhauman/figwheel-main "0.2.0"]
                  [environ "1.1.0"]
                  [com.novemberain/monger "3.1.0"]
                  [ring/ring-core "1.6.3"]
@@ -15,30 +17,38 @@
                  [cheshire "5.5.0" :exclusions [com.fasterxml.jackson.core/jackson-core]]
                  [crypto-password "0.2.0"]
                  [stencil "0.5.0"]
-                 [markdown-clj "1.0.8"]
+                 [markdown-clj "1.10.0"]
                  [clj-time "0.14.2"]
                  [amazonica "0.3.76"]
                  [yogthos/config "1.1.4"]
                  [com.taoensso/timbre "4.10.0"]]
-  :plugins [[lein-asset-minifier "0.4.4"]
-            [com.roomkey/lein-v "6.2.2"]
-            [lein-shell "0.5.0"]]
-  :minify-assets [[:css {:source "dev-resources/css/mango.css" :target "dev-resources/css/mango.min.css"}]
-                  [:js {:source "dev-resources/js/mango.js" :target "dev-resources/js/mango.min.js" :opts {:optimization :none}}]]
+  :plugins [[com.roomkey/lein-v "6.2.2"]]
+
   :profiles {
-             :dev {:resource-paths ["config/dev"]}
-             :prod {:resource-paths ["config/prod"]}
-             :test {:resource-paths ["config/test"]}
+             :dev {:dependencies [[org.clojure/clojurescript "1.10.339"]
+                                  [com.bhauman/figwheel-main "0.2.0"]]
+                   :resource-paths ["config/dev"]
+                   :clean-targets ^{:protect false} ["target"
+                                                     "resources/public/js/prod-main.js"]}
+             :prod {:resource-paths ["config/prod"]
+                    :clean-targets ^{:protect false} ["target"
+                                                      "resources/public/cljs-out"
+                                                      "resources/public/js/dev-main.js"]}
+             :test {:resource-paths ["config/test"]
+                    :clean-targets ["target"]}
              :uberjar {:aot :all}
              :repl {:init-ns mango.core
                     :init (use 'mango.core :reload)}
              }
+
+  :aliases {"fig" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev"]
+            "fig-repl" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]
+            "build-dev-client" ["trampoline" "run" "-m" "figwheel.main" "-bo" "dev"]
+            "build-prod-client" ["trampoline" "run" "-m" "figwheel.main" "-bo" "prod"]
+            "build-dev-server" ["with-profile" "dev" "uberjar"]
+            "build-prod-uberjar" ["with-profile" "prod" "uberjar"]}
+
   :prep-tasks [["v" "cache" "src"]
-               ["minify-assets"]
-               ["shell" "rm" "-f" "resources/public/js/mango-*.js"]
-               ["shell" "cp" "dev-resources/js/mango.min.js" "resources/public/js/mango-${:version}.min.js"]
-               ["shell" "rm" "-f" "resources/public/css/mango-*.css"]
-               ["shell" "cp" "dev-resources/css/mango.min.css" "resources/public/css/mango-${:version}.min.css"]
                "javac" "compile"]
   :release-tasks [["vcs" "assert-committed"]
                   ["v" "update"]]
