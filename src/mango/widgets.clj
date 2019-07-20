@@ -21,10 +21,10 @@
    (include-css "/css/styles/github-gist.css")
    (include-css config/app-css)
    (include-js "/js/lib/highlight.pack.js")
+   (include-js "/js/analytics.js")
+   (include-js (str "https://www.googletagmanager.com/gtag/js?id=" config/google-analytics-id))
    (include-js config/app-js)
-   (include-js "https://www.googletagmanager.com/gtag/js?id=UA-43198629-1")
-   (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
-   (javascript-tag (<< "var mango = (function() { return { googleAnalyticsId: \"~{config/google-analytics-id}\" }})();"))))
+   (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")))
 
 (defn footer
   "Render the footer"

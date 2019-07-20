@@ -18,5 +18,5 @@
  :aws-region "us-west-1"
  :app-css "/css/mango.css"
  :app-js "/js/dev-main.js"
- :ads-enabled true
+ :ads-enabled false
  :google-analytics-id ""}

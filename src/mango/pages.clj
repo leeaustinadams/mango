@@ -40,7 +40,7 @@
                                :og-type "article"})]
            [:body
             [:div.mango
-             (when show-ad (ads/google))
+             (when (and config/ads-enabled show-ad) (ads/google))
              (when show-toolbar (toolbar show-toolbar))
              (when header header)
              (when show-social (socialbar show-social))
