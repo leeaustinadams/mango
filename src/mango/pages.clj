@@ -41,11 +41,7 @@
             [:div.mango
              (when show-toolbar (toolbar show-toolbar))
              (when header header)
-             (when show-social
-               [:div.article-socialline
-                (when (or title description)
-                  (tweet-button url (str title (when (and title description)" - ") description)))
-                (follow-button twitter-handle)])
+             (when show-social (socialbar show-social))
              content]
             (when show-footer (footer))])))
 
@@ -66,11 +62,11 @@
                  [:div.article-content
                 (list rendered-content [:div.clearfix])]
                :show-toolbar {:user user :redir url :article article}
-               :show-social true))
+               :show-social {:title title :description description :url url :twitter-handle author-twitter-handle}))
 
 (defn page
   "Render a page"
-  [user {:keys [title rendered-content] :as page} url]
+  [{:keys [author-twitter-handle] :as user} {:keys [title rendered-content] :as page} url]
   (render-page user
                title
                nil
@@ -79,7 +75,7 @@
                nil
                (list rendered-content [:div.clearfix])
                :show-toolbar {:user user :redir url :page page}
-               :show-social true))
+               :show-social {:title title :url url :twitter-handle author-twitter-handle}))
 
 (defn edit-page
   "Render the editing in page"

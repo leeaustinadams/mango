@@ -48,10 +48,6 @@ html, body {
     margin: 12px 0 12px 0;
 }
 
-.article-socialline {
-    margin: 12px 0 12px 0;
-}
-
 .twitter-follow-button, .twitter-share-button {
     margin: 0 8px 0 0;
 }
@@ -418,4 +414,23 @@ textarea {
 .toolbar ul > li {
     display: inline-block;
     margin: 0 8px 8px 0;
+}
+
+.socialbar {
+    margin: 8px 0 0 0;
+    padding: 2px 0 2px 0;
+    background: yellow;
+}
+
+.socialbar ul {
+    margin: 0 0 0 0;
+    display: inline-block;
+    list-style: none;
+    -webkit-padding-start: 0;
+    -moz-padding-start: 0;
+}
+
+.socialbar ul > li {
+    display: inline-block;
+    margin: 0 0 0 0;
 }
