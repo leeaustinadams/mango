@@ -103,6 +103,13 @@
         (conj items (tweet-button url (str title (when (and title description)" - ") description)))
         items))))
 
+
+(defn- pocket-button
+  []
+  [:a {:class "pocket-btn"
+       :data-pocket-label "pocket"
+       :data-pocket-count="horizontal"}])
+
 (defn- wrap-twitter-follow
   [socialbar]
   (fn [{:keys [twitter-handle] :as options}]
@@ -111,9 +118,17 @@
         (conj items (follow-button twitter-handle))
         items))))
 
+(defn wrap-pocket-share
+  [socialbar]
+  (fn [options]
+    (let [items (socialbar options)]
+      (conj items (pocket-button)))))
+
 (def site-social (-> (fn [options] [])
                      wrap-twitter-tweet
-                     wrap-twitter-follow))
+                     wrap-twitter-follow
+                     wrap-pocket-share))
+
 (defn socialbar
   [options]
   [:div.socialbar

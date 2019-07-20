@@ -11,24 +11,33 @@
 /_/  /_/\\__,_/_/ /_/\\__, /\\____/
                    /____/  v1.0")
 
-;; Initialize Twitter Widgets
-(let [fjs (first (array-seq (.getElementsByTagName js/document "script")))
-      t (or (.-twttr js/window) (js-obj))]
-  (if-not (.getElementById js/document "twitter-wjs")
-    (let [s (.createElement js/document "script")]
-      (set! (.-id s) "twitter-wjs")
-      (set! (.-src s) "https://platform.twitter.com/widgets.js")
-      (.insertBefore (.-parentNode fjs) s fjs)
-      (set! (.-_e t) #js [])
-      (set! (.-ready (fn [f] (.push (.-_e t) f))))
-    t)))
+(defn bind-twitter
+  [id src]
+  (let [fjs (first (array-seq (.getElementsByTagName js/document "script")))
+        t (or (.-twttr js/window) (js-obj))]
+    (if-not (.getElementById js/document id)
+      (let [s (.createElement js/document "script")]
+        (set! (.-id s) id)
+        (set! (.-src s) src)
+        (.insertBefore (.-parentNode fjs) s fjs)
+        (set! (.-_e t) #js [])
+        (set! (.-ready (fn [f] (.push (.-_e t) f))))
+        t))))
+
+(defn bind-pocket
+  [id src]
+  (let [existing (.getElementById js/document id)]
+    (when (nil? existing)
+      (let [s (.createElement js/document "script")]
+        (set! (.-id s) id)
+        (set! (.-src s) src)
+        (.appendChild (.-body js/document) s)))))
 
 ;; Highlight code blocks
 (.initHighlightingOnLoad js/hljs)
 
 (defn bind-upload-form
   [upload-form]
-  (println "Binding upload form")
   (let [file-select (.getElementById js/document "file-select")
         upload-status (.getElementById js/document "upload-status")
         anti-forgery (.getElementById js/document "anti-forgery-token")
@@ -53,22 +62,27 @@
   [upload-form]
   (set! (.-onsubmit upload-form) nil))
 
+;; Has to occur before the DOMContentLoaded
+(bind-twitter "twitter-wjs" "https://platform.twitter.com/widgets.js")
+
+;; Has to happen after DOMContentLoaded
 (defn bind
   []
   (when-let [upload-form (.getElementById js/document "upload-form")]
-    (bind-upload-form upload-form)))
+    (bind-upload-form upload-form))
+  (bind-pocket "pocket-btn-js" "https://widgets.getpocket.com/v1/j/btn.js?v=1"))
 
 (defn unbind
   []
   (when-let [upload-form (.getElementById js/document "upload-form")]
     (unbind-upload-form upload-form)))
 
+;; Initialize
 (.addEventListener js/window "DOMContentLoaded" bind)
 
+;; For reloading
 (defn ^:after-load setup []
-  (println "setup")
   (bind))
 
 (defn ^:before-load teardown []
-  (println "teardown")
   (unbind))
