@@ -80,23 +80,6 @@
   [:div.toolbar
    (unordered-list (filter (comp not nil?) (site-toolbar options)))])
 
-(defn divided-list
-  "Render a divided list"
-  [items item-fn divider & [class]]
-  (unordered-list (when class {:class class})
-                  (let [divider [:span.divider divider]]
-                    (partition-all 2 (interpose divider (map item-fn items))))))
-
-(defn link-to-tag
-  "Render a link to articles with a tag"
-  [tag]
-  (link-to (str "/blog/tagged/" (url-encode tag)) tag))
-
-(defn tags-list
-  "Render tags"
-  [tags]
-  (divided-list tags link-to-tag "-" "tags"))
-
 (defn tweet-button
   "Render a Tweet button that will prepopulate with text"
   [url text]
@@ -114,6 +97,62 @@
               :data-show-count "true"}
              (str "https://twitter.com/" handle)
              (str "Follow @" handle))))
+
+(defn- wrap-twitter-tweet
+  [socialbar]
+  (fn [{:keys [title description url twitter-handle] :as options}]
+    (let [items (socialbar options)]
+      (if (or title description)
+        (conj items (tweet-button url (str title (when (and title description)" - ") description)))
+        items))))
+
+
+(defn- pocket-button
+  []
+  [:a {:class "pocket-btn"
+       :data-pocket-label "pocket"
+       :data-pocket-count="horizontal"}])
+
+(defn- wrap-twitter-follow
+  [socialbar]
+  (fn [{:keys [twitter-handle] :as options}]
+    (let [items (socialbar options)]
+      (if twitter-handle
+        (conj items (follow-button twitter-handle))
+        items))))
+
+(defn wrap-pocket-share
+  [socialbar]
+  (fn [options]
+    (let [items (socialbar options)]
+      (conj items (pocket-button)))))
+
+(def site-social (-> (fn [options] [])
+                     wrap-twitter-tweet
+                     wrap-twitter-follow
+                     wrap-pocket-share))
+
+(defn socialbar
+  [options]
+  [:div.socialbar
+   (unordered-list (filter (comp not nil?) (site-social options)))])
+
+(defn divided-list
+  "Render a divided list"
+  [items item-fn divider & [class]]
+  (unordered-list (when class {:class class})
+                  (let [divider [:span.divider divider]]
+                    (partition-all 2 (interpose divider (map item-fn items))))))
+
+(defn link-to-tag
+  "Render a link to articles with a tag"
+  [tag]
+  (link-to (str "/blog/tagged/" (url-encode tag)) tag))
+
+(defn tags-list
+  "Render tags"
+  [tags]
+  (divided-list tags link-to-tag "-" "tags"))
 
 (defn article-list-item
   "Render an article list item"

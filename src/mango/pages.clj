@@ -27,7 +27,7 @@
 (defn- render-page
   "Renders a page"
   [user title description url header image-url content & {:keys [show-toolbar show-footer show-ad show-social]
-                                                          :or { show-toolbar {:user user :redir url} show-footer true show-ad true show-social true }}]
+                                                          :or { show-toolbar {:user user :redir url} show-footer true show-ad true show-social false }}]
   (let [description (or description config/site-description)
         twitter-handle config/twitter-site-handle]
     (html5 [:head (head title)
@@ -43,35 +43,32 @@
              (when show-ad (ads/google))
              (when show-toolbar (toolbar show-toolbar))
              (when header header)
-             (when show-social
-               [:div.article-socialline
-                (when (or title description)
-                  (tweet-button url (str title (when (and title description)" - ") description)))
-                (follow-button twitter-handle)])
+             (when show-social (socialbar show-social))
              content]
             (when show-footer (footer))])))
 
 (defn article
   "Render an article. Expects media to have been hydrated"
   [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
-  (render-page user
-               title
-               description
-               url
-               [:div.article-header
-                [:h1.article-title title]
-                [:h2.article-description description]
-                [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
-                [:div.article-infoline "On: " (xform-time-to-string created)]
-                [:div.article-tagsline "Tagged: " (tags-list tags)]]
+    (render-page user
+                 title
+                 description
+                 url
+                 [:div.article-header
+                  [:h1.article-title title]
+                  [:h2.article-description description]
+                  [:div.article-byline "Posted By: " author-name " (" author-user-name ")"]
+                  [:div.article-infoline "On: " (xform-time-to-string created)]
+                  [:div.article-tagsline "Tagged: " (tags-list tags)]]
                (str-or-nil (get (first media) :src))
-               [:div.article-content
+                 [:div.article-content
                 (list rendered-content [:div.clearfix])]
-               :show-toolbar {:user user :redir url :article article}))
+               :show-toolbar {:user user :redir url :article article}
+               :show-social {:title title :description description :url url :twitter-handle author-twitter-handle}))
 
 (defn page
   "Render a page"
-  [user {:keys [title rendered-content] :as page} url]
+  [{:keys [author-twitter-handle] :as user} {:keys [title rendered-content] :as page} url]
   (render-page user
                title
                nil
@@ -79,7 +76,8 @@
                nil
                nil
                (list rendered-content [:div.clearfix])
-               :show-toolbar {:user user :redir url :page page}))
+               :show-toolbar {:user user :redir url :page page}
+               :show-social {:title title :url url :twitter-handle author-twitter-handle}))
 
 (defn edit-page
   "Render the editing in page"
@@ -113,8 +111,7 @@
                      (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
                    (when (not (= status "root"))
                      (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft")))
-                   (submit-row "Submit")]))
-               :show-social false))
+                   (submit-row "Submit")]))))
 
 (defn pages-list
   "Render a list of pages"
@@ -208,7 +205,6 @@
                  (field-row required-password-field "password" "Password")
                  (submit-row "Sign In")
                  (when message [:p message])])
-               :show-social false
                :show-toolbar false))
 
 (defn sign-out
@@ -226,7 +222,6 @@
                  (hidden-field "__anti-forgery-token" anti-forgery-token)
                  (submit-row "Sign Out")
                  (when message [:p message])])
-               :show-social false
                :show-toolbar false))
 
 (defn new-user
@@ -250,7 +245,6 @@
                 (field-row dropdown-field "role" "Role" (list ["Editor" "editor"] ["Administrator" "admin"] ["User" "user"]) "user")
                 (submit-row "Submit")
                 (when message [:p.error message])]
-               :show-social false
                :show-toolbar false))
 
 (defn change-password
@@ -276,7 +270,6 @@
                    (field-row required-new-password-field "new-password2" "Confirm New Password")
                    (submit-row "Submit")
                    (when message [:p.error message])]))
-               :show-social false
                :show-toolbar false))
 
 (defn user-details
@@ -288,8 +281,7 @@
                url
                nil
                nil
-               (user-item user auth-user)
-               :show-social false))
+               (user-item user auth-user)))
 
 (defn admin-users
   "Render user administration page."
@@ -300,8 +292,7 @@
                url
                nil
                nil
-               (interpose [:hr] (map #(user-item % auth-user) users))
-               :show-social false))
+               (interpose [:hr] (map #(user-item % auth-user) users))))
 
 (defn edit-article
   "Render the editing in page"
@@ -337,8 +328,7 @@
                      (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
                    (field-row date-field "created" "Date" (xform-time-to-string (or created (clj-time.core/now))))
                    (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
-                   (submit-row "Submit")]))
-               :show-social false))
+                   (submit-row "Submit")]))))
 
 (defn upload-media
   "Render the media upload page"
@@ -357,7 +347,6 @@
                  (file-select-row "Choose Files..." {:id "file-select" :name "files" :multiple true})
                  [:p {:id "upload-status"}]
                  (submit-row "Upload" {:id "file-upload"})])
-               :show-social false
                :show-toolbar false))
 
 (defn media-list
@@ -377,8 +366,7 @@
                   [:h1 "Media"]
                   (prev-next-media media prev-page next-page per-page)
                   (map media-list-item media)
-                  (prev-next-media media prev-page next-page per-page))
-                 :show-social false)))
+                  (prev-next-media media prev-page next-page per-page)))))
 
 (defn error
   "Render an error page"
@@ -391,8 +379,7 @@
                nil
                (list
                 [:h1.error headline]
-                [:p.error body])
-               :show-social false))
+                [:p.error body])))
 
 (defn not-found
   "Render a page for when a URI is not found"

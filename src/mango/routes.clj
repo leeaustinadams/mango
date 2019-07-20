@@ -335,12 +335,15 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-  (info (select-keys request [:remote-addr :request-method :request-url]) (select-keys (:user request) [:username :roles]) (dissoc (:params request) :password))
+  (info "Request: " (select-keys request [:remote-addr :request-method :request-url]) (dissoc (:params request) :password)
+        (when-let [user (:user request)]
+          (str "\nUser: " (select-keys user [:username :roles])))
+        "\nHeaders: " (select-keys (:headers request) ["host" "user-agent" "x-real-ip"]))
   request)
 
 (defn log-response
   [response & [options]]
-  (info (select-keys response [:headers]))
+  (info "Response: " (dissoc response :headers :body) "\nHeaders: " (select-keys response [:headers]))
   response)
 
 (defn wrap-logger
