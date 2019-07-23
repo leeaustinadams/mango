@@ -12,14 +12,15 @@
   "Make a slug from a title with an optional limit on the number of words"
   [title & {:keys [limit]}]
   (let [clean (str/join (filter #(re-matches #"[a-zA-Z0-9\s]" (str %)) title))
-        tokens (map #(str/lower-case %) (str/split clean #"\s"))
+        tokens (map str/lower-case (str/split clean #"\s"))
         filtered (filter #(not (empty? %)) tokens)]
     (str/join "-" (take (or limit (count filtered)) filtered))))
 
 (defn xform-ids
   "Transforms a comma seperated string of ids to a collection of ObjectIds"
   [ids]
-  (when (not (empty? ids)) (map #(ObjectId. %) (map str/trim (str/split ids #",")))))
+  (when-not (empty? ids)
+    (map (comp #(ObjectId. %) str/trim) (str/split ids #","))))
 
 (defn xform-string-to-time
   "Transforms a timestring into a time object"
@@ -36,8 +37,8 @@
 (defn xform-tags
   "Make a vector of tags from a comma separated list"
   [tags]
-  (when (not (empty? tags))
-    (mapv #(str/trim %) (str/split tags #","))))
+  (when-not (empty? tags)
+    (mapv (comp str/lower-case str/trim) (str/split tags #","))))
 
 (defn url-encode
   "URL encodes a string"
@@ -51,4 +52,4 @@
 
 (defn str-or-nil
   [s]
-  (when (not (clojure.string/blank? s)) s))
+  (when-not (clojure.string/blank? s) s))
