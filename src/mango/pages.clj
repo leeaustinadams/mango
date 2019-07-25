@@ -25,8 +25,16 @@
 
 (defn- render-page
   "Renders a page"
-  [user title description url header image-url content & {:keys [show-toolbar show-footer show-social]
-                                                          :or { show-toolbar {:user user :redir url} show-footer true show-social false }}]
+  [user title description url header image-url content & {:keys [show-toolbar
+                                                                 show-footer
+                                                                 show-social
+                                                                 on-load
+                                                                 on-unload]
+                                                          :or { show-toolbar {:user user :redir url}
+                                                               show-footer true
+                                                               show-social false
+                                                               on-load ""
+                                                               on-unload ""}}]
   (let [description (or description config/site-description)
         twitter-handle config/twitter-site-handle]
     (html5 [:head (head title)
@@ -37,7 +45,7 @@
                                :twitter-handle twitter-handle
                                :twitter-card "summary"
                                :og-type "article"})]
-           [:body
+           [:body {:onload on-load :onunload on-unload}
             [:div.mango
              (when show-toolbar (toolbar show-toolbar))
              (when header header)
@@ -62,7 +70,9 @@
                  [:div.article-content
                 (list rendered-content [:div.clearfix])]
                :show-toolbar {:user user :redir url :article article}
-               :show-social {:title title :description description :url url :twitter-handle author-twitter-handle}))
+               :show-social {:title title :description description :url url :twitter-handle author-twitter-handle}
+               :on-load "mango.article.on_load()"
+               :on-unload "mango.article.on_unload()"))
 
 (defn page
   "Render a page"
@@ -266,8 +276,8 @@
                nil
                nil
                (let [action (or _id "post")]
-                 (list
-                  [:form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
+                 [:div.content-form
+                  [:form.edit-form {:name "articleForm" :action (str "/blog/articles/" action) :method "POST" :enctype "multipart/form-data"}
                    (hidden-field "__anti-forgery-token" anti-forgery-token)
                    (when _id (hidden-field "_id" _id))
                    (field-row required-text-field "title" "Title" title)
@@ -282,6 +292,8 @@
                                                   :ondragover "mango.media.allowMediaDrop(event)"
                                                   :ondrop "mango.media.mediaDrop(event)"})
                               "content" "Content" content)
+                   [:div.article-content.content-preview.hidden {:id "preview"}]
+                   [:button {:id "preview-button"} "preview"]
                    (field-row thumb-bar "thumbs" "Media"  media)
                    [:div.field-row
                     [:div.col-25
@@ -290,7 +302,9 @@
                      (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
                    (field-row date-field "created" "Date" (xform-time-to-string (or created (clj-time.core/now))))
                    (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
-                   (submit-row "Submit")]))))
+                   (submit-row "Submit")]])
+               :on-load "mango.edit_article.on_load()"
+               :on-unload "mango.edit_article.on_unload()"))
 
 (defn upload-media
   "Render the media upload page"

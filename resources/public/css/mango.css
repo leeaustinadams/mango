@@ -443,3 +443,27 @@ textarea {
     display: inline-block;
     margin: 0 0 0 0;
 }
+
+.content-form {
+    position: relative;
+}
+
+.edit-form {
+    position: relative;
+}
+
+.content-preview {
+    background-color: #fffe;
+    background-blend-mode: lighten;
+    border: 1px solid #999;
+    border-radius: 4px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    padding: 8px;
+}
+
+.hidden {
+    display: none;
+}

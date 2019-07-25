@@ -1,7 +1,9 @@
 (ns ^:figwheel-hooks  mango.core
   (:require [mango.media]
             [mango.xhr]
-            [mango.dom :as dom]))
+            [mango.dom :as dom]
+            [mango.article]
+            [mango.edit-article]))
 
 (enable-console-print!)
 ;(set! *warn-on-infer* true)
