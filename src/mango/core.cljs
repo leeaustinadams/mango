@@ -1,5 +1,7 @@
 (ns ^:figwheel-hooks  mango.core
-  (:require [mango.media] [mango.xhr]))
+  (:require [mango.media]
+            [mango.xhr]
+            [mango.dom :as dom]))
 
 (enable-console-print!)
 ;(set! *warn-on-infer* true)
@@ -15,7 +17,7 @@
   [id src]
   (let [fjs (first (array-seq (.getElementsByTagName js/document "script")))
         t (or (.-twttr js/window) (js-obj))]
-    (if-not (.getElementById js/document id)
+    (if-not (dom/element-by-id id)
       (let [s (.createElement js/document "script")]
         (set! (.-id s) id)
         (set! (.-src s) src)
@@ -26,7 +28,7 @@
 
 (defn bind-pocket
   [id src]
-  (let [existing (.getElementById js/document id)]
+  (let [existing (dom/element-by-id id)]
     (when (nil? existing)
       (let [s (.createElement js/document "script")]
         (set! (.-id s) id)
@@ -38,11 +40,11 @@
 
 (defn bind-upload-form
   [upload-form]
-  (let [file-select (.getElementById js/document "file-select")
-        upload-status (.getElementById js/document "upload-status")
-        anti-forgery (.getElementById js/document "anti-forgery-token")
-        article-id (.getElementById js/document "article-id")
-        file-upload (.getElementById js/document "file-upload")]
+  (let [file-select (dom/element-by-id "file-select")
+        upload-status (dom/element-by-id "upload-status")
+        anti-forgery (dom/element-by-id "anti-forgery-token")
+        article-id (dom/element-by-id "article-id")
+        file-upload (dom/element-by-id "file-upload")]
     (set! (.-onsubmit upload-form) (fn [event]
                                      (.preventDefault event)
                                      (set! (.-value file-upload) "Uploading...")
@@ -68,13 +70,13 @@
 ;; Has to happen after DOMContentLoaded
 (defn bind
   []
-  (when-let [upload-form (.getElementById js/document "upload-form")]
+  (when-let [upload-form (dom/element-by-id "upload-form")]
     (bind-upload-form upload-form))
   (bind-pocket "pocket-btn-js" "https://widgets.getpocket.com/v1/j/btn.js?v=1"))
 
 (defn unbind
   []
-  (when-let [upload-form (.getElementById js/document "upload-form")]
+  (when-let [upload-form (dom/element-by-id "upload-form")]
     (unbind-upload-form upload-form)))
 
 ;; Initialize

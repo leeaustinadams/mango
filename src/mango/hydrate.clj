@@ -34,7 +34,7 @@
 (defn content
   "Hydrates the content for an item."
   [{content :content :as item}]
-  (if (not (nil? content))
+  (if-not (nil? content)
     (assoc item :rendered-content (md/md-to-html-string content :footnotes? true :inhibit-separator "|"))
     item))
 
