@@ -403,6 +403,11 @@ textarea {
 }
 
 .toolbar {
+    position: sticky;
+    top: 0;
+    background-color: #fffe;
+    z-index: 1;
+    background-blend-mode: lighten;
     margin: 8px 0 12px 0;
     padding: 2px 0 2px 0;
     border-bottom: solid 1px #999;
