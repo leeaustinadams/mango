@@ -3,6 +3,7 @@
             [mango.xhr]
             [mango.dom :as dom]
             [mango.article]
+            [mango.page]
             [mango.edit]))
 
 (enable-console-print!)

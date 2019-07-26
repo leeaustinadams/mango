@@ -1,4 +1,4 @@
-(ns ^:figwheel-hooks mango.edit
+(ns mango.edit
   (:require [mango.dom :as dom]
             [mango.bind :as bind]))
 
