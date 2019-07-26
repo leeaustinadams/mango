@@ -1,12 +1,13 @@
 (ns mango.article
   (:require [mango.dom :as dom]
             [mango.bind :as bind]
+            [mango.location :as location]
             [clojure.string :as str]))
 
 (defn edit-article
   []
-  (let [path (.-pathname js/location)]
-    (.assign js/location (str/replace path "/blog" "/blog/edit"))))
+  (let [path (location/path)]
+    (location/browse-to (str/replace-first path "/blog" "/blog/edit"))))
 
 (def keymap { "e" edit-article})
 

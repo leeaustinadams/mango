@@ -4,7 +4,8 @@
             [mango.dom :as dom]
             [mango.article]
             [mango.page]
-            [mango.edit]))
+            [mango.edit]
+            [mango.location]))
 
 (enable-console-print!)
 ;(set! *warn-on-infer* true)

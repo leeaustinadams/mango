@@ -1,12 +1,13 @@
 (ns mango.page
   (:require [mango.dom :as dom]
             [mango.bind :as bind]
+            [mango.location :as location]
             [clojure.string :as str]))
 
 (defn edit-page
   []
-  (let [path (.-pathname js/location)]
-    (.assign js/location (str/replace path "/pages" "/pages/edit"))))
+  (let [path (location/path)]
+    (location/browse-to (str/replace-first path "/pages" "/pages/edit"))))
 
 (def keymap { "e" edit-page})
 
