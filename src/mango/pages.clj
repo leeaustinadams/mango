@@ -89,7 +89,9 @@
                nil
                (list rendered-content [:div.clearfix])
                :show-toolbar {:user user :redir url :page page}
-               :show-social {:title title :url url :twitter-handle author-twitter-handle}))
+               :show-social {:title title :url url :twitter-handle author-twitter-handle}
+               :on-load "mango.page.on_load()"
+               :on-unload "mango.page.on_unload()"))
 
 (defn edit-page
   "Render the editing in page"
@@ -101,8 +103,8 @@
                nil
                nil
                (let [action (or _id "post")]
-                 (list
-                  [:form {:name "pageForm" :action (str "/pages/" action) :method "POST" :enctype "multipart/form-data"}
+                 [:div.content-form
+                  [:form.edit-form {:name "pageForm" :action (str "/pages/" action) :method "POST" :enctype "multipart/form-data"}
                    (hidden-field "__anti-forgery-token" anti-forgery-token)
                    (when _id (hidden-field "_id" _id))
                    (field-row required-text-field "title" "Title" title)
@@ -115,6 +117,8 @@
                                                   :ondragover "mango.media.allowMediaDrop(event)"
                                                   :ondrop "mango.media.mediaDrop(event)"})
                               "content" "Content" content)
+                   [:div.article-content.content-preview.hidden {:id "preview"}]
+                   [:button {:id "preview-button"} "preview"]
                    (field-row thumb-bar "thumbs" "Media"  media)
                    [:div.field-row
                     [:div.col-25
@@ -123,7 +127,9 @@
                      (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
                    (when (not (= status "root"))
                      (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft")))
-                   (submit-row "Submit")]))))
+                   (submit-row "Submit")]])
+               :on-load "mango.edit.on_load()"
+               :on-unload "mango.edit.on_unload()"))
 
 (defn pages-list
   "Render a list of pages"
@@ -343,8 +349,8 @@
                    (field-row date-field "created" "Date" (xform-time-to-string (or created (clj-time.core/now))))
                    (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft"))
                    (submit-row "Submit")]])
-               :on-load "mango.edit_article.on_load()"
-               :on-unload "mango.edit_article.on_unload()"))
+               :on-load "mango.edit.on_load()"
+               :on-unload "mango.edit.on_unload()"))
 
 (defn upload-media
   "Render the media upload page"
