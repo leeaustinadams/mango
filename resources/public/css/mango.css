@@ -374,34 +374,6 @@ textarea {
     clear: both;
 }
 
-/* Responsive layout - when the screen is less than 600px wide */
-@media (max-width: 600px) {
-    .mango {
-        max-width: 100%;
-        margin: 4px;
-    }
-
-    /* make the columns stack on top of each other instead of next to each other */
-    .col-25, .col-50, .col-75, .col-80, .col-90, .col-95, input[type=submit], input[type=button], input[type=reset], input[type=date], select {
-        width: 100%;
-    }
-
-    .row {
-    }
-
-    li {
-        margin-top: 4px;
-    }
-
-    .pocket-btn {
-        margin-left: -3px;
-    }
-
-    .article-content img {
-        max-width: 50%;
-    }
-}
-
 .toolbar {
     position: sticky;
     top: 0;
@@ -466,4 +438,50 @@ textarea {
 
 .hidden {
     display: none;
+}
+
+.dialog {
+    background-color: #effe;
+    background-blend-mode: lighten;
+    border: 1px solid #999;
+    border-radius: 4px;
+    position: fixed;
+    top: 33%;
+    left: 33%;
+    width: 34%;
+    padding: 8px;
+}
+
+/* Responsive layout - when the screen is less than 600px wide */
+@media (max-width: 600px) {
+    .mango {
+        max-width: 100%;
+        margin: 4px;
+    }
+
+    /* make the columns stack on top of each other instead of next to each other */
+    .col-25, .col-50, .col-75, .col-80, .col-90, .col-95, input[type=submit], input[type=button], input[type=reset], input[type=date], select {
+        width: 100%;
+    }
+
+    .row {
+    }
+
+    li {
+        margin-top: 4px;
+    }
+
+    .pocket-btn {
+        margin-left: -3px;
+    }
+
+    .article-content img {
+        max-width: 50%;
+    }
+
+    .dialog {
+        top: 25%;
+        left: 10%;
+        width: 80%;
+    }
 }

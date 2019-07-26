@@ -9,7 +9,7 @@
   (let [path (location/path)]
     (location/browse-to (str/replace-first path "/pages" "/pages/edit"))))
 
-(def keymap { "e" edit-page})
+(def keymap { "e" {:handler edit-page :desc "Edit this page"}})
 
 (defn ^:export on-load
   []

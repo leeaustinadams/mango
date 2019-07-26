@@ -11,7 +11,7 @@
     (set! (.-innerHTML preview) (dom/markdown value))
     (dom/toggle-class preview "hidden")))
 
-(def keymap {"p" toggle-preview})
+(def keymap {"p" {:handler toggle-preview :desc "Toggle preview"}})
 
 (defn ^:export on-load
   []
