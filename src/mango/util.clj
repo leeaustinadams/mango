@@ -19,7 +19,8 @@
 (defn xform-ids
   "Transforms a comma seperated string of ids to a collection of ObjectIds"
   [ids]
-  (when (not (empty? ids)) (map #(ObjectId. %) (map str/trim (str/split ids #",")))))
+  (when-not (empty? ids)
+    (map (comp #(ObjectId. %) str/trim) (str/split ids #","))))
 
 (defn xform-string-to-time
   "Transforms a timestring into a time object"
@@ -36,8 +37,8 @@
 (defn xform-tags
   "Make a vector of tags from a comma separated list"
   [tags]
-  (when (not (empty? tags))
-    (mapv str/trim (str/split tags #","))))
+  (when-not (empty? tags)
+    (mapv (comp str/lower-case str/trim) (str/split tags #","))))
 
 (defn url-encode
   "URL encodes a string"
@@ -51,4 +52,4 @@
 
 (defn str-or-nil
   [s]
-  (when (not (clojure.string/blank? s)) s))
+  (when-not (clojure.string/blank? s) s))
