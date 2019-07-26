@@ -1,4 +1,4 @@
-(ns ^:figwheel-hooks mango.edit-article
+(ns ^:figwheel-hooks mango.edit
   (:require [mango.dom :as dom]
             [mango.bind :as bind]))
 
@@ -11,8 +11,7 @@
     (set! (.-innerHTML preview) (dom/markdown value))
     (dom/toggle-class preview "hidden")))
 
-(def keymap {"p" toggle-preview
-             "?" (fn [] (.log js/console "help"))})
+(def keymap {"p" toggle-preview})
 
 (defn ^:export on-load
   []

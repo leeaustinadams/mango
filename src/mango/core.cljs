@@ -3,7 +3,7 @@
             [mango.xhr]
             [mango.dom :as dom]
             [mango.article]
-            [mango.edit-article]))
+            [mango.edit]))
 
 (enable-console-print!)
 ;(set! *warn-on-infer* true)
