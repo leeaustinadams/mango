@@ -4,7 +4,8 @@
             [mango.article]
             [mango.page]
             [mango.edit]
-            [mango.dom :refer [element-by-id]]))
+            [mango.dom :refer [body js-script element-by-id elements-by-tag]]
+            [oops.core :refer [oget oset!]]))
 
 (enable-console-print!)
 ;(set! *warn-on-infer* true)
@@ -18,25 +19,21 @@
 
 (defn bind-twitter
   [id src]
-  (let [fjs (first (array-seq (.getElementsByTagName js/document "script")))
+  (let [fjs (first (elements-by-tag "script"))
         t (or (.-twttr js/window) (js-obj))]
     (if-not (element-by-id id)
-      (let [s (.createElement js/document "script")]
-        (set! (.-id s) id)
-        (set! (.-src s) src)
-        (.insertBefore (.-parentNode fjs) s fjs)
-        (set! (.-_e t) #js [])
-        (set! (.-ready (fn [f] (.push (.-_e t) f))))
-        t))))
+      (let [s (js-script src {:id id})]
+        (.insertBefore (oget fjs "parentNode") s fjs)
+        (oset! t "!_e" #js [])
+        (oset! t "!ready" (fn [f] (.push (oget t "_e") f))))
+        t)))
 
 (defn bind-pocket
   [id src]
   (let [existing (element-by-id id)]
     (when (nil? existing)
-      (let [s (.createElement js/document "script")]
-        (set! (.-id s) id)
-        (set! (.-src s) src)
-        (.appendChild (.-body js/document) s)))))
+      (let [s (js-script src {:id id})]
+        (.appendChild (body) s)))))
 
 ;; Highlight code blocks
 (.initHighlightingOnLoad js/hljs)
@@ -48,24 +45,26 @@
         anti-forgery (element-by-id "anti-forgery-token")
         article-id (element-by-id "article-id")
         file-upload (element-by-id "file-upload")]
-    (set! (.-onsubmit upload-form) (fn [event]
-                                     (.preventDefault event)
-                                     (set! (.-value file-upload) "Uploading...")
-                                     (set! (.-innerHTML upload-status) "Uploading...")
-                                     (let [form-data (js/FormData.)]
-                                       (.append form-data "__anti-forgery-token" (.-value anti-forgery))
-                                       (.append form-data "article-id" (.-value article-id))
-                                       (doseq [file (array-seq (.-files file-select))]
-                                         (.append form-data "files[]" file (.-name file)))
-                                       (mango.xhr/send (.-method upload-form)
-                                                       (.-action upload-form)
-                                                       form-data
-                                                       (fn [status message] (set! (.-innerHTML upload-status) message) (set! (.-value file-upload) "Upload"))
-                                                       (fn [event] (set! (.-innerHTML upload-status) (.-loaded event)))))))))
+    (oset! upload-form "onsubmit" (fn [event]
+                                    (.preventDefault event)
+                                    (oset! file-upload "value" "Uploading...")
+                                    (oset! upload-status "innerHTML" "Uploading...")
+                                    (let [form-data (js/FormData.)]
+                                      (.append form-data "__anti-forgery-token" (oget anti-forgery "value"))
+                                      (.append form-data "article-id" (oget article-id "value"))
+                                      (doseq [file (array-seq (oget file-select "files"))]
+                                        (.append form-data "files[]" file (oget file "name")))
+                                      (mango.xhr/send (oget upload-form "method")
+                                                      (oget upload-form "action")
+                                                      form-data
+                                                      (fn [status message]
+                                                        (oset! upload-status "innerHTML" message)
+                                                        (oset! file-upload "value" "Upload"))
+                                                      (fn [event] (oset! upload-status "innerHTML" (oget event "loaded")))))))))
 
 (defn unbind-upload-form
   [upload-form]
-  (set! (.-onsubmit upload-form) nil))
+  (oset! upload-form "onsubmit" nil))
 
 ;; Has to occur before the DOMContentLoaded
 (bind-twitter "twitter-wjs" "https://platform.twitter.com/widgets.js")

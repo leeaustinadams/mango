@@ -1,8 +1,9 @@
 (ns mango.widgets
-  (:require [mango.dom :refer [body div add-child]]))
+  (:require [mango.dom :refer [add-child body div]]
+            [oops.core :refer [oset!]]))
 
 (defn dialog
   [content]
   (let [dlg (div {:id "help-dlg" :class "dialog hidden"})]
-    (set! (.-innerHTML dlg) content)
+    (oset! dlg "innerHTML" content)
     (add-child (body) dlg)))

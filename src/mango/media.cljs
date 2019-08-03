@@ -1,4 +1,5 @@
-(ns mango.media)
+(ns mango.media
+  (:require [oops.core :refer [oget oset!]]))
 
 (enable-console-print!)
 (defn ^:export allowMediaDrop
@@ -7,14 +8,17 @@
 
 (defn ^:export mediaDragStart
   [event]
-  (.setData (.-dataTransfer event) "src" (.getAttribute (.-target event) "src")))
+  (let [dataTransfer (oget event "dataTransfer")
+        target (oget event "target")]
+    (.setData dataTransfer "src" (.getAttribute target "src"))))
 
 (defn ^:export mediaDrop
   [event]
   (.preventDefault event)
-  (let [data (str "![](" (.getData (.-dataTransfer event) "src") ")")
-        target (.-target event)
-        value (.-value target)
-        start (.-selectionStart target)
-        end (.-selectionEnd target)]
-    (set! (.-value (.-target event)) (str value "\n" data))))
+  (let [dataTransfer (oget event "dataTransfer")
+        data (str "![](" (.getData dataTransfer "src") ")")
+        target (oget event "target")
+        value (oget target "value")
+        start (oget target "selectionStart")
+        end (oget target "selectionEnd")]
+    (oset! target "value" (str value "\n" data))))

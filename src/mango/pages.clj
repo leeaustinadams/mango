@@ -243,7 +243,7 @@
                    [:div.col-50 "Last Name: " last-name]]
                   [:form {:name "changepassword" :action (str "/users/password") :method "POST" :enctype "multipart/form-data"}
                    (hidden-field "__anti-forgery-token" anti-forgery-token)
-                   (field-row (partial password-field {:autoFocus "" :required ""}) "password" "Current Password")
+                   (field-row (partial password-field {:autocomplete "current-password" :autoFocus "" :required ""}) "password" "Current Password")
                    (field-row required-new-password-field "new-password" "New Password")
                    (field-row required-new-password-field "new-password2" "Confirm New Password")
                    (submit-row "Submit")

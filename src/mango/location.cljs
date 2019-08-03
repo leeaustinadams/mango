@@ -1,8 +1,9 @@
-(ns mango.location)
+(ns mango.location
+  (:require [oops.core :refer [oget]]))
 
 (defn path
   []
-  (.-pathname js/location))
+  (oget js/location "pathname"))
 
 (defn browse-to
   [url]

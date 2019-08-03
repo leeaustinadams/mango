@@ -1,11 +1,12 @@
-(ns mango.xhr)
+(ns mango.xhr
+  (:require [oops.core :refer [oget oset!]]))
 
 (defn send
   [method url data & [onload onprogress]]
   (let [xhr (js/XMLHttpRequest.)]
     (when onload
-      (set! (.-onload xhr) (fn [event] (onload (.-status xhr) (.-responseText xhr)))))
+      (oset! xhr "onload" (fn [event] (onload (oget xhr "status") (oget xhr "responseText")))))
     (when onprogress
-      (set! (.-onprogress xhr) onprogress))
+      (oset! xhr "onprogress" onprogress))
     (.open xhr method url true)
     (.send xhr data)))
