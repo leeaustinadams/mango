@@ -406,4 +406,5 @@
                      [:div.row
                       [:h2.col-100 (link-to "/photography" "Photography")]]
                      [:div.row
-                      [:h2.col-100 (link-to "/about" "About")]])))
+                      [:h2.col-100 (link-to "/about" "About")]])
+               :on-load "mango.widgets.on_load()"))
