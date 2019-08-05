@@ -12,12 +12,16 @@
     (oset! preview "innerHTML" (dom/markdown value))
     (dom/toggle-class preview "hidden")))
 
-(def keymap {"p" {:handler toggle-preview :desc "Toggle preview"}})
-
-(defn ^:export on-load
+(defn bind
   []
-  (bind/keymap (dom/body) keymap)
-  (oset! (dom/element-by-id "preview-button") "onclick" toggle-preview))
+  (oset! (dom/element-by-id "preview-button") "onclick" toggle-preview)
+  (oset! (dom/element-by-id "preview") "onclick" toggle-preview))
 
-(defn ^:export on-unload
-  [])
+(defn unbind
+  []
+  (oset! (dom/element-by-id "preview-button") "onclick" nil)
+  (oset! (dom/element-by-id "preview") "onclick" nil))
+
+(defn ^:export on-load [] (bind))
+
+(defn ^:export on-unload [] (unbind))

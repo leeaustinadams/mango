@@ -1,4 +1,4 @@
-(ns ^:figwheel-hooks  mango.core
+(ns ^:figwheel-hooks mango.core
   (:require [mango.media]
             [mango.xhr]
             [mango.article]
