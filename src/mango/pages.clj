@@ -131,44 +131,31 @@
                :on-load "mango.edit.on_load()"
                :on-unload "mango.edit.on_unload()"))
 
-(defn pages-list
-  "Render a list of pages"
-  [user list-title pages url]
-  (render-page user
-               list-title
-               nil
-               url
-               nil
-               nil
-               (list
-                [:h1 list-title]
-                (map page-list-item pages))))
-
-(defn articles-list
-  "Render a list of articles"
-  [user list-title articles url]
-  (render-page user
-               list-title
-               nil
-               url
-               nil
-               nil
-               (list
-                [:h1 list-title]
-                (map article-list-item articles))))
-
-(defn tags
-  "Render a page with a list of tags and their counts"
-  [user title tag-counts url]
+(defn- standard-page
+  [user title items url]
   (render-page user
                title
                nil
                url
                nil
                nil
-               (list
-                [:h1 title]
-                (divided-list tag-counts tag-and-count "-" "tags"))))
+               (list [:h1 title] items)
+               :on-load "mango.widgets.on_load()"))
+
+(defn pages-list
+  "Render a list of pages"
+  [user list-title pages url]
+  (standard-page user list-title (map page-list-item pages) url))
+
+(defn articles-list
+  "Render a list of articles"
+  [user list-title articles url]
+  (standard-page user list-title (map article-list-item articles) url))
+
+(defn tags
+  "Render a page with a list of tags and their counts"
+  [user title tag-counts url]
+  (standard-page user title (divided-list tag-counts tag-and-count "-" "tags") url))
 
 (defn photography
   "Render the photography page"
@@ -283,7 +270,7 @@
                    [:div.col-50 "Last Name: " last-name]]
                   [:form {:name "changepassword" :action (str "/users/password") :method "POST" :enctype "multipart/form-data"}
                    (hidden-field "__anti-forgery-token" anti-forgery-token)
-                   (field-row (partial password-field {:autoFocus "" :required ""}) "password" "Current Password")
+                   (field-row (partial password-field {:autocomplete "current-password" :autoFocus "" :required ""}) "password" "Current Password")
                    (field-row required-new-password-field "new-password" "New Password")
                    (field-row required-new-password-field "new-password2" "Confirm New Password")
                    (submit-row "Submit")
@@ -293,24 +280,12 @@
 (defn user-details
   "Render the user details page"
   [auth-user {:keys [username] :as user} url]
-  (render-page user
-               username
-               nil
-               url
-               nil
-               nil
-               (user-item user auth-user)))
+  (standard-page auth-user username (user-item user auth-user) url))
 
 (defn admin-users
   "Render user administration page."
   [auth-user users url]
-  (render-page auth-user
-               "Admin - Users"
-               nil
-               url
-               nil
-               nil
-               (interpose [:hr] (map #(user-item % auth-user) users))))
+  (standard-page auth-user "Admin - Users" (interpose [:hr] (map #(user-item % auth-user) users)) url))
 
 (defn edit-article
   "Render the editing in page"

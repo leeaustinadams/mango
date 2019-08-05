@@ -60,6 +60,10 @@ html, body {
     padding-top: 10px;
 }
 
+.article-list-item:hover {
+    background-color: #eee;
+}
+
 .article-list-item img {
     max-width: 100%;
     border-radius: 4px;
@@ -83,6 +87,10 @@ html, body {
 }
 
 .article-list-item-media {
+}
+
+.page-list-item:hover {
+    background-color: #eee;
 }
 
 .media-list-item {
@@ -168,10 +176,6 @@ html, body {
 .article-thumbnail {
     height: 128px;
     padding-right: 12px;
-}
-
-.article-list-item {
-    padding:8px;
 }
 
 .media-thumbnail {

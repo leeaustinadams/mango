@@ -1,7 +1,8 @@
 (ns mango.bind
   (:require [mango.dom :as dom]
             [mango.widgets :refer [dialog]]
-            [clojure.string :refer [join]]))
+            [clojure.string :refer [join]]
+            [oops.core :refer [oget oset!]]))
 
 (enable-console-print!)
 
@@ -22,10 +23,13 @@
 
 (defn keymap
   [element keymap]
-  (set! (.-onkeypress element)
-        (fn [event]
-          (let [k (.-key event)]
-            (if (= "?" k)
-              (show-help keymap)
-              (when-let [handler (:handler (get keymap k))]
-                (handler event)))))))
+  (oset! element
+         "onkeypress"
+         (if-not keymap
+           nil
+           (fn [event]
+             (let [k (oget event "key")]
+               (if (= "?" k)
+                 (show-help keymap)
+                 (when-let [handler (:handler (get keymap k))]
+                   (handler event))))))))

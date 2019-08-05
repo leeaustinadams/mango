@@ -1,42 +1,68 @@
 (ns mango.dom
   (:require [clojure.string :as str]
-            [markdown.core :refer [md->html]]))
+            [markdown.core :refer [md->html]]
+            [oops.core :refer [oget oset! oset!+]]))
+
+(defn document
+  "Returns the document"
+  []
+  js/document)
+
+(defn body
+  "Returns the document body"
+  []
+  (oget (document) "body"))
 
 (defn element-by-id
-  ([id] (element-by-id js/document id))
+  ([id] (element-by-id (document) id))
   ([root id] (.getElementById root id)))
 
 (defn elements-by-tag
-  ([tag] (elements-by-tag js/document tag))
+  ([tag] (elements-by-tag (document) tag))
   ([root tag] (array-seq (.getElementsByTagName root tag))))
 
 (defn elements-by-class
-  ([class] (elements-by-class js/document class))
+  ([class] (elements-by-class (document) class))
   ([root class] (array-seq (.getElementsByClassName root class))))
 
 (defn- common-attributes
+  "Sets common attributes from a map of attributes. Returns the element passed"
   [element {:keys [id class]}]
-  (when id (set! (.-id element) id))
-  (when class (set! (.-className element) class))
+  (when id (oset! element "id" id))
+  (when class (oset! element "className" class))
   element)
+
+(defn script
+  ([type src] (script type nil))
+  ([type src attr]
+   (let [element (.createElement (document) "script")]
+     (oset! element "type" type)
+     (oset! element "src" src)
+     (common-attributes element attr))))
+
+(defn js-script
+  ([src] (js-script src nil))
+  ([src attr]
+   (script "text/javascript" src attr)))
 
 (defn img
   [src & {:keys [alt] :as attr}]
-  (let [element (.createElement js/document "img")]
-    (set! (.-src element) src)
-    (when alt (set! (.-alt element) alt))
+  (let [element (.createElement (document) "img")]
+    (oset! element "src" src)
+    (when alt (oset! element "alt" alt))
     (common-attributes element attr)))
 
 (defn p
-  [innerHTML & attr]
-  (let [element (.createElement js/document "p")]
-    (when innerHTML (set! (.-innerHTML element) innerHTML))
-    (common-attributes element attr)))
+  ([innerHTML] (p innerHTML nil))
+  ([innerHTML attr]
+   (let [element (.createElement (document) "p")]
+     (when innerHTML (oset! element "innerHTML" innerHTML))
+     (common-attributes element attr))))
 
 (defn div
   [{:keys [id] :as attr}]
   (or (element-by-id id)
-      (let [element (.createElement js/document "div")]
+      (let [element (.createElement (document) "div")]
         (common-attributes element attr))))
 
 (defn add-child
@@ -46,20 +72,10 @@
 (defn toggle-class
   "Adds class to the element's class names if not present, otherwise removes it"
   [element class]
-  (let [classes (.-className element)]
+  (let [classes (oget element "className")]
     (if (str/includes? classes class)
-      (set! (.-className element) (str/trim (str/replace classes class "")))
-      (set! (.-className element) (str classes " " class)))))
-
-(defn document
-  "Returned the document"
-  []
-  js/document)
-
-(defn body
-  "Returns the document body"
-  []
-  (.-body (document)))
+      (oset! element "className" (str/trim (str/replace classes class "")))
+      (oset! element "className" (str classes " " class)))))
 
 (defn markdown
   "Renders the markdown content to html"
