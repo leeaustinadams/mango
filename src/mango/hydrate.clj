@@ -35,7 +35,7 @@
   "Hydrates the content for an item."
   [{content :content :as item}]
   (if-not (nil? content)
-    (assoc item :rendered-content (md/md-to-html-string content :footnotes? true :inhibit-separator "|"))
+    (assoc item :rendered-content (md/md-to-html-string content :footnotes? true))
     item))
 
 (defn article
