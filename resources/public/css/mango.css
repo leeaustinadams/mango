@@ -24,6 +24,17 @@ a {
     color: var(--secondary);
 }
 
+img {
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    max-width: 100%;
+}
+
+em {
+    font-style: normal;
+    text-decoration: underline solid var(--tertiary);
+}
+
 .clearfix::after {
     content: "";
     clear: both;
@@ -67,8 +78,6 @@ a {
     max-width: 25%;
     padding: 0;
     margin: 4px;
-    border: 1px solid var(--quaternary);
-    border-radius: 4px;
     float: right;
 }
 
@@ -93,11 +102,6 @@ a {
     color: inherit;
 }
 
-.article-list-item img {
-    max-width: 100%;
-    border-radius: 4px;
-}
-
 .article-list-item-description {
     margin: 4px 0 0 0;
     color: inherit;
@@ -109,6 +113,13 @@ a {
 }
 
 .article-list-item-media {
+}
+
+.page-content img {
+    max-width: 25%;
+    padding: 0;
+    margin: 4px;
+    float: right;
 }
 
 .page-list-item:hover {
@@ -211,10 +222,9 @@ div.imagebar {
 div.imagebar img {
     height: 240px;
     width: auto;
-    border: 1px solid var(--quaternary);
-    border-radius: 4px;
+    max-width: 100%;
+    object-fit: cover;
     margin: 2px;
-    max-width: unset;
     float: unset;
 }
 
@@ -233,11 +243,10 @@ pre {
     padding: 0.5em;
     border: 1px solid var(--quaternary);
     border-radius: 4px;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 blockquote {
-    display: inline;
     background: var(--background);
     border-left: 10px solid var(--secondary);
     border-radius: 4px;
@@ -259,9 +268,24 @@ blockquote p {
     display: inline;
 }
 
+blockquote footer {
+    font-style: italic;
+}
+
 label {
     margin: 4px 0 2px 0;
     font-size: x-large;
+}
+
+button {
+    padding: 8px 16px;
+    margin: 8px;
+    font-size: x-large;
+    cursor: pointer;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    color: var(--text);
+    background-color: var(--background);
 }
 
 input {
@@ -425,6 +449,8 @@ textarea {
     left: 0px;
     width: 100%;
     padding: 8px;
+    resize: both;
+    overflow: auto;
 }
 
 .hidden {
@@ -470,6 +496,10 @@ textarea {
         max-width: 50%;
     }
 
+    .page-content img {
+        max-width: 50%;
+    }
+
     .dialog {
         top: 25%;
         left: 10%;
@@ -481,11 +511,14 @@ textarea {
     border-spacing: 0;
     border: 1px solid var(--quaternary);
     border-radius: 4px;
+    background-color: white;
+    border-collapse: collapse;
 }
 
 .article-content td, .article-content th {
     padding: 4px;
     border-spacing: 0;
+    border: 1px solid var(--quaternary);
 }
 
 .article-content tr:nth-child(even){
@@ -493,13 +526,39 @@ textarea {
 }
 
 .article-content tr:hover {
+    background-color: var(--tertiary);
+    color: white;
+}
+
+.article-content th {
+    text-align: left;
+    background-color: var(--tertiary);
+    color: white;
+}
+
+.page-content table {
+    border-spacing: 0;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    background-color: white;
+    border-collapse: collapse;
+}
+
+.page-content td, .page-content th {
+    padding: 4px;
+    border-spacing: 0;
+}
+
+.page-content tr:nth-child(even){
+    background-color: var(--background);
+}
+
+.page-content tr:hover {
     background-color: var(--background);
     color: var(--text);
 }
 
-.article-content th {
-    /* padding-top: 12px; */
-    /* padding-bottom: 12px; */
+.page-content th {
     text-align: left;
     background-color: var(--tertiary);
     color: white;
