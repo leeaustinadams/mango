@@ -3,7 +3,6 @@
   (:require [mango.auth :as auth]
             [mango.config :as config]
             [mango.util :refer [xform-time-to-string xform-string-to-time url-encode]]
-            [clojure.core.strint :refer [<<]]
             [stencil.core :as stencil]
             [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.element :refer :all]
