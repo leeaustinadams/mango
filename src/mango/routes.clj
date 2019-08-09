@@ -127,19 +127,21 @@
 
 (defn post-media
   "Route handler for uploading media"
-  [data-provider {user-id :_id} {:keys [files article-id]}]
+  [data-provider {user-id :_id} {:keys [files article-id page-id]}]
     (try
-      (if (and (not (str/blank? article-id)) (> (count files) 0))
-        (do
-          (debugf "Article id %s" article-id)
+      (if-let [id (and (> (count files) 0) (or article-id page-id))]
+        (let [update (cond
+                       (not (str/blank? article-id)) dp/update-blog-article-media
+                       (not (str/blank? page-id)) dp/update-page-media)]
+          (debugf "id %s" id)
           (doseq [file (flatten files)]
             (let [result (upload-file file)]
               (when (nil? @result)
                 (let [media (dp/insert-blog-media data-provider {:filename (:filename file)} user-id)]
                   (debugf "Media uploaded: %s" (:filename file))
-                  (dp/update-blog-article-media data-provider article-id (:_id media))))))
+                  (update data-provider id (:_id media))))))
           (api/json-success {:message "Success"}))
-        (api/json-status 400 {:message "No files specified"}))
+        (api/json-status 400 {:message "Files or id not specified"}))
       (catch Exception e (api/json-status 500 {:message "Media upload failed"}))))
 
 (defn- new-user

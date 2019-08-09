@@ -44,6 +44,7 @@
         upload-status (element-by-id "upload-status")
         anti-forgery (element-by-id "anti-forgery-token")
         article-id (element-by-id "article-id")
+        page-id (element-by-id "page-id")
         file-upload (element-by-id "file-upload")]
     (oset! upload-form "onsubmit" (fn [event]
                                     (.preventDefault event)
@@ -51,7 +52,8 @@
                                     (oset! upload-status "innerHTML" "Uploading...")
                                     (let [form-data (js/FormData.)]
                                       (.append form-data "__anti-forgery-token" (oget anti-forgery "value"))
-                                      (.append form-data "article-id" (oget article-id "value"))
+                                      (when article-id (.append form-data "article-id" (oget article-id "value")))
+                                      (when page-id (.append form-data "page-id" (oget page-id "value")))
                                       (doseq [file (array-seq (oget file-select "files"))]
                                         (.append form-data "files[]" file (oget file "name")))
                                       (mango.xhr/send (oget upload-form "method")

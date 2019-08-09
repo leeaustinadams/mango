@@ -6,6 +6,7 @@
             [mango.util :refer [xform-time-to-string xform-string-to-time url-encode str-or-nil]]
             [mango.widgets :refer :all]
             [clojure.core.strint :refer [<<]]
+            [clojure.string :as str]
             [stencil.core :as stencil]
             [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.element :refer :all]
@@ -66,13 +67,13 @@
                   [:div.article-byline [:span "Posted By: " author-name " (" author-user-name ")"]]
                   [:div.article-infoline [:span "On: " (xform-time-to-string created)]]
                   [:div.article-tagsline [:span "Tagged: " (tags-list tags)]]]
-               (str-or-nil (get (first media) :src))
+                 (str-or-nil (get (first media) :src))
                  [:div.article-content
-                (list rendered-content [:div.clearfix])]
-               :show-toolbar {:user user :redir url :article article}
-               :show-social {:title title :description description :url url :twitter-handle author-twitter-handle}
-               :on-load "mango.article.on_load()"
-               :on-unload "mango.article.on_unload()"))
+                  (list rendered-content [:div.clearfix])]
+                 :show-toolbar {:user user :redir url :article article}
+                 :show-social {:title title :description description :url url :twitter-handle author-twitter-handle}
+                 :on-load "mango.article.on_load()"
+                 :on-unload "mango.article.on_unload()"))
 
 (defn page
   "Render a page"
@@ -83,7 +84,8 @@
                url
                nil
                nil
-               (list rendered-content [:div.clearfix])
+               [:div.page-content
+                (list rendered-content [:div.clearfix])]
                :show-toolbar {:user user :redir url :page page}
                :show-social {:title title :url url :twitter-handle author-twitter-handle}
                :on-load "mango.page.on_load()"
@@ -120,7 +122,7 @@
                     [:div.col-25
                      [:span "&nbsp;"]]
                     [:div.col-75
-                     (link-to (str "/blog/media/new?article-id=" _id) "Add Media")]]
+                     (link-to (str "/blog/media/new?page-id=" _id) "Add Media")]]
                    (when (not (= status "root"))
                      (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft")))
                    (submit-row "Submit")]])
@@ -289,22 +291,25 @@
 
 (defn upload-media
   "Render the media upload page"
-  [user anti-forgery-token & [{:keys [article-id]}]]
-  (render-page user
-               "Upload Media"
-               nil
-               "url"
-               nil
-               nil
-               (list
-                [:p article-id]
-                [:form {:id "upload-form" :name "uploadForm" :action "/blog/media/post" :method "POST" :enctype "multipart/form-data"}
-                 (hidden-field {:id "anti-forgery-token"} "__anti-forgery-token" anti-forgery-token)
-                 (when article-id (hidden-field {:id "article-id"} "article-id" article-id))
-                 (file-select-row "Choose Files..." {:id "file-select" :name "files" :multiple true})
-                 [:p {:id "upload-status"}]
-                 (submit-row "Upload" {:id "file-upload"})])
-               :show-toolbar false))
+  [user anti-forgery-token & [{:keys [article-id page-id]}]]
+  (let [[param id] (cond
+                     (not (str/blank? article-id)) ["article-id" article-id]
+                     (not (str/blank? page-id)) ["page-id" page-id])]
+    (render-page user
+                 "Upload Media"
+                 nil
+                 "url"
+                 nil
+                 nil
+                 (list
+                  [:p (or article-id page-id)]
+                  [:form {:id "upload-form" :name "uploadForm" :action "/blog/media/post" :method "POST" :enctype "multipart/form-data"}
+                   (hidden-field {:id "anti-forgery-token"} "__anti-forgery-token" anti-forgery-token)
+                   (hidden-field {:id param} param id)
+                   (file-select-row "Choose Files..." {:id "file-select" :name "files" :multiple true})
+                   [:p {:id "upload-status"}]
+                   (submit-row "Upload" {:id "file-upload"})])
+                  :show-toolbar false)))
 
 (defn media-list
   "Render a list of media"

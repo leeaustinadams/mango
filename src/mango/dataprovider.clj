@@ -25,4 +25,5 @@
   (pages [this options])
   (page-by-slug [this slug options])
   (insert-page [this page user-id])
-  (update-page [this page user-id]))
+  (update-page [this page user-id])
+  (update-page-media [this page-id media-id]))

@@ -235,6 +235,7 @@
   (pages [this options] (pages options))
   (page-by-slug [this slug options] (page-by-slug slug options))
   (insert-page [this page user-id] (insert-page page user-id))
-  (update-page [this page user-id] (update-page page user-id)))
+  (update-page [this page user-id] (update-page page user-id))
+  (update-page-media [this page-id media-id] (update-page-media page-id media-id)))
 
 (def data-provider (DBDataProvider.))
