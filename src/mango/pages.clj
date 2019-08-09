@@ -5,7 +5,6 @@
             [mango.meta-tags :refer :all]
             [mango.util :refer [xform-time-to-string xform-string-to-time url-encode str-or-nil]]
             [mango.widgets :refer :all]
-            [clojure.core.strint :refer [<<]]
             [clojure.string :as str]
             [stencil.core :as stencil]
             [hiccup.page :refer [html5 include-css include-js]]
