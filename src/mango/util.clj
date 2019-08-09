@@ -1,7 +1,9 @@
 (ns mango.util
   (:require [clojure.string :as str]
+            [clojure.java.io :refer [resource]]
             [cheshire.generate :refer [add-encoder encode-str]]
-            [clj-time.format :as time-format])
+            [clj-time.format :as time-format]
+            [taoensso.timbre :as timbre :refer [debugf]])
   (:import org.bson.types.ObjectId
            java.net.URLEncoder
            java.net.URLDecoder))
@@ -53,3 +55,11 @@
 (defn str-or-nil
   [s]
   (when-not (clojure.string/blank? s) s))
+
+(defn load-edn
+  [resource-name]
+  (debugf "res: %s" resource-name)
+  (when-let [file-url (resource resource-name)]
+    (with-open [r (clojure.java.io/reader file-url)]
+      (debugf "url: %s" file-url)
+      (clojure.edn/read (java.io.PushbackReader. r)))))

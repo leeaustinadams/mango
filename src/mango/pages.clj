@@ -3,7 +3,11 @@
   (:require [mango.auth :as auth]
             [mango.config :as config]
             [mango.meta-tags :refer :all]
-            [mango.util :refer [xform-time-to-string xform-string-to-time url-encode str-or-nil]]
+            [mango.util :refer [xform-time-to-string
+                                xform-string-to-time
+                                url-encode
+                                str-or-nil
+                                load-edn]]
             [mango.widgets :refer :all]
             [clojure.string :as str]
             [stencil.core :as stencil]
@@ -92,9 +96,8 @@
 
 (defn- syntax
   []
-  [:div.syntax.hidden {:id "syntax"}
-   (with-open [r (clojure.java.io/reader "resources/templates/syntax.edn")]
-     (clojure.edn/read (java.io.PushbackReader. r)))])
+    [:div.syntax.hidden {:id "syntax"}
+     (load-edn "syntax.edn")])
 
 (def syntax-memo (memoize syntax))
 
