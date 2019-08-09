@@ -91,6 +91,14 @@
                :on-load "mango.page.on_load()"
                :on-unload "mango.page.on_unload()"))
 
+(defn- syntax
+  []
+  [:div.syntax.hidden {:id "syntax"}
+   (with-open [r (clojure.java.io/reader "resources/templates/syntax.edn")]
+     (clojure.edn/read (java.io.PushbackReader. r)))])
+
+(def syntax-memo (memoize syntax))
+
 (defn edit-page
   "Render the editing in page"
   [user anti-forgery-token & [{:keys [_id title content status media]}]]
@@ -110,13 +118,14 @@
                     [:div.col-25
                      [:span "&nbsp;"]]
                     [:div.col-75
-                     (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
+                     [:button {:id "syntax-button"} "Syntax"]
+                     [:button {:id "preview-button"} "Preview"]]]
                    (field-row (partial text-area {:id "content"
                                                   :ondragover "mango.media.allowMediaDrop(event)"
                                                   :ondrop "mango.media.mediaDrop(event)"})
                               "content" "Content" content)
                    [:div.article-content.content-preview.hidden {:id "preview"}]
-                   [:button {:id "preview-button"} "preview"]
+                   (syntax-memo)
                    (field-row thumb-bar "thumbs" "Media"  media)
                    [:div.field-row
                     [:div.col-25
@@ -270,13 +279,14 @@
                     [:div.col-25
                      [:span "&nbsp;"]]
                     [:div.col-75
-                     (link-to "https://github.com/yogthos/markdown-clj#supported-syntax" "Markdown Syntax")]]
+                     [:button {:id "syntax-button"} "Syntax"]
+                     [:button {:id "preview-button"} "Preview"]]]
                    (field-row (partial text-area {:id "content"
                                                   :ondragover "mango.media.allowMediaDrop(event)"
                                                   :ondrop "mango.media.mediaDrop(event)"})
                               "content" "Content" content)
                    [:div.article-content.content-preview.hidden {:id "preview"}]
-                   [:button {:id "preview-button"} "preview"]
+                   (syntax-memo)
                    (field-row thumb-bar "thumbs" "Media"  media)
                    [:div.field-row
                     [:div.col-25

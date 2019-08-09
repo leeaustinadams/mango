@@ -1,0 +1,20 @@
+[:div
+ [:table
+  [:tbody
+   [:tr [:td "Headings"][:td [:pre "#"]][:td "Line"][:td [:pre "***"]]]
+   [:tr [:td ""][:td [:pre "##"]][:td "Emphasis (underline)"][:td [:pre "*emphasis*"]]]
+   [:tr [:td ""][:td [:pre "###"]][:td "Italics"][:td [:pre "_italics_"]]]
+   [:tr [:td "Inline code"][:td [:pre "`x + y = z`"]][:td "Strong"][:td [:pre "**strong**"]]]
+   [:tr [:td "Unordered list"][:td [:pre "1. Foo\n2. Bar\n3. Baz"]][:td "Bold"][:td [:pre "__bold__"]]]
+   [:tr [:td "Ordered list"][:td [:pre "* Foo\n* Bar\n* Baz"]][:td "Bold italic"][:td [:pre "***bold italic***"]]]
+   [:tr [:td "Strikethrough"][:td [:pre "~~Strikethrough~~"]][:td "Blockquote"][:td [:pre "> Never tell me the odds, kid\n>- Han Solo"]]]
+   [:tr [:td "Superscript"][:td [:pre "a^2 + b^2 = c^2"]][:td][:td]]
+   [:tr [:td "Code block"][:td [:pre "```clojure\n\n(defn foo\n  [bar]\n  \"baz\")\n```"]][:td "Indented block (4 spaces)"][:td [:pre "    (defn foo\n      [bar]\n      \"baz\")\n"]]]
+   ]]
+ [:table
+  [:tbody
+   [:tr [:td "Link"][:td [:pre "[github](http://github.com)"]]]
+   [:tr [:td "Footnote"][:td [:pre "Something to note [^footnote1].\n\n[^footnote1]: Noted!."]]]
+   [:tr [:td "Image"][:td [:pre "![Alt text](http://host/path/img.jpg)\n![Alt text](/path/img.jpg \"Optional Title\")"]]]
+   [:tr [:td "Image link"][:td [:pre "[![Text](https://host/image.png)](http://host/link)"]]]
+   [:tr [:td "Table"][:td [:pre "| Left-Aligned  | Center Aligned    | Right Aligned |\n| :------------ | :---------------: | ------------: |\n| col 3 is      |  some wordy text  | $1600         |\n| col 2 is      |  centered         |   $12         |\n| zebra stripes |  are neat         |    $1         |"]]]]]]

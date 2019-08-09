@@ -563,3 +563,55 @@ textarea {
     background-color: var(--tertiary);
     color: white;
 }
+
+#syntax {
+    background-color: #fffe;
+    background-blend-mode: lighten;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    padding: 8px;
+    resize: both;
+    overflow: auto;
+}
+
+#syntax td pre {
+    border: none;
+    margin: 0;
+}
+
+#syntax table {
+    width: 100%;
+    border-spacing: 0;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    background-color: white;
+    border-collapse: collapse;
+}
+
+#syntax td, #syntax th {
+    padding: 4px;
+    border-spacing: 0;
+}
+
+#syntax tr:nth-child(even){
+    background-color: var(--background);
+}
+
+#syntax tr:hover {
+    background-color: var(--tertiary);
+    color: white;
+}
+
+#syntax th {
+    text-align: left;
+    background-color: var(--tertiary);
+    color: white;
+}
+
+#syntax td:nth-child(even) {
+    border-right: 1px solid var(--quaternary);
+}
