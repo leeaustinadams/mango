@@ -81,3 +81,9 @@
   "Renders the markdown content to html"
   [content]
   (md->html content))
+
+(defn highlight-code
+  "Highlights code blocks"
+  [root]
+  (doseq [block (elements-by-tag root "code")]
+    (.highlightBlock js/hljs block)))

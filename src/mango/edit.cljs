@@ -10,6 +10,7 @@
         value (oget element "value")]
     (.preventDefault event)
     (oset! preview "innerHTML" (dom/markdown value))
+    (dom/highlight-code preview)
     (dom/toggle-class preview "hidden")))
 
 (defn toggle-syntax
