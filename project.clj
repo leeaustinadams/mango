@@ -5,7 +5,6 @@
             :url "https://tldrlegal.com/license/mit-license"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/data.json "0.2.6"]
-                 [org.clojure/core.incubator "0.1.4"]
                  [org.clojure/clojurescript "1.10.339"]
                  [com.bhauman/figwheel-main "0.2.0"]
                  [environ "1.1.0"]

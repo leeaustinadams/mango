@@ -7,7 +7,7 @@
 
 (defn dialog
   [content]
-  (let [dlg (div {:id "help-dlg" :class "dialog hidden"})]
+  (let [dlg (div {:class "dialog hidden"})]
     (oset! dlg "innerHTML" content)
     (add-child (body) dlg)))
 

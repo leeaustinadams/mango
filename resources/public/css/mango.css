@@ -1,3 +1,13 @@
+/* Palette */
+:root {
+    --primary: #f9f3ec;
+    --secondary: #63aabc;
+    --tertiary: #ed3833;
+    --quaternary: #60204b;
+    --background: var(--primary);
+    --text: black;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -6,7 +16,23 @@ html, body {
     height: 100%;
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
-    background: #eee;
+    background-color: var(--background);
+    color: var(--text);
+}
+
+a {
+    color: var(--secondary);
+}
+
+img {
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    max-width: 100%;
+}
+
+em {
+    font-style: normal;
+    text-decoration: underline solid var(--tertiary);
 }
 
 .clearfix::after {
@@ -20,7 +46,7 @@ html, body {
     padding: 12px;
     border: 1px solid #999;
     border-radius: 4px;
-    background: white;
+    background-color: white;
     max-width: 900px;
     width: 96%;
 }
@@ -50,51 +76,59 @@ html, body {
 
 .article-content img {
     max-width: 25%;
-    padding: 4px;
-    border-radius: 4px;
+    padding: 0;
+    margin: 4px;
     float: right;
 }
 
 .article-list-item {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--quaternary);
     padding-top: 10px;
+    cursor: pointer;
 }
 
 .article-list-item:hover {
-    background-color: #eee;
-}
-
-.article-list-item img {
-    max-width: 100%;
-    border-radius: 4px;
+    background-color: var(--background);
+    color: var(--text);
 }
 
 .article-list-item-title {
     margin: 4px 0 0 0;
+    color: inherit;
 }
 
 .article-list-item-title > a {
     text-decoration-line: none;
+    color: inherit;
 }
 
 .article-list-item-description {
     margin: 4px 0 0 0;
+    color: inherit;
 }
 
 .article-list-item-byline {
     margin: 4px 0 0 0;
-    color: #888;
+    color: inherit;
 }
 
 .article-list-item-media {
 }
 
+.page-content img {
+    max-width: 25%;
+    padding: 0;
+    margin: 4px;
+    float: right;
+}
+
 .page-list-item:hover {
-    background-color: #eee;
+    background-color: var(--background);
+    color: inherit;
 }
 
 .media-list-item {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--quaternary);
     padding-top: 10px;
 }
 
@@ -116,14 +150,14 @@ html, body {
 
 .tags > li {
     display: inline-block;
-    text-shadow: 0 1px 0 #ffffff;
     padding: 0 0 4px 2px;
     font-size: large;
+    color: inherit;
 }
 
 .tags > li > .divider {
     padding: 0 5px;
-    color: #ccc;
+    color: var(--tertiary);
 }
 
 .roles {
@@ -136,12 +170,11 @@ html, body {
 
 .roles > li {
     display: inline-block;
-    text-shadow: 0 1px 0 #ffffff;
 }
 
 .roles > li > .divider {
     padding: 0 5px;
-    color: #ccc;
+    color: var(--tertiary);
 }
 
 .media-list {
@@ -151,12 +184,11 @@ html, body {
 
 .media-list > li {
     display: inline-block;
-    text-shadow: 0 1px 0 #ffffff;
 }
 
 .media-list > li > .divider {
     padding: 0 5px;
-    color: #ccc;
+    color: var(--tertiary);
 }
 
 .media-list > li img {
@@ -190,32 +222,10 @@ div.imagebar {
 div.imagebar img {
     height: 240px;
     width: auto;
-    max-width: unset;
+    max-width: 100%;
+    object-fit: cover;
+    margin: 2px;
     float: unset;
-}
-
-.mango .gray {
-    background: #f5f5f5;
-}
-
-.mango .green {
-    background: #b9f6ca;
-}
-
-.mango .yellow {
-    background: #ffff8d;
-}
-
-.mango .blue {
-    background: #84ffff;
-}
-
-.mango .purple {
-    background: #b388ff;
-}
-
-.mango .red {
-    background: #ff8a80;
 }
 
 .footer {
@@ -231,41 +241,22 @@ div.imagebar img {
 
 pre {
     padding: 0.5em;
-    border: 1px solid #999;
-    overflow-x: scroll;
-}
-
-.breadcrumb {
-    padding: 8px 15px;
-    margin: 0 0 20;
-    list-style: none;
-    background-color: #f5f5f5;
-}
-
-.breadcrumb > li {
-    display: inline-block;
-    text-shadow: 0 1px 0 #ffffff;
-}
-
-.breadcrumb > li > .divider {
-    padding: 0 5px;
-    color: #ccc;
-}
-
-.breadcrumb > .active {
-    color: #999999;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    overflow-x: auto;
 }
 
 blockquote {
-    background: #f9f9f9;
-    border-left: 10px solid #ccc;
+    background: var(--background);
+    border-left: 10px solid var(--secondary);
+    border-radius: 4px;
     margin: 1.5em 10px;
     padding: 0.5em 10px;
     quotes: "\201C""\201D";
 }
 
 blockquote:before {
-    color: #ccc;
+    color: var(--tertiary);
     content: open-quote;
     font-size: 4em;
     line-height: 0.1em;
@@ -277,33 +268,53 @@ blockquote p {
     display: inline;
 }
 
+blockquote footer {
+    font-style: italic;
+}
+
 label {
     margin: 4px 0 2px 0;
     font-size: x-large;
 }
 
+button {
+    padding: 8px 16px;
+    margin: 8px;
+    font-size: x-large;
+    cursor: pointer;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    color: var(--text);
+    background-color: var(--background);
+}
+
+input {
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    color: var(--text);
+}
+
 input[type=text], input[type=password] {
     width: 100%;
-    margin 4px 2px;
-    border: 1px solid #999;
-    border-radius: 4px;
+    margin: 4px 2px;
     font-size: large;
 }
 
 input[type=button], input[type=submit], input[type=file], input[type=reset], input[type=date], select {
     padding: 16px 32px;
-    border-radius: 4px;
-    background-color: #999;
-    color: white;
     font-size: xx-large;
     cursor: pointer;
     float: right;
 }
 
+input[type=button]:hover, input[type=submit]:hover, input[type=file]:hover, input[type=reset]:hover, input[type=date]:hover, select:hover {
+    background-color: var(--background);
+}
+
 textarea {
     width: 100%;
     height: 400px;
-    border: 1px solid #999;
+    border: 1px solid var(--quaternary);
     font-size: large;
 }
 
@@ -386,7 +397,7 @@ textarea {
     background-blend-mode: lighten;
     margin: 8px 0 12px 0;
     padding: 2px 0 2px 0;
-    border-bottom: solid 1px #999;
+    border-bottom: solid 1px var(--quaternary);
 }
 
 .toolbar ul {
@@ -431,13 +442,15 @@ textarea {
 .content-preview {
     background-color: #fffe;
     background-blend-mode: lighten;
-    border: 1px solid #999;
+    border: 1px solid var(--quaternary);
     border-radius: 4px;
     position: absolute;
     top: 0px;
     left: 0px;
     width: 100%;
     padding: 8px;
+    resize: both;
+    overflow: auto;
 }
 
 .hidden {
@@ -447,7 +460,7 @@ textarea {
 .dialog {
     background-color: #effe;
     background-blend-mode: lighten;
-    border: 1px solid #999;
+    border: 1px solid var(--quaternary);
     border-radius: 4px;
     position: fixed;
     top: 33%;
@@ -483,9 +496,122 @@ textarea {
         max-width: 50%;
     }
 
+    .page-content img {
+        max-width: 50%;
+    }
+
     .dialog {
         top: 25%;
         left: 10%;
         width: 80%;
     }
+}
+
+.article-content table {
+    border-spacing: 0;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    background-color: white;
+    border-collapse: collapse;
+}
+
+.article-content td, .article-content th {
+    padding: 4px;
+    border-spacing: 0;
+    border: 1px solid var(--quaternary);
+}
+
+.article-content tr:nth-child(even){
+    background-color: var(--background);
+}
+
+.article-content tr:hover {
+    background-color: var(--tertiary);
+    color: white;
+}
+
+.article-content th {
+    text-align: left;
+    background-color: var(--tertiary);
+    color: white;
+}
+
+.page-content table {
+    border-spacing: 0;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    background-color: white;
+    border-collapse: collapse;
+}
+
+.page-content td, .page-content th {
+    padding: 4px;
+    border-spacing: 0;
+}
+
+.page-content tr:nth-child(even){
+    background-color: var(--background);
+}
+
+.page-content tr:hover {
+    background-color: var(--background);
+    color: var(--text);
+}
+
+.page-content th {
+    text-align: left;
+    background-color: var(--tertiary);
+    color: white;
+}
+
+#syntax {
+    background-color: #fffe;
+    background-blend-mode: lighten;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    padding: 8px;
+    resize: both;
+    overflow: auto;
+}
+
+#syntax td pre {
+    border: none;
+    margin: 0;
+}
+
+#syntax table {
+    width: 100%;
+    border-spacing: 0;
+    border: 1px solid var(--quaternary);
+    border-radius: 4px;
+    background-color: white;
+    border-collapse: collapse;
+}
+
+#syntax td, #syntax th {
+    padding: 4px;
+    border-spacing: 0;
+}
+
+#syntax tr:nth-child(even){
+    background-color: var(--background);
+}
+
+#syntax tr:hover {
+    background-color: var(--tertiary);
+    color: white;
+}
+
+#syntax th {
+    text-align: left;
+    background-color: var(--tertiary);
+    color: white;
+}
+
+#syntax td:nth-child(even) {
+    border-right: 1px solid var(--quaternary);
 }
