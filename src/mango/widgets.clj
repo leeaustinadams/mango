@@ -27,7 +27,7 @@
   []
   [:div.footer {:align "center"}
    [:small.copyright "Content " config/site-copyright " " (mail-to config/admin-email "contact")][:br]
-   [:small.copyright "Powered by " (link-to "https://4d4ms.com/mango" "Mango")][:br]
+   [:small.copyright "Powered by " (link-to "https://github.com/leeaustinadams/mango" "Mango")][:br]
    [:small.version config/version]])
 
 (defn- wrap-base-toolbar

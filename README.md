@@ -104,6 +104,7 @@ Built with
   * [amazonica](https://github.com/mcohen01/amazonica)
   * [markdown-clj](https://github.com/yogthos/markdown-clj)
   * [leiningen](http://leiningen.org/)
+* [Clojurescript](https://clojurescript.org)
 * [Javascript](https://en.wikipedia.org/wiki/JavaScript)
   * [highlight-js](https://highlightjs.org/)
 
