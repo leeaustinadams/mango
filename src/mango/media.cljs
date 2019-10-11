@@ -16,9 +16,10 @@
   [event]
   (.preventDefault event)
   (let [dataTransfer (oget event "dataTransfer")
-        data (str "![](" (.getData dataTransfer "src") ")")
+        src (.getData dataTransfer "src")
+        code (str "[![](" src ")](" src ")")
         target (oget event "target")
         value (oget target "value")
         start (oget target "selectionStart")
         end (oget target "selectionEnd")]
-    (oset! target "value" (str value "\n" data))))
+    (oset! target "value" (str value "\n" code))))

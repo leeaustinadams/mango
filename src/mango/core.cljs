@@ -4,7 +4,7 @@
             [mango.article]
             [mango.page]
             [mango.edit]
-            [mango.dom :refer [body js-script element-by-id elements-by-tag]]
+            [mango.dom :refer [body js-script element-by-id elements-by-tag twemoji]]
             [oops.core :refer [oget oset!]]))
 
 (enable-console-print!)
@@ -76,6 +76,7 @@
   []
   (when-let [upload-form (element-by-id "upload-form")]
     (bind-upload-form upload-form))
+  (twemoji (body))
   (bind-pocket "pocket-btn-js" "https://widgets.getpocket.com/v1/j/btn.js?v=1"))
 
 (defn unbind

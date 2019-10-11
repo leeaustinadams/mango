@@ -24,13 +24,14 @@
    (include-js (str "https://www.googletagmanager.com/gtag/js?id=" config/google-analytics-id))
    (include-js config/app-js)
    (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")))
+   [:script {:type "text/javascript" :crossorigin "anonymous" :src "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"}]))
 
 (defn footer
   "Render the footer"
   []
   [:div.footer {:align "center"}
    [:small.copyright "Content " config/site-copyright " " (mail-to config/admin-email "contact")][:br]
-   [:small.copyright "Powered by " (link-to "https://4d4ms.com/mango" "Mango")][:br]
+   [:small.copyright "Powered by " (link-to "https://github.com/leeaustinadams/mango" "Mango")][:br]
    [:small.version config/version]])
 
 (defn- wrap-base-toolbar
