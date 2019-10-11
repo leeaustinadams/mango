@@ -20,7 +20,8 @@
    (include-css "/css/styles/github-gist.css")
    (include-css config/app-css)
    (include-js "/js/lib/highlight.pack.js")
-   (include-js config/app-js)))
+   (include-js config/app-js)
+   [:script {:type "text/javascript" :crossorigin "anonymous" :src "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"}]))
 
 (defn footer
   "Render the footer"

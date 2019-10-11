@@ -615,3 +615,12 @@ textarea {
 #syntax td:nth-child(even) {
     border-right: 1px solid var(--quaternary);
 }
+
+img.emoji {
+   height: 1em;
+   width: 1em;
+   margin: 0 .05em 0 .1em;
+   vertical-align: -0.1em;
+   float: none;
+   border: none;
+}
