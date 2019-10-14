@@ -1,6 +1,7 @@
 (ns mango.dom
   (:require [clojure.string :as str]
             [markdown.core :refer [md->html]]
+            [mango.xhr :as xhr]
             [oops.core :refer [oget oset! oset!+]]))
 
 (defn document
@@ -80,7 +81,7 @@
 (defn markdown
   "Renders the markdown content to html"
   [content]
-  (md->html content))
+  (md->html (replace-emoji content)))
 
 (defn highlight-code
   "Highlights code blocks"
