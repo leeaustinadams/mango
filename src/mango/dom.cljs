@@ -78,10 +78,19 @@
       (oset! element "className" (str/trim (str/replace classes class "")))
       (oset! element "className" (str classes " " class)))))
 
+;; Events
+
+(defn bind-event
+  "Binds an event handler to an element by id"
+  [id event handler]
+  (oset!+ (element-by-id id) event handler))
+
+;; Rendering functions
+
 (defn markdown
   "Renders the markdown content to html"
   [content]
-  (md->html (replace-emoji content)))
+  (md->html content))
 
 (defn highlight-code
   "Highlights code blocks"
