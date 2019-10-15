@@ -1,11 +1,12 @@
 ;; https://github.com/yogthos/markdown-clj
 (ns mango.hydrate
   (:require
-            [markdown.core :as md]
-            [mango.auth :as auth]
-            [mango.config :as config]
-            [mango.dataprovider :as dp]
-            [mango.util :refer [url-encode]]))
+   [markdown.core :as md]
+   [mango.auth :as auth]
+   [mango.config :as config]
+   [mango.dataprovider :as dp]
+   [mango.util :refer [url-encode]]
+   [clojure.string :as str]))
 
 (defn media
   "Hydrates a media item"
@@ -31,11 +32,24 @@
     (assoc x :user (auth/public-user (dp/user-by-id data-provider user-id)))
     x))
 
+(defn load-emoji
+  []
+  (let [emoji (clojure.data.json/read-json (slurp "resources/public/emoji.json"))]
+    (reduce (fn [coll p] (assoc coll (:name p) (:char p))) emoji)))
+
+(def emoji-map (memoize load-emoji))
+
+(def emoji-replace-pattern (. java.util.regex.Pattern compile ":(.*):"))
+
+(defn replace-emoji
+  [s]
+  (str/replace s emoji-replace-pattern #(or (get (emoji-map) (second %)) (first %))))
+
 (defn content
   "Hydrates the content for an item."
   [{content :content :as item}]
   (if-not (nil? content)
-    (assoc item :rendered-content (md/md-to-html-string content :footnotes? true))
+    (assoc item :rendered-content (md/md-to-html-string (replace-emoji content) :footnotes? true))
     item))
 
 (defn article

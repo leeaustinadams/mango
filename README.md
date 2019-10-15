@@ -107,6 +107,7 @@ Built with
 * [Clojurescript](https://clojurescript.org)
 * [Javascript](https://en.wikipedia.org/wiki/JavaScript)
   * [highlight-js](https://highlightjs.org/)
+  * [Twemoji](https://twemoji.twitter.com)
 
 ## License
 

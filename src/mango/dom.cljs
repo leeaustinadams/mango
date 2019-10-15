@@ -1,6 +1,7 @@
 (ns mango.dom
   (:require [clojure.string :as str]
             [markdown.core :refer [md->html]]
+            [mango.xhr :as xhr]
             [oops.core :refer [oget oset! oset!+]]))
 
 (defn document
@@ -76,6 +77,15 @@
     (if (str/includes? classes class)
       (oset! element "className" (str/trim (str/replace classes class "")))
       (oset! element "className" (str classes " " class)))))
+
+;; Events
+
+(defn bind-event
+  "Binds an event handler to an element by id"
+  [id event handler]
+  (oset!+ (element-by-id id) event handler))
+
+;; Rendering functions
 
 (defn markdown
   "Renders the markdown content to html"
