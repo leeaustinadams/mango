@@ -23,7 +23,7 @@
    (include-js "/js/analytics.js")
    (include-js (str "https://www.googletagmanager.com/gtag/js?id=" config/google-analytics-id))
    (include-js config/app-js)
-   (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")))
+   (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
    [:script {:type "text/javascript" :crossorigin "anonymous" :src "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"}]))
 
 (defn footer
