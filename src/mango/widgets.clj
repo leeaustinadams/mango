@@ -3,6 +3,7 @@
   (:require [mango.auth :as auth]
             [mango.config :as config]
             [mango.util :refer [xform-time-to-string xform-string-to-time url-encode]]
+            [mango.analytics :as analytics]
             [stencil.core :as stencil]
             [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.element :refer :all]
@@ -12,6 +13,9 @@
   "Render the head"
   [title]
   (list
+   (when config/analytics-enabled
+     (include-js (str "https://www.googletagmanager.com/gtag/js?id=" config/google-analytics-id))
+     (analytics/google config/google-analytics-id))
    [:title title]
    [:meta {:charset="utf-8"}]
    [:meta {:http-equiv "Content-type" :content "text/html;charset=UTF-8"}]
@@ -20,7 +24,6 @@
    (include-css "/css/styles/github-gist.css")
    (include-css config/app-css)
    (include-js "/js/lib/highlight.pack.js")
-   (include-js (str "https://www.googletagmanager.com/gtag/js?id=" config/google-analytics-id))
    (include-js config/app-js)
    (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
    [:script {:type "text/javascript" :crossorigin "anonymous" :src "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"}]))

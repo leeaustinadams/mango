@@ -19,4 +19,5 @@
  :app-css "/css/mango.css"
  :app-js "/js/prod-main.js"
  :ads-enabled true
+ :analytics-enabled true
  :google-analytics-id "UA-43198629-1"}
