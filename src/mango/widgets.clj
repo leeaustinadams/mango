@@ -14,8 +14,9 @@
   [title]
   (list
    (when config/analytics-enabled
-     (include-js (str "https://www.googletagmanager.com/gtag/js?id=" config/google-analytics-id))
-     (analytics/google config/google-analytics-id))
+     (list
+      (include-js (str "https://www.googletagmanager.com/gtag/js?id=" config/google-analytics-id))
+      (analytics/google config/google-analytics-id)))
    [:title title]
    [:meta {:charset="utf-8"}]
    [:meta {:http-equiv "Content-type" :content "text/html;charset=UTF-8"}]
