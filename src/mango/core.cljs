@@ -76,8 +76,7 @@
   []
   (when-let [upload-form (element-by-id "upload-form")]
     (bind-upload-form upload-form))
-  (twemoji (body))
-  (bind-pocket "pocket-btn-js" "https://widgets.getpocket.com/v1/j/btn.js?v=1"))
+  (twemoji (body)))
 
 (defn unbind
   []
