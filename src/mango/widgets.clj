@@ -192,7 +192,7 @@
   [tag]
   [:span
    (link-to-tag (first tag))
-   (str "(" (second tag) ")")])
+   (str " (" (second tag) ")")])
 
 (defn field-row
   "Render a form row with label"
