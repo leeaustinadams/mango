@@ -139,7 +139,7 @@
                     [:div.col-75
                      (link-to (str "/blog/media/new?page-id=" _id) "Add Media")]]
                    (when (not (= status "root"))
-                     (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"]) (or status "draft")))
+                     (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"] ["Root" "root"]) (or status "draft")))
                    (submit-row "Submit")]])
                :on-load "mango.edit.on_load()"
                :on-unload "mango.edit.on_unload()"))
