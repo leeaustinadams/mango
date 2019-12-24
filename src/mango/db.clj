@@ -143,9 +143,8 @@
 (defn delete-user [user])
 
 (defn blog-article-tags [status]
-  (let [query (merge {:tags {$ne nil}} status)
-        tags (flatten (map :tags (mc/find-maps @DB config/db-article-collection query {:tags 1})))]
-    (frequencies tags)))
+  (let [query (merge {:tags {$ne nil}} status)]
+    (flatten (map :tags (mc/find-maps @DB config/db-article-collection query {:tags 1})))))
 
 (defn delete-session
   "Delete a session from the database"

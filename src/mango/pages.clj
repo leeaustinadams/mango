@@ -167,8 +167,9 @@
 
 (defn tags
   "Render a page with a list of tags and their counts"
-  [user title tag-counts url]
-  (standard-page user title (divided-list tag-counts tag-and-count "-" "tags") url))
+  [user title tags url]
+  (let [tag-counts (reverse (sort-by second (frequencies tags)))]
+    (standard-page user title (divided-list tag-counts tag-and-count "-" "tags") url)))
 
 (defn photography
   "Render the photography page"
