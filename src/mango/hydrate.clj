@@ -52,6 +52,17 @@
   [data-provider articles]
   (map #(article data-provider %) articles))
 
+(defn article-list-item
+  [data-provider article]
+  (->> article
+       (user data-provider)
+       (media-collection data-provider)))
+
+(defn articles-list
+  "Partially hydrates articles with users and media"
+  [data-provider articles]
+  (map #(article-list-item data-provider %) articles))
+
 (defn page
   "Hydrates a page with content and media"
   [data-provider page]

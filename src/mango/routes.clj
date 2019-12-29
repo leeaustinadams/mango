@@ -81,6 +81,7 @@
 ;; Convenience
 (def db-articles (partial dp/blog-articles db/data-provider))
 (def hydrate-articles (partial hydrate/articles db/data-provider))
+(def hydrate-articles-list (partial hydrate/articles-list db/data-provider))
 (def db-pages (partial dp/pages db/data-provider))
 (def hydrate-pages (partial hydrate/pages db/data-provider))
 
@@ -230,15 +231,15 @@
 
   ;; Blog
   (GET "/blog" {:keys [user request-url]}
-       (pages/articles-list user "Blog" (hydrate-articles (db-articles "published" {:tagged nil})) request-url))
+       (pages/articles-list user "Blog" (hydrate-articles-list (db-articles "published" {:tagged nil})) request-url))
   (GET "/blog/tagged" {:keys [user request-url]}
        (pages/tags user "Article Tags" (dp/blog-article-tags db/data-provider {:status "published"}) request-url))
   (GET "/blog/tagged/:tag" {:keys [user request-url] {:keys [tag]} :params}
        (let [decoded-tag (url-decode tag)]
-         (pages/articles-list user (str "Articles Tagged \"" decoded-tag \") (hydrate-articles (db-articles "published" {:tagged decoded-tag})) request-url)))
+         (pages/articles-list user (str "Articles Tagged \"" decoded-tag \") (hydrate-articles-list (db-articles "published" {:tagged decoded-tag})) request-url)))
   (GET "/blog/drafts" {:keys [user request-url] {:keys [tag]} :params}
        (when (auth/editor? user)
-         (pages/articles-list user "Drafts" (hydrate-articles (db-articles "draft" {:tagged tag})) request-url)))
+         (pages/articles-list user "Drafts" (hydrate-articles-list (db-articles "draft" {:tagged tag})) request-url)))
   (GET "/blog/new" {:keys [user session]}
        (when (auth/editor? user) (pages/edit-article user (session-anti-forgery-token session))))
   (GET "/blog/:slug{[0-9a-z-]+}" {:keys [user request-url] {:keys [slug]} :params}
