@@ -90,7 +90,7 @@
 (defn markdown
   "Renders the markdown content to html"
   [content]
-  (md->html content))
+  (md->html content :inhibit-separator "¿"))
 
 (defn highlight-code
   "Highlights code blocks"

@@ -564,6 +564,11 @@ textarea {
     color: white;
 }
 
+.console-output {
+    background-color: black;
+    color: white;
+}
+
 #syntax {
     background-color: #fffe;
     background-blend-mode: lighten;
