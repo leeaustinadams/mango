@@ -16,7 +16,7 @@
                  [cheshire "5.5.0" :exclusions [com.fasterxml.jackson.core/jackson-core]]
                  [crypto-password "0.2.0"]
                  [stencil "0.5.0"]
-                 [markdown-clj "1.10.0"]
+                 [markdown-clj "1.10.1"]
                  [clj-time "0.14.2"]
                  [amazonica "0.3.76"]
                  [yogthos/config "1.1.4"]
