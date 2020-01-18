@@ -18,7 +18,7 @@
                  [stencil "0.5.0"]
                  [markdown-clj "1.10.1"]
                  [clj-time "0.14.2"]
-                 [amazonica "0.3.76"]
+                 [amazonica "0.3.152"]
                  [yogthos/config "1.1.4"]
                  [com.taoensso/timbre "4.10.0"]
                  [binaryage/oops "0.7.0"]]
