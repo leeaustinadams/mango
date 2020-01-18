@@ -2,6 +2,9 @@
   (:require [config.core :refer [env]]
             [version]))
 
+(def db-address (or (:db-address env) "127.0.0.1"))
+(def db-user (or (:db-user env) "mango"))
+(def db-password (or (:db-password env) "mango"))
 (def db-name (:db-name env))
 (def db-article-collection (:db-article-collection env))
 (def db-page-collection (:db-page-collection env))

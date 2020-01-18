@@ -1,6 +1,7 @@
 ;; http://clojuremongodb.info
 (ns mango.db
   (:require [monger.core :as mg]
+            [monger.credentials :as mcred]
             [monger.collection :as mc]
             [monger.operators :refer :all]
             [monger.query :as mq]
@@ -17,7 +18,7 @@
 (defn init
   "Initialize the database connection"
   []
-  (reset! conn (mg/connect))
+  (reset! conn (mg/connect-with-credentials config/db-address (mcred/create config/db-user config/db-name config/db-password)))
   (reset! DB (mg/get-db @conn config/db-name)))
 
 (defn terminate
