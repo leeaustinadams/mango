@@ -1,6 +1,6 @@
 (ns ^:integration mango.db-test
   (:require [clojure.test :refer :all]
-            [monger.db :as mdb]
+            [monger.collection :as mc]
             [mango.db :as db]
             [mango.fixtures :as fixtures]
             [mango.config :as config])
@@ -9,8 +9,11 @@
 (defn db-fixture [f]
   (println "Testing DB on " config/db-name)
   (db/init)
+  (mc/drop @db/DB config/db-article-collection)
+  (mc/drop @db/DB config/db-page-collection)
+  (mc/drop @db/DB config/db-media-collection)
+  (mc/drop @db/DB config/db-users-collection)
   (f)
-  (mdb/drop-db @db/DB)
   (db/terminate)
 )
 

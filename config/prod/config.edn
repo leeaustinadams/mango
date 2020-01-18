@@ -1,23 +1,22 @@
 {
- :db-name "4d4ms"
+ :db-name "mango"
  :db-article-collection "blogarticles"
  :db-page-collection "pages"
  :db-media-collection "blogmedia"
  :db-users-collection "users"
- :site-url "https://4d4ms.com"
- :site-title "4d4ms.com"
- :site-description "Lee's Website"
- :site-copyright "© 2019 Lee Adams"
- :twitter-site-handle "@beamjack"
- :twitter-creator-handle "@beamjack"
- :admin-email "admin@4d4ms.com"
+ :site-url "https://yourdomain.com"
+ :site-title "Your Mango Site"
+ :site-description "Your Mango Site"
+ :site-copyright "© 2020 You "
+ :twitter-site-handle "@dev"
+ :twitter-creator-handle "@dev"
+ :admin-email "email@yourdomain.com"
  :port 8080
- :cdn-url "https://cdn.4d4ms.com/blog/"
- :logo-url "https://cdn.4d4ms.com/img/A.jpg"
- :aws-media-bucket "4d4ms"
+ :logo-url "https://yourdomain.com/img/A.jpg"
+ :cdn-url "https://yourdomain.com/"
+ :aws-media-bucket "mango"
  :aws-region "us-west-1"
  :app-css "/css/mango.css"
- :app-js "/js/prod-main.js"
- :ads-enabled true
- :analytics-enabled true
- :google-analytics-id "UA-43198629-1"}
+ :app-js "/js/dev-main.js"
+ :analytics-enabled false
+ :google-analytics-id ""}
