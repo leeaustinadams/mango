@@ -8,6 +8,7 @@
 
 (defn init-bucket
   [remote-bucket]
+  (debugf "Checking bucket %s" remote-bucket)
   (try
     (when-not (some #(= remote-bucket %) (map :name (s3/list-buckets)))
       (debugf "Creating bucket %s" remote-bucket)
@@ -19,7 +20,7 @@
   [remote-bucket remote-name local-name content-type]
   (future
     (init-bucket remote-bucket)
-    (debugf "Putting %s" local-name)
+    (debugf "Putting %s to %s/%s" local-name remote-bucket remote-name)
     (try
       (s3/put-object :bucket-name remote-bucket
                      :key remote-name
