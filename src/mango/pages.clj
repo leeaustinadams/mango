@@ -171,23 +171,6 @@
   (let [tag-counts (reverse (sort-by second (frequencies tags)))]
     (standard-page user title (divided-list tag-counts tag-and-count "-" "tags") url)))
 
-(defn photography
-  "Render the photography page"
-  [user url]
-  (render-page user
-               "Photography"
-               nil
-               url
-               nil
-               nil
-               (list
-                [:div.row
-                 [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/tags/animals/" "Animals")]
-                 [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/tags/buildings/" "Buildings")]]
-                [:div.row
-                 [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/tags/places/" "Places")]
-                 [:h3.col-50 (link-to "http://www.flickr.com/photos/beamjack/" "Everything Else")]])))
-
 (defn about
   "Render the about page"
   [user url]
@@ -198,14 +181,8 @@
                nil
                nil
                (list
-                [:h3 "Me"]
-                [:p "I've been a professional software developer for almost 20 years. I live in beautiful San Francisco Bay area with my wife and our three children. I'm currently a Staff Software Engineer at " (link-to "https://twitter.com" "Twitter")]
-                [:h3 "Interests"]
-                [:p (link-to "http://www.github.com/leeaustinadams" "Code") ", Technology, Books, Movies, Hiking, Backpacking, Travel, " (link-to "/photography" "Photography") ", Motorcycles"]
-                [:h3 "Crypto"]
-                [:ul
-                 [:li (link-to "https://keybase.io/leeadams" "Keybase.io")]
-                 [:li (link-to "https://4d4ms.com/lee.asc" "PGP Key")]])))
+                [:h3 "About You"]
+                [:p "Put something about yourself here"])))
 
 (defn sign-in
   "Render the sign in page"

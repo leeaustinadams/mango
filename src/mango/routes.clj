@@ -220,8 +220,6 @@
        (if-let [page (first (dp/pages db/data-provider {:status ["root"]}))]
          (pages/page user (hydrate/page db/data-provider page) request-url)
          (pages/root user request-url (hydrate/article db/data-provider (first (db-articles "published" {:page 0 :per-page 1 :tagged nil}))))))
-  (GET "/photography" {:keys [user request-url]}
-       (pages/photography user request-url))
   (GET "/about" {:keys [user request-url]}
        (pages/about user request-url))
   (GET "/signin" {:keys [user session] {:keys [redir]} :params}
