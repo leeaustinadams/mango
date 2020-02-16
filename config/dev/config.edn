@@ -14,9 +14,13 @@
  :port 8080
  :logo-url "https://yourdomain.com/img/A.jpg"
  :cdn-url "https://yourdomain.com/"
- :aws-media-bucket "mango-dev"
+ :aws-media-bucket "leeadams-mango-dev"
  :aws-region "us-west-1"
  :app-css "/css/mango.css"
  :app-js "/js/dev-main.js"
  :analytics-enabled false
- :google-analytics-id ""}
+ :google-analytics-id ""
+ :ads-enabled false
+ :google-ad-client "your-ad"
+ :google-ad-slot "your-slot"}
+

@@ -19,4 +19,8 @@
  :app-css "/css/mango.css"
  :app-js "/js/dev-main.js"
  :ads-enabled false
- :google-analytics-id ""}
+ :google-analytics-id ""
+ :ads-enabled false
+ :google-ad-client "your-ad"
+ :google-ad-slot "your-slot"}
+
