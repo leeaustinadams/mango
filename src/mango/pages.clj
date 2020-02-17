@@ -5,6 +5,7 @@
             [mango.meta-tags :refer :all]
             [mango.util :refer [xform-time-to-string
                                 xform-string-to-time
+                                author-name
                                 url-encode
                                 str-or-nil
                                 load-edn]]
@@ -63,7 +64,7 @@
 
 (defn article
   "Render an article. Expects media to have been hydrated"
-  [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-name :displayName author-twitter-handle :twitter-handle} :user :as article} url]
+  [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-first-name :first-name author-last-name :last-name  author-twitter-handle :twitter-handle} :user :as article} url]
     (render-page user
                  title
                  description
@@ -71,7 +72,7 @@
                  [:div.article-header
                   [:h1.article-title title]
                   [:h2.article-description description]
-                  [:div.article-byline [:span "Posted By: " author-name " (" author-user-name ")"]]
+                  [:div.article-byline [:span "Posted By: " (author-name author-first-name author-last-name) " (" author-user-name ")"]]
                   [:div.article-infoline [:span "On: " (xform-time-to-string created)]]
                   [:div.article-tagsline [:span "Tagged: " (tags-list tags)]]]
                  (str-or-nil (get (first media) :src))
@@ -231,8 +232,8 @@
                [:form {:name "newuser" :action (str "/users/new") :method "POST" :enctype "multipart/form-data"}
                 (hidden-field "__anti-forgery-token" anti-forgery-token)
                 (field-row (partial text-field {:autoFocus "autoFocus" :autocomplete "username" :required "required"}) "username" "Username")
-                (field-row text-field "first" "First")
-                (field-row text-field "last" "Last")
+                (field-row text-field "first-name" "First")
+                (field-row text-field "last-name" "Last")
                 (field-row required-text-field "email" "Email Address")
                 (field-row text-field "twitter-handle" "Twitter Handle")
                 (field-row required-new-password-field "password" "Password")
@@ -241,6 +242,26 @@
                 (submit-row "Submit")
                 (when message [:p.error message])]
                :show-toolbar false))
+
+(defn edit-user
+  "Render editing form for a user"
+  [user anti-forgery-token & [{:keys [_id username first-name last-name email twitter-handle]}]]
+  (render-page user
+               "Edit"
+               nil
+               "url"
+               nil
+               nil
+               [:div.content-form
+                [:form.edit-form {:name "pageForm" :action (str "/users/edit/" _id) :method "POST" :enctype "multipart/form-data"}
+                 (hidden-field "__anti-forgery-token" anti-forgery-token)
+                 (hidden-field "_id" _id)
+                 (field-row (partial text-field {:autoFocus "autoFocus" :autocomplete "username" :required "required"}) "username" "Username" username)
+                 (field-row text-field "first-name" "First" first-name)
+                 (field-row text-field "last-name" "Last" last-name)
+                 (field-row required-text-field "email" "Email Address" email)
+                 (field-row text-field "twitter-handle" "Twitter Handle" twitter-handle)
+                 (submit-row "Submit")]]))
 
 (defn change-password
   "Render a change password form"

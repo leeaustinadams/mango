@@ -18,6 +18,11 @@
         filtered (filter #(not (empty? %)) tokens)]
     (str/join "-" (take (or limit (count filtered)) filtered))))
 
+(defn author-name
+  [first-name last-name]
+  (when (and first-name last-name)
+    (str first-name " " last-name)))
+
 (defn xform-ids
   "Transforms a comma seperated string of ids to a collection of ObjectIds"
   [ids]

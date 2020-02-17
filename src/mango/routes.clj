@@ -78,6 +78,13 @@
       keywordize-keys
       (select-keys [:_id])))
 
+(defn- sanitize-user
+  "Cleans and prepares user from parameters posted"
+  [params]
+  (-> params
+      keywordize-keys
+      (select-keys [:_id :username :first-name :last-name :email :twitter-handle])))
+
 ;; Convenience
 (def db-articles (partial dp/blog-articles db/data-provider))
 (def hydrate-articles (partial hydrate/articles db/data-provider))
@@ -127,6 +134,13 @@
         updated (dp/update-page data-provider page user-id)]
     (redir-response 302 (str "/pages/" (:slug page)))))
 
+(defn update-user
+  "Route handler for updating an existing user"
+  [data-provider params]
+  (let [edit-user (sanitize-user params)
+        updated (dp/update-user data-provider edit-user)]
+    (redir-response 302 "/me")))
+
 (defn upload-file
   "Uploads files to storage. Returns a future"
   [{:keys [filename tempfile content-type]}]
@@ -153,9 +167,9 @@
 
 (defn- new-user
   "Route handler creating a new user"
-  [data-provider user session {:keys [username first last email twitter-handle password password2 role]}]
+  [data-provider user session {:keys [username first-name last-name email twitter-handle password password2 role]}]
   (if (= password password2)
-    (if (auth/new-user data-provider username first last email twitter-handle password [role])
+    (if (auth/new-user data-provider username first-name last-name email twitter-handle password [role])
       (redir-response 302 "/blog")
       (pages/new-user user (session-anti-forgery-token session) "Couldn't add user"))
     (pages/new-user user (session-anti-forgery-token session) "Passwords didn't match")))
@@ -277,10 +291,13 @@
   (GET "/admin/users" {:keys [user params request-url]} (when (auth/admin? user) (pages/admin-users user (dp/users db/data-provider params) request-url)))
   (GET "/users/new" {:keys [user session params]} (when (auth/admin? user) (pages/new-user user (session-anti-forgery-token session) params)))
   (POST "/users/new" {:keys [user session params]} (when (auth/admin? user) (new-user db/data-provider user session params)))
-
-  ;; (GET "/admin/users/:id.json" [id]
-  ;;      {})
-
+  (GET "/users/edit/:id" {:keys [user session] {:keys [id]} :params}
+       (when (or (auth/admin? user) (= id (str (:_id user))))
+         (when-let [edit-user (dp/user-by-id db/data-provider id)]
+           (pages/edit-user user (session-anti-forgery-token session) edit-user))))
+  (POST "/users/edit/:id" {:keys [user session params]}
+        (when (or (auth/admin? user) (= (:_id params) (str (:_id user))))
+          (update-user db/data-provider params)))
   (GET "/users/password" {:keys [user session params]} (when user (pages/change-password user (session-anti-forgery-token session))))
   (POST "/users/password" {:keys [user session params]} (change-password db/data-provider user session params))
 
@@ -343,9 +360,9 @@
 (defn log-request
   "Log request details"
   [request & [options]]
-  (info "Request: " (select-keys request [:remote-addr :request-method :request-url]) (dissoc (:params request) :password)
+  (info "Request: " (select-keys request [:remote-addr :request-method :request-url]) (dissoc (:params request) :password :password2)
         (when-let [user (:user request)]
-          (str "\nUser: " (select-keys user [:username :roles])))
+          (str "\nUser: " (select-keys user [:_id :username :roles])))
         "\nHeaders: " (select-keys (:headers request) ["host" "user-agent" "x-real-ip"]))
   request)
 

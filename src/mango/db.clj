@@ -7,7 +7,8 @@
             [monger.query :as mq]
             [monger.joda-time]
             [mango.config :as config]
-            [mango.dataprovider :as dp])
+            [mango.dataprovider :as dp]
+            [taoensso.timbre :refer [tracef debugf info]])
   (:import [com.mongodb MongoOptions ServerAddress])
   (:import org.bson.types.ObjectId))
 
@@ -134,12 +135,16 @@
 (defn insert-user
   "Add a new user record"
   [user]
+  (debugf "Inserting user: %s" (str user))
   (mc/insert-and-return @DB config/db-users-collection user))
 
 (defn update-user
   "Updates a user record"
   [user]
-  (mc/update-by-id @DB config/db-users-collection (:_id user) {$set user}))
+  (let [user-id {:_id (ObjectId. (:_id user))}
+        edit-user (conj user user-id)]
+    (debugf "Updating user: %s" (str edit-user))
+    (mc/update @DB config/db-users-collection user-id {$set edit-user})))
 
 (defn delete-user [user])
 

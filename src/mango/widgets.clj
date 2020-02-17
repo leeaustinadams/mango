@@ -232,7 +232,7 @@
 
 (defn user-item
   "Render a user's details"
-  [{:keys [username first-name last-name email twitter-handle roles created]} auth-user]
+  [{:keys [_id username first-name last-name email twitter-handle roles created]} auth-user]
   (list
    [:div.row
     [:div.col-25 "Username: " username]]
@@ -246,8 +246,10 @@
     [:div.col-100 "Roles: " (roles-list roles)]]
    [:div.row
     [:div.col-25 "Created: " (xform-time-to-string created)]
-    (when (= (:username auth-user) username)
-      [:div.col-25 (link-to "/users/password" "Change Password")])]))
+    (when (or (auth/admin? auth-user) (= (:username auth-user) username))
+      (list
+       [:div.col-25 (link-to (str "/users/edit/" _id) "Edit User")]
+       [:div.col-25 (link-to "/users/password" "Change Password")]))]))
 
 (defn date-field
   "Renders a date input"
