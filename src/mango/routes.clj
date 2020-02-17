@@ -204,7 +204,7 @@
 (defn sitemap
   "Route handler for the sitemap.txt response"
   [data-provider]
-  (let [articles (mapv #(str (or (:slug %) (:_id %))) (dp/blog-articles data-provider "published" {}))]
+  (let [articles (mapv #(str (or (:slug %) (:_id %))) (dp/blog-articles data-provider {:status "published"}))]
     {
      :status 200
      :headers {"Content-Type" "text/plain"}
@@ -233,7 +233,7 @@
   (GET "/" {:keys [user request-url]}
        (if-let [page (first (dp/pages db/data-provider {:status ["root"]}))]
          (pages/page user (hydrate/page db/data-provider page) request-url)
-         (pages/root user request-url (hydrate/article db/data-provider (first (db-articles "published" {:page 0 :per-page 1 :tagged nil}))))))
+         (pages/root user request-url (hydrate/article db/data-provider (first (db-articles {:status "published" :page 0 :per-page 1 :tagged nil}))))))
   (GET "/about" {:keys [user request-url]}
        (pages/about user request-url))
   (GET "/signin" {:keys [user session] {:keys [redir]} :params}
@@ -243,15 +243,15 @@
 
   ;; Blog
   (GET "/blog" {:keys [user request-url]}
-       (pages/articles-list user "Blog" (hydrate-articles-list (db-articles "published" {:tagged nil})) request-url))
+       (pages/articles-list user "Blog" (hydrate-articles-list (db-articles {:status "published" :tagged nil})) request-url))
   (GET "/blog/tagged" {:keys [user request-url]}
        (pages/tags user "Article Tags" (dp/blog-article-tags db/data-provider {:status "published"}) request-url))
   (GET "/blog/tagged/:tag" {:keys [user request-url] {:keys [tag]} :params}
        (let [decoded-tag (url-decode tag)]
-         (pages/articles-list user (str "Articles Tagged \"" decoded-tag \") (hydrate-articles-list (db-articles "published" {:tagged decoded-tag})) request-url)))
+         (pages/articles-list user (str "Articles Tagged \"" decoded-tag \") (hydrate-articles-list (db-articles {:status "published" :tagged decoded-tag})) request-url)))
   (GET "/blog/drafts" {:keys [user request-url] {:keys [tag]} :params}
        (when (auth/editor? user)
-         (pages/articles-list user "Drafts" (hydrate-articles-list (db-articles "draft" {:tagged tag})) request-url)))
+         (pages/articles-list user "Drafts" (hydrate-articles-list (db-articles {:status "draft" :tagged tag})) request-url)))
   (GET "/blog/new" {:keys [user session]}
        (when (auth/editor? user) (pages/edit-article user (session-anti-forgery-token session))))
   (GET "/blog/:slug{[0-9a-z-]+}" {:keys [user request-url] {:keys [slug]} :params}

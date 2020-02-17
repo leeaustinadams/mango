@@ -55,7 +55,7 @@
 
 (defn blog-articles
   "Query blog articles"
-  [status {:keys [tagged author] :as params}]
+  [{:keys [status tagged author] :as params}]
   (let [query (merge {:status status}
                      (when author {:user (:_id (user-by-username author))})
                      (when tagged {:tags {$in [tagged]}}))]
@@ -200,7 +200,7 @@
   (update-user [this user] (update-user user))
   (user-by-id [this id] (user-by-id id))
   (user-by-username [this username] (user-by-username username))
-  (blog-articles [this status options] (blog-articles status options))
+  (blog-articles [this options] (blog-articles options))
   (blog-articles-count [this status] (blog-articles-count status))
   (blog-article-by-id [this id options] (blog-article-by-id id options))
   (blog-article-by-slug [this slug options] (blog-article-by-slug slug options))

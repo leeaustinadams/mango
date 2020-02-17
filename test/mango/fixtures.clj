@@ -103,8 +103,8 @@
   (user-by-username [this username] (get users-by-username username))
   (insert-blog-media [this media user-id] nil)
   (blog-articles
-    [this status options]
-    (if (= status "published")
+    [this options]
+    (if (= (:status options) "published")
       articles
       nil))
   (blog-articles-count
@@ -116,7 +116,6 @@
   (blog-article-by-slug [this slug options] nil)
   (insert-blog-article [this article user-id] nil)
   (update-blog-article [this article user-id] nil)
-  (insert-log-event [this event] nil)
   (pages [this options] pages)
   (page-by-slug [this slug options] (first (filter #(= (:slug %) slug) pages)))
   (insert-page [this page user-id] nil)

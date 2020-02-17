@@ -31,7 +31,7 @@
   (is (= (select-keys (db/insert-blog-article {:status "published" :title "Title" :description "Description" :tags ["a" "b"]} (:_id fixtures/user)) test-keys)
          {:status "published" :title "Title" :description "Description" :tags ["a" "b"] :user (:_id fixtures/user)}))
   (is (= (db/blog-articles-count "published" fixtures/user) 1))
-  (is (= (map #(select-keys % test-keys) (db/blog-articles "published" {:page 1 :per-page 1 :tagged "a"}))
+  (is (= (map #(select-keys % test-keys) (db/blog-articles {:status "published" :page 1 :per-page 1 :tagged "a"}))
          [{:status "published" :title "Title" :description "Description" :tags ["a" "b"] :user (:_id fixtures/user)}])))
 
 (deftest test-blog-media-by-ids
