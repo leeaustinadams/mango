@@ -34,3 +34,5 @@
 (def ads-enabled (:ads-enabled env))
 (def analytics-enabled (:analytics-enabled env))
 (def google-analytics-id (:google-analytics-id env))
+(def google-ad-client (:google-ad-client env))
+(def google-ad-slot (:google-ad-slot env))
