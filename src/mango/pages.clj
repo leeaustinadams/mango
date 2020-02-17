@@ -138,8 +138,7 @@
                      [:span "&nbsp;"]]
                     [:div.col-75
                      (link-to (str "/blog/media/new?page-id=" _id) "Add Media")]]
-                   (when (not (= status "root"))
-                     (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"] ["Root" "root"]) (or status "draft")))
+                   (field-row dropdown-field "status" "Status" (list ["Draft" "draft"] ["Published" "published"] ["Trash" "trash"] ["Root" "root"]) (or status "draft"))
                    (submit-row "Submit")]])
                :on-load "mango.edit.on_load()"
                :on-unload "mango.edit.on_unload()"))
@@ -395,11 +394,6 @@
                 [:h1.col-100 config/site-title]]
                nil
                (list [:div.row
-                      [:h2.col-100 (link-to "/blog" "Blog")]]
-                     (when article
-                       (list [:div.row [:span.col-100 "Latest Article:"]] (article-list-item article)))
-                     [:div.row
-                      [:h2.col-100 (link-to "/photography" "Photography")]]
-                     [:div.row
-                      [:h2.col-100 (link-to "/about" "About")]])
+                      [:h1.col-100 "Configure Your Root Page"]
+                      [:p "You should " (link-to "/signin" "sign in") " and add a page, choosing the \"Root\" option to publish it as the page shown when a user fetches the base URL of your site"]])
                :on-load "mango.widgets.on_load()"))
