@@ -147,34 +147,6 @@
   (let [query (merge {:tags {$ne nil}} status)]
     (flatten (map :tags (mc/find-maps @DB config/db-article-collection query {:tags 1})))))
 
-(defn delete-session
-  "Delete a session from the database"
-  [id]
-  (mc/remove-by-id @DB config/db-sessions-collection (ObjectId. id)))
-
-(defn read-session
-  "Read a session from the database"
-  [id]
-  (when id
-    (mc/find-one-as-map @DB config/db-sessions-collection {:_id (ObjectId. id)})))
-
-(defn add-session
-  "Add a session to the database and return its id"
-  [data]
-  (let [id (:_id (mc/insert-and-return @DB config/db-sessions-collection data))]
-    id))
-
-(defn write-session
-  "Write a session to the database and return its id"
-  [id data]
-  (mc/update-by-id @DB config/db-sessions-collection id data)
-  id)
-
-(defn insert-log-event
-  "Adds a single log event"
-  [event]
-  (mc/insert-and-return @DB config/db-log-collection event))
-
 (defn pages-by-query
   "Query pages"
   [query {:keys [page per-page] :or {page 1 per-page default-per-page}}]
@@ -231,7 +203,6 @@
   (update-blog-article [this article user-id] (update-blog-article article user-id))
   (update-blog-article-media [this article-id media-id] (update-blog-article-media article-id media-id))
   (blog-article-tags [this status] (blog-article-tags status))
-  (insert-log-event [this event] (insert-log-event event))
   (pages [this options] (pages options))
   (page-by-slug [this slug options] (page-by-slug slug options))
   (insert-page [this page user-id] (insert-page page user-id))
