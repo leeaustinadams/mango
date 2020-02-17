@@ -54,7 +54,7 @@
                                :og-type "article"})]
            [:body {:onload on-load :onunload on-unload}
             [:div.mango
-             (when (and config/ads-enabled show-ad) (ads/google))
+             (when (and config/ads-enabled show-ad) (ads/google config/google-ad-client config/google-ad-slot))
              (when show-toolbar (toolbar show-toolbar))
              (when header header)
              (when show-social (socialbar show-social))
