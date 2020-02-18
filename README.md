@@ -11,14 +11,11 @@
 
 A blog written in Clojure for learning Clojure... and blogging.
 
-## To Cut a Version
-`$ lein v update {patch|minor|major}`
-
 ## Configuring
 You can configure three profiles: `dev`, `test`, and `prod`. Each profile can have separate urls, databases, and other fields configured to isolate them from each other.
 
 ### config.edn
-Each profile, `dev`, `test`, and `prod` can be configured by editing its corresponding `config.edn` file:
+Each profile, `dev`, `test`, and `prod` can be configured by editing its corresponding `config.edn` file. You'll probably want to specify different article, page, media, and users collections among the different configurations in order to separate the data you develop and test with, from your production data.
 
 ```
 {
@@ -41,6 +38,11 @@ Each profile, `dev`, `test`, and `prod` can be configured by editing its corresp
  :cdn-url "https://s3-us-west-1.amazonaws.com/{your bucket}/blog/"
  :app-css "/css/mango.css"
  :app-js "/cljs-out/dev-main.js"}
+ :analytics-enabled false
+ :google-analytics-id "{your google analytics id}"
+ :ads-enabled false
+ :google-ad-client "{your google client id}"
+ :google-ad-slot "{your google ad slot id}"
 ```
 
 #### CDN / Media Storage
@@ -80,8 +82,11 @@ The REPL will eventually come up, and load the server url above. Happy hacking!
 - To run the default tests: `$ lein test`
 - To run integration tests (requires database connection): `$ lein test :integration`
 
+## To Cut a Version
+`$ lein v update {patch|minor|major}`
+
 ## Deploying / Hosting
-Run `$ lein build-server-uberjar` and deploy the resulting `mango-{version}-standalone.jar` file. I just `scp` it to my Amazon EC2 instance and run it with `$ java -jar mango-{version}-standalone.jar`.
+Run `$ lein build-server-uberjar` and deploy the resulting `mango-{version}-standalone.jar` file. I just `scp` it to my Amazon EC2 instance and run it with `$ java -jar mango-{version}-standalone.jar`. You could so set it up to run automatically for your environment like [in this example](scripts/mango).
 
 ## Changelog
 2019/07/16
