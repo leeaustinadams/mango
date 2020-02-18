@@ -302,18 +302,6 @@
   (GET "/users/password" {:keys [user session params]} (when user (pages/change-password user (session-anti-forgery-token session))))
   (POST "/users/password" {:keys [user session params]} (change-password db/data-provider user session params))
 
-  ;; (POST "/users/forgot" []
-  ;;       {})
-
-  ;; (GET "/users/reset/:token" [token]
-  ;;       {})
-
-  ;; (POST "/users/reset/:token" [token]
-  ;;       {})
-
-  ;; (POST "/auth/signup" []
-  ;;       {})
-
   (POST "/auth/signin" {session :session {:keys [username password redir]} :params} (signin db/data-provider session username password redir))
   (POST "/auth/signout" {:keys [user session] {:keys [redir]} :params} (signout db/data-provider user session redir))
 
