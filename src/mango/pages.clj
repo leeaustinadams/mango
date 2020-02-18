@@ -400,9 +400,10 @@
 
 (defn sitemap
   "Render a sitemap for indexing"
-  [path articles]
-  (let [article-list (for [a articles] (hash-map :article a))]
-    (stencil/render-file "templates/sitemap.txt" {:path path :articles article-list})))
+  [path articles pages]
+  (let [article-list (for [a articles] (hash-map :article a))
+        page-list (for [p pages] (hash-map :page p))]
+    (stencil/render-file "templates/sitemap.txt" {:path path :articles article-list :pages page-list})))
 
 (defn root
   "Render the root page"

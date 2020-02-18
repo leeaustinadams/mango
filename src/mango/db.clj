@@ -41,7 +41,7 @@
 (defn blog-articles-count
   "Query the number of articles"
   [status {:keys [author]}]
-  (let [query (merge {:status status}
+  (let [query (merge {:status {$in status}}
                      (when author {:user (:_id (user-by-username author))}))]
     (mc/count @DB config/db-article-collection query)))
 
@@ -56,9 +56,9 @@
 (defn blog-articles
   "Query blog articles"
   [{:keys [status tagged author] :as params}]
-  (let [query (merge {:status status}
+  (let [query (merge {:status {$in status}}
                      (when author {:user (:_id (user-by-username author))})
-                     (when tagged {:tags {$in [tagged]}}))]
+                     (when (not (empty? tagged)) {:tags {$in tagged}}))]
     (blog-articles-by-query query params)))
 
 (defn blog-article-by-id
@@ -148,8 +148,9 @@
 
 (defn delete-user [user])
 
-(defn blog-article-tags [status]
-  (let [query (merge {:tags {$ne nil}} status)]
+(defn blog-article-tags
+  [{:keys [status]}]
+  (let [query (merge {:tags {$ne nil}} {:status {$in status}})]
     (flatten (map :tags (mc/find-maps @DB config/db-article-collection query {:tags 1})))))
 
 (defn pages-by-query
@@ -207,7 +208,7 @@
   (insert-blog-article [this article user-id] (insert-blog-article article user-id))
   (update-blog-article [this article user-id] (update-blog-article article user-id))
   (update-blog-article-media [this article-id media-id] (update-blog-article-media article-id media-id))
-  (blog-article-tags [this status] (blog-article-tags status))
+  (blog-article-tags [this options] (blog-article-tags options))
   (pages [this options] (pages options))
   (page-by-slug [this slug options] (page-by-slug slug options))
   (insert-page [this page user-id] (insert-page page user-id))

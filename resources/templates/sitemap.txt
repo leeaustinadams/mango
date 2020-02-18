@@ -1,6 +1,7 @@
-https://www.4d4ms.com/photography
-https://www.4d4ms.com/about
-https://www.4d4ms.com/blog
+{{path}}
 {{#articles}}
-{{path}}{{article}}
+{{path}}/blog/{{article}}
 {{/articles}}
+{{#pages}}
+{{path}}/pages/{{page}}
+{{/pages}}

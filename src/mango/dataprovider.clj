@@ -20,7 +20,7 @@
   (insert-blog-article [this article user-id])
   (update-blog-article [this article user-id])
   (update-blog-article-media [this article-id media-id])
-  (blog-article-tags [this status])
+  (blog-article-tags [this options])
   (pages [this options])
   (page-by-slug [this slug options])
   (insert-page [this page user-id])

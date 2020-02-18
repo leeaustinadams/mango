@@ -95,7 +95,7 @@
     (info "No users found, bootstrapping users")
     (when-let [user (auth/new-user db/data-provider default-user)]
       (let [user-id (:_id user)]
-        (when (< (db/blog-articles-count "published" {}) 1)
+        (when (< (db/blog-articles-count {:status ["published"]}) 1)
           (info "No articles found, bootstrapping default articles")
           (doseq [article default-articles] (db/insert-blog-article article user-id)))
         (when (empty? (db/pages {:status ["root"]}))
