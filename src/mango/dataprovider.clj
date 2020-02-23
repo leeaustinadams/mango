@@ -14,7 +14,7 @@
   (delete-blog-media [this media])
   (delete-blog-media-by-id [this media-id])
   (blog-articles [this options])
-  (blog-articles-count [this status])
+  (blog-articles-count [this options])
   (blog-article-by-id [this id options])
   (blog-article-by-slug [this slug options])
   (insert-blog-article [this article user-id])

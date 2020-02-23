@@ -40,7 +40,7 @@
 
 (defn blog-articles-count
   "Query the number of articles"
-  [status {:keys [author]}]
+  [{:keys [status author]}]
   (let [query (merge {:status {$in status}}
                      (when author {:user (:_id (user-by-username author))}))]
     (mc/count @DB config/db-article-collection query)))
@@ -202,7 +202,7 @@
   (user-by-id [this id] (user-by-id id))
   (user-by-username [this username] (user-by-username username))
   (blog-articles [this options] (blog-articles options))
-  (blog-articles-count [this status] (blog-articles-count status))
+  (blog-articles-count [this options] (blog-articles-count options))
   (blog-article-by-id [this id options] (blog-article-by-id id options))
   (blog-article-by-slug [this slug options] (blog-article-by-slug slug options))
   (insert-blog-article [this article user-id] (insert-blog-article article user-id))
