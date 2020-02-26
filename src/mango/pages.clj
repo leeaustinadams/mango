@@ -36,7 +36,8 @@
                                                                  show-social
                                                                  on-load
                                                                  on-unload
-                                                                 show-ad]
+                                                                 show-ad
+                                                                 robots]
                                                           :or { show-toolbar {:user user :redir url}
                                                                show-footer true
                                                                show-social false
@@ -46,13 +47,14 @@
   (let [description (or description config/site-description)
         twitter-handle config/twitter-site-handle]
     (html5 [:head (head title)
-            (render-page-meta {:url url
+            (render-page-meta {:url (str config/site-url url)
                                :title title
                                :description description
                                :image-url image-url
                                :twitter-handle twitter-handle
                                :twitter-card "summary"
-                               :og-type "article"})]
+                               :og-type "article"
+                               :robots robots})]
            [:body {:onload on-load :onunload on-unload}
             [:div.mango
              (when (and config/ads-enabled show-ad) (ads/google config/google-ad-client config/google-ad-slot))
@@ -112,7 +114,7 @@
   (render-page user
                "Edit"
                nil
-               "url"
+               nil
                nil
                nil
                (let [action (or _id "post")]
@@ -190,7 +192,7 @@
   (render-page user
                "Sign In"
                nil
-               "url"
+               nil
                nil
                nil
                (list
@@ -201,7 +203,8 @@
                  (field-row required-password-field "password" "Password")
                  (submit-row "Sign In")
                  (when message [:p message])])
-               :show-toolbar false))
+               :show-toolbar false
+               :robots "noindex"))
 
 (defn sign-out
   "Render the sign out page"
@@ -209,7 +212,7 @@
   (render-page user
                "Sign Out"
                nil
-               "url"
+               nil
                nil
                nil
                (list
@@ -218,7 +221,8 @@
                  (hidden-field "__anti-forgery-token" anti-forgery-token)
                  (submit-row "Sign Out")
                  (when message [:p message])])
-               :show-toolbar false))
+               :show-toolbar false
+               :robots "noindex"))
 
 (defn new-user
   "Render a user form"
@@ -226,7 +230,7 @@
   (render-page user
                "New User"
                nil
-               "url"
+               nil
                nil
                nil
                [:form {:name "newuser" :action (str "/users/new") :method "POST" :enctype "multipart/form-data"}
@@ -241,7 +245,8 @@
                 (field-row dropdown-field "role" "Role" (list ["Editor" "editor"] ["Administrator" "admin"] ["User" "user"]) "user")
                 (submit-row "Submit")
                 (when message [:p.error message])]
-               :show-toolbar false))
+               :show-toolbar false
+               :robots "noindex"))
 
 (defn edit-user
   "Render editing form for a user"
@@ -249,7 +254,7 @@
   (render-page user
                "Edit"
                nil
-               "url"
+               nil
                nil
                nil
                [:div.content-form
@@ -269,7 +274,7 @@
   (render-page user
                "Change Password"
                nil
-               "url"
+               nil
                nil
                nil
                (let [{:keys [username first-name last-name]} user]
@@ -286,7 +291,8 @@
                    (field-row required-new-password-field "new-password2" "Confirm New Password")
                    (submit-row "Submit")
                    (when message [:p.error message])]))
-               :show-toolbar false))
+               :show-toolbar false
+               :robots "noindex"))
 
 (defn user-details
   "Render the user details page"
@@ -304,7 +310,7 @@
   (render-page user
                "Edit"
                nil
-               "url"
+               nil
                nil
                nil
                (let [action (or _id "post")]
@@ -348,7 +354,7 @@
     (render-page user
                  "Upload Media"
                  nil
-                 "url"
+                 nil
                  nil
                  nil
                  (list
@@ -391,7 +397,8 @@
                nil
                (list
                 [:h1.error headline]
-                [:p.error body])))
+                [:p.error body])
+               :robots "noindex"))
 
 (defn not-found
   "Render a page for when a URI is not found"

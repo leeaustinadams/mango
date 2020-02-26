@@ -3,10 +3,10 @@
 
 (defn wrap-default
   [meta-tags]
-  (fn [{:keys [description url] :as options}]
+  (fn [{:keys [description robots] :as options}]
     (conj (meta-tags options)
-          [:meta {:name "description" :content description}]
-          [:link {:rel "canonical" :href url}])))
+          (when robots [:meta {:name "robots" :content robots}])
+          [:meta {:name "description" :content description}])))
 
 (defn wrap-twitter
   [meta-tags]

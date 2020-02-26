@@ -231,39 +231,39 @@
   (GET "/sitemap.txt" {} (sitemap db/data-provider))
 
   ;; Main
-  (GET "/" {:keys [user request-url]}
+  (GET "/" {:keys [user uri]}
        (if-let [page (first (dp/pages db/data-provider {:status ["root"]}))]
-         (pages/page user (hydrate/page db/data-provider page) request-url)
-         (pages/root user request-url (hydrate/article db/data-provider (first (db-articles {:status ["published"] :page 0 :per-page 1 :tagged nil}))))))
-  (GET "/about" {:keys [user request-url]}
-       (pages/about user request-url))
+         (pages/page user (hydrate/page db/data-provider page) uri)
+         (pages/root user uri (hydrate/article db/data-provider (first (db-articles {:status ["published"] :page 0 :per-page 1 :tagged nil}))))))
+  (GET "/about" {:keys [user uri]}
+       (pages/about user uri))
   (GET "/signin" {:keys [user session] {:keys [redir]} :params}
        (pages/sign-in user (session-anti-forgery-token session) "" redir))
   (GET "/signout" {:keys [user session] {:keys [redir]} :params}
        (pages/sign-out user (session-anti-forgery-token session) "" redir))
 
   ;; Blog
-  (GET "/blog" {:keys [user request-url]}
-       (pages/articles-list user "Blog" (hydrate-articles-list (db-articles {:status ["published"]})) request-url))
-  (GET "/blog/tagged" {:keys [user request-url]}
-       (pages/tags user "Article Tags" (dp/blog-article-tags db/data-provider {:status ["published"]}) request-url))
-  (GET "/blog/tagged/:tag" {:keys [user request-url] {:keys [tag]} :params}
+  (GET "/blog" {:keys [user uri]}
+       (pages/articles-list user "Blog" (hydrate-articles-list (db-articles {:status ["published"]})) uri))
+  (GET "/blog/tagged" {:keys [user uri]}
+       (pages/tags user "Article Tags" (dp/blog-article-tags db/data-provider {:status ["published"]}) uri))
+  (GET "/blog/tagged/:tag" {:keys [user uri] {:keys [tag]} :params}
        (let [decoded-tag (url-decode tag)]
-         (pages/articles-list user (str "Articles Tagged \"" decoded-tag \") (hydrate-articles-list (db-articles {:status ["published"] :tagged [decoded-tag]})) request-url)))
-  (GET "/blog/drafts" {:keys [user request-url] {:keys [tag]} :params}
+         (pages/articles-list user (str "Articles Tagged \"" decoded-tag \") (hydrate-articles-list (db-articles {:status ["published"] :tagged [decoded-tag]})) uri)))
+  (GET "/blog/drafts" {:keys [user uri] {:keys [tag]} :params}
        (when (auth/editor? user)
-         (pages/articles-list user "Drafts" (hydrate-articles-list (db-articles {:status ["draft"] :tagged tag})) request-url)))
+         (pages/articles-list user "Drafts" (hydrate-articles-list (db-articles {:status ["draft"] :tagged tag})) uri)))
   (GET "/blog/new" {:keys [user session]}
        (when (auth/editor? user) (pages/edit-article user (session-anti-forgery-token session))))
-  (GET "/blog/:slug{[0-9a-z-]+}" {:keys [user request-url] {:keys [slug]} :params}
+  (GET "/blog/:slug{[0-9a-z-]+}" {:keys [user uri] {:keys [slug]} :params}
        (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" (when (auth/editor? user) "draft")]})]
-         (pages/article user (hydrate/article db/data-provider article) request-url)))
+         (pages/article user (hydrate/article db/data-provider article) uri)))
   (GET "/blog/edit/:slug{[0-9a-z-]+}" {:keys [user session] {:keys [slug]} :params}
        (when (auth/editor? user)
          (when-let [article (dp/blog-article-by-slug db/data-provider slug {:status ["published" "draft"]})]
            (pages/edit-article user (session-anti-forgery-token session) (hydrate/article db/data-provider article)))))
-  (GET "/me" {:keys [user request-url]}
-       (when user (pages/user-details user user request-url)))
+  (GET "/me" {:keys [user uri]}
+       (when user (pages/user-details user user uri)))
   (POST "/blog/articles/post" {:keys [user params]} (when (auth/editor? user) (post-article db/data-provider user params)))
   (POST "/blog/articles/:id" {:keys [user params]} (when (auth/editor? user) (update-article db/data-provider user params)))
 
@@ -271,14 +271,14 @@
 ;  (POST "/blog/media/:id" {:keys [user params]} (when (auth/editor? user) (update-media db/data-provider user params)))
   (GET "/blog/media/delete" {:keys [user] {:keys [id]} :params} (when (auth/editor? user) (delete-media db/data-provider id)))
   (GET "/blog/media/new" {:keys [user session params]} (when (auth/editor? user) (pages/upload-media user (session-anti-forgery-token session) params)))
-  (GET "/blog/media" {:keys [user params]} (when (auth/editor? user) (pages/media-list user (map #(hydrate/user db/data-provider %) (hydrate/medias (dp/blog-media db/data-provider params))) params request-url)))
+  (GET "/blog/media" {:keys [user params uri]} (when (auth/editor? user) (pages/media-list user (map #(hydrate/user db/data-provider %) (hydrate/medias (dp/blog-media db/data-provider params))) params uri)))
 
-  (GET "/pages" {:keys [user request-url] {:keys [slug]} :params}
+  (GET "/pages" {:keys [user uri] {:keys [slug]} :params}
        (when (auth/editor? user)
-         (pages/pages-list user "Pages" (hydrate-pages (db-pages {:status ["published" "draft" "root"]})) request-url)))
-  (GET "/pages/:slug{[0-9a-z-]+}" {:keys [user request-url] {:keys [slug]} :params}
+         (pages/pages-list user "Pages" (hydrate-pages (db-pages {:status ["published" "draft" "root"]})) uri)))
+  (GET "/pages/:slug{[0-9a-z-]+}" {:keys [user uri] {:keys [slug]} :params}
        (when-let [page (dp/page-by-slug db/data-provider slug {:status ["published" "root" (when (auth/editor? user) "draft")]})]
-         (pages/page user (hydrate/page db/data-provider page) request-url)))
+         (pages/page user (hydrate/page db/data-provider page) uri)))
   (GET "/pages/new" {:keys [user session]}
        (when (auth/editor? user) (pages/edit-page user (session-anti-forgery-token session))))
   (GET "/pages/edit/:slug{[0-9a-z-]+}" {:keys [user session] {:keys [slug]} :params}
@@ -289,7 +289,7 @@
   (POST "/pages/:id" {:keys [user params]} (when (auth/editor? user) (update-page db/data-provider user params)))
 
   ;; Admin
-  (GET "/admin/users" {:keys [user params request-url]} (when (auth/admin? user) (pages/admin-users user (dp/users db/data-provider params) request-url)))
+  (GET "/admin/users" {:keys [user params uri]} (when (auth/admin? user) (pages/admin-users user (dp/users db/data-provider params) uri)))
   (GET "/users/new" {:keys [user session params]} (when (auth/admin? user) (pages/new-user user (session-anti-forgery-token session) params)))
   (POST "/users/new" {:keys [user session params]} (when (auth/admin? user) (new-user db/data-provider user session params)))
   (GET "/users/edit/:id" {:keys [user session] {:keys [id]} :params}
@@ -308,7 +308,7 @@
   (route/resources "/")
 
   ;; all other requests
-  (rfn {:keys [user request-url]} (html-response 404 (pages/not-found user request-url))))
+  (rfn {:keys [user uri]} (html-response 404 (pages/not-found user uri))))
 
 (defn wrap-user
   "Add a user to the request object if there is a user id in the session"
