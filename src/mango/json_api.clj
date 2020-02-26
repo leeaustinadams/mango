@@ -1,7 +1,7 @@
 ;; https://github.com/dakrone/cheshire
 (ns mango.json-api
   (:require
-   [cheshire.core :refer :all]
+   [cheshire.core :refer [generate-string]]
    [mango.auth :as auth]
    [mango.dataprovider :as dp]
    [mango.hydrate :as hydrate]))
