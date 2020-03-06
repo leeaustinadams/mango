@@ -37,7 +37,8 @@
                                                                  on-load
                                                                  on-unload
                                                                  show-ad
-                                                                 robots]
+                                                                 robots
+                                                                 keywords]
                                                           :or { show-toolbar {:user user :redir url}
                                                                show-footer true
                                                                show-social false
@@ -54,7 +55,8 @@
                                :twitter-handle twitter-handle
                                :twitter-card "summary"
                                :og-type "article"
-                               :robots robots})]
+                               :robots robots
+                               :keywords keywords})]
            [:body {:onload on-load :onunload on-unload}
             [:div.mango
              (when (and config/ads-enabled show-ad) (ads/google config/google-ad-client config/google-ad-slot))
@@ -82,6 +84,7 @@
                   (list rendered-content [:div.clearfix])]
                  :show-toolbar {:user user :redir url :article article}
                  :show-social {:title title :description description :url url :twitter-handle author-twitter-handle}
+                 :keywords tags
                  :on-load "mango.article.on_load()"
                  :on-unload "mango.article.on_unload()"))
 

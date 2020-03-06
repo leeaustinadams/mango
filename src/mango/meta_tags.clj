@@ -3,9 +3,10 @@
 
 (defn wrap-default
   [meta-tags]
-  (fn [{:keys [description robots] :as options}]
+  (fn [{:keys [description robots keywords] :as options}]
     (conj (meta-tags options)
           (when robots [:meta {:name "robots" :content robots}])
+          (when keywords [:meta {:name "keywords" :content (reduce str (interpose "," keywords))}])
           [:meta {:name "description" :content description}])))
 
 (defn wrap-twitter
