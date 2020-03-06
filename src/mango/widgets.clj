@@ -106,7 +106,7 @@
   (fn [{:keys [title description url twitter-handle] :as options}]
     (let [items (socialbar options)]
       (if (or title description)
-        (conj items (tweet-button url (str title (when (and title description)" - ") description)))
+        (conj items (tweet-button (str config/site-url url) (str title (when (and title description)" - ") description)))
         items))))
 
 
