@@ -1,0 +1,62 @@
+version: '3.1'
+services:
+  mango:
+    image: mango:latest
+    container_name: mango
+    ports:
+      - 8080:8080
+    environment:
+      DB_ADDRESS: mongodb
+      DB_USER_FILE: /run/secrets/mango_db_user
+      DB_PASSWORD_FILE: /run/secrets/mango_db_password
+      AWS_ENDPOINT: "us-west-1"
+      AWS_MEDIA_BUCKET_REGION: "us-west-1"
+      AWS_MEDIA_BUCKET: "docker-test-mango-bucket"
+      AWS_ACCESS_KEY_FILE: /run/secrets/mango_aws_access_key
+      AWS_SECRET_KEY_FILE: /run/secrets/mango_aws_secret_key
+      ADS_ENABLED: "false"
+    secrets:
+      - mango_aws_access_key
+      - mango_aws_secret_key
+      - mango_db_user
+      - mango_db_password
+  mongo:
+    image: mongo:3.6.3
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/mongo_root_username
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo_root_password
+    secrets:
+      - mongo_root_username
+      - mongo_root_password
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init/:/docker-entrypoint-initdb.d/:ro
+  # If you want to run express, uncomment and configure this service
+  #mongo-express:
+    #image: mongo-express
+    #restart: always
+    #ports:
+      #- 8081:8081
+    #environment:
+      #- ME_CONFIG_MONGODB_SERVER=mongodb
+      #- ME_CONFIG_MONGODB_ADMINUSERNAME=
+      #- ME_CONFIG_MONGODB_ADMINPASSWORD=
+volumes:
+  mongo-data:
+    driver: local
+secrets:
+  mongo_root_username:
+    file: ./secrets/db-root-username.txt
+  mongo_root_password:
+    file: ./secrets/db-root-password.txt
+  mango_aws_access_key:
+    file: ./secrets/aws-access-key.txt
+  mango_aws_secret_key:
+    file: ./secrets/aws-secret-key.txt
+  mango_db_user:
+    file: ./secrets/mango-db-username.txt
+  mango_db_password:
+    file: ./secrets/mango-db-password.txt
