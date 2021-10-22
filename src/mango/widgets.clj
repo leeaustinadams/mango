@@ -26,7 +26,8 @@
    (include-css config/app-css)
    (include-js "/js/lib/highlight.pack.js")
    (include-js config/app-js)
-   (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
+   (when config/ads-enabled
+     (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"))
    [:script {:type "text/javascript" :crossorigin "anonymous" :src "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"}]))
 
 (defn footer
