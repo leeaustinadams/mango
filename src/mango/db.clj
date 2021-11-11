@@ -135,7 +135,8 @@
 (defn insert-user
   "Add a new user record"
   [user]
-  (debugf "Inserting user: %s" (str user))
+  ; Don't log potential secrets
+  ;(debugf "Inserting user: %s" (str user))
   (mc/insert-and-return @DB config/db-users-collection user))
 
 (defn update-user
@@ -143,7 +144,8 @@
   [user]
   (let [user-id {:_id (ObjectId. (:_id user))}
         edit-user (conj user user-id)]
-    (debugf "Updating user: %s" (str edit-user))
+    ; Don't log potential secrets
+    ;(debugf "Updating user: %s" (str edit-user))
     (mc/update @DB config/db-users-collection user-id {$set edit-user})))
 
 (defn delete-user [user])
