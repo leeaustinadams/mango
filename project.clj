@@ -22,8 +22,8 @@
                  [yogthos/config "1.1.4"]
                  [com.taoensso/timbre "4.10.0"]
                  [binaryage/oops "0.7.0"]]
-  :plugins [[com.roomkey/lein-v "6.2.2"]]
-
+  :plugins [[com.roomkey/lein-v "6.2.2"]
+            [io.sarnowski/lein-docker "1.0.0"]]
   :profiles {
              :dev {:dependencies [[org.clojure/clojurescript "1.10.339"]
                                   [com.bhauman/figwheel-main "0.2.0"]]
@@ -47,6 +47,8 @@
             "build-prod-client" ["trampoline" "run" "-m" "figwheel.main" "-bo" "prod"]
             "build-dev-server" ["with-profile" "dev" "uberjar"]
             "build-prod-uberjar" ["with-profile" "prod" "uberjar"]}
+
+  :docker {}
 
   :prep-tasks [["v" "cache" "src"]
                "javac" "compile"]
