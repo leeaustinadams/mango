@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased][unreleased]
 ### Changed
 
+## [0.2.0] - 2021-11-30
+### Changed
+- Runnable in Docker or with docker-compose
+
+### Fixed
+- Remove some logging of sensitive information
+- Only enable `adsbygoogle` when ads are enabled
+
 ## [0.1.1] - 2015-08-05
 ### Changed
 

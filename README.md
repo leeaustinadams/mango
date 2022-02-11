@@ -86,9 +86,32 @@ The REPL will eventually come up, and load the server url above. Happy hacking!
 `$ lein v update {patch|minor|major}`
 
 ## Deploying / Hosting
+### Without Docker
 Run `$ lein build-server-uberjar` and deploy the resulting `mango-{version}-standalone.jar` file. I just `scp` it to my Amazon EC2 instance and run it with `$ java -jar mango-{version}-standalone.jar`. You could so set it up to run automatically for your environment like [in this example](scripts/mango).
 
+### Building with Docker
+`$ lein build-prod-client`
+`$ lein build-prod-uberjar`
+`$ cp target/mango-{version}-standalone.jar target/mango-standalone.jar`
+`$ lein docker build`
+
+I haven't provided the configuration to push Mango to a Docker registry, I'll leave that up to you
+
+### Running with Docker
+1. Create secrets/aws-access-key.txt
+1. Create secrets/aws-secret-key.txt
+1. Create db-root-password.txt
+1. Create db-root-username.txt
+1. Create mango-db-password.txt
+1. Create mango-db-username.txt
+
+The values in these files will be used in configuring the Docker containers and Mango and should never be checked in to source control
+
 ## Changelog
+2021/11/26
+
+* Provide Dockerfile, docker-compose, and associates scripts and configuration to run Mango and MongoDB in containers
+
 2019/07/16
 
 * Integrate figwheel-main for developing the front end in clojurescript
@@ -109,6 +132,7 @@ Built with
   * [amazonica](https://github.com/mcohen01/amazonica)
   * [markdown-clj](https://github.com/yogthos/markdown-clj)
   * [leiningen](http://leiningen.org/)
+  * [lein-docker](https://github.com/sarnowski/lein-docker)
 * [Clojurescript](https://clojurescript.org)
 * [Javascript](https://en.wikipedia.org/wiki/JavaScript)
   * [highlight-js](https://highlightjs.org/)
