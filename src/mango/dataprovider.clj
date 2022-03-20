@@ -9,6 +9,7 @@
   (update-user [this user])
   (user-by-id [this id])
   (user-by-username [this username])
+  (delete-user-by-id [this id])
   (insert-blog-media [this media user-id])
   (update-blog-media [this media user-id])
   (delete-blog-media [this media])

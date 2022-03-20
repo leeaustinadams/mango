@@ -44,3 +44,10 @@
     (is (= (dissoc test-user :_id) fixtures/user))
     (is (= (db/user-by-id test-user-id) test-user))
     (is (= (db/user-by-id (.toString test-user-id)) test-user))))
+
+(deftest test-delete-user-by-id
+  (let [test-user (db/insert-user fixtures/user)
+        test-user-id (:_id test-user)]
+    (is (= (dissoc test-user :_id) fixtures/user))
+    (db/delete-user-by-id test-user-id)
+    (is (= (db/user-by-id test-user-id) nil))))

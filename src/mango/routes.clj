@@ -141,6 +141,13 @@
         updated (dp/update-user data-provider edit-user)]
     (redir-response 302 "/me")))
 
+(defn delete-user
+  "Route handler for deleting an existing user"
+  [data-provider user-id]
+  (if-let [user (dp/user-by-id data-provider user-id)]
+    (dp/delete-user-by-id data-provider user-id)
+    (redir-response 302 "/admin/users")))
+
 (defn upload-file
   "Uploads files to storage. Returns a future"
   [{:keys [filename tempfile content-type]}]
@@ -299,6 +306,9 @@
   (POST "/users/edit/:id" {:keys [user session params]}
         (when (or (auth/admin? user) (= (:_id params) (str (:_id user))))
           (update-user db/data-provider params)))
+  (GET "/users/delete/:id" {:keys [user] {:keys [id]} :params}
+        (when (auth/admin? user)
+          (delete-user db/data-provider id)))
   (GET "/users/password" {:keys [user session params]} (when user (pages/change-password user (session-anti-forgery-token session))))
   (POST "/users/password" {:keys [user session params]} (change-password db/data-provider user session params))
 

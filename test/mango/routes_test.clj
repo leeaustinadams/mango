@@ -22,3 +22,7 @@
 
 ;(deftest test-post-media
 ;  (is (= (post-media fixtures/data-provider fixtures/user {}) fixtures/forbidden-result)))
+
+(deftest test-delete-user
+  (is (= (delete-user fixtures/data-provider "foo")
+         {:status 302, :headers {"Content-Type" "text/html", "Location" "/admin/users"}})))

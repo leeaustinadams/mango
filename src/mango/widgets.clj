@@ -250,7 +250,8 @@
     (when (or (auth/admin? auth-user) (= (:username auth-user) username))
       (list
        [:div.col-25 (link-to (str "/users/edit/" _id) "Edit User")]
-       [:div.col-25 (link-to "/users/password" "Change Password")]))]))
+       [:div.col-25 (link-to "/users/password" "Change Password")]
+       [:div.col-25 (link-to (str "/users/delete" _id) "Delete")]))]))
 
 (defn date-field
   "Renders a date input"

@@ -148,7 +148,9 @@
     ;(debugf "Updating user: %s" (str edit-user))
     (mc/update @DB config/db-users-collection user-id {$set edit-user})))
 
-(defn delete-user [user])
+(defmulti delete-user-by-id class)
+(defmethod delete-user-by-id String [user-id] (delete-user-by-id (ObjectId. user-id)))
+(defmethod delete-user-by-id ObjectId [user-id] (mc/remove-by-id @DB config/db-users-collection user-id))
 
 (defn blog-article-tags
   [{:keys [status]}]
@@ -203,6 +205,7 @@
   (update-user [this user] (update-user user))
   (user-by-id [this id] (user-by-id id))
   (user-by-username [this username] (user-by-username username))
+  (delete-user-by-id [this user-id] (delete-user-by-id user-id))
   (blog-articles [this options] (blog-articles options))
   (blog-articles-count [this options] (blog-articles-count options))
   (blog-article-by-id [this id options] (blog-article-by-id id options))
