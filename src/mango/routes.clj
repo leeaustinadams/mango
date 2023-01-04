@@ -16,6 +16,7 @@
             [mango.hydrate :as hydrate]
             [mango.json-api :as api]
             [mango.pages :as pages]
+            [mango.rss :as rss]
             [mango.storage :as storage]
             [mango.util :refer [slugify xform-ids xform-tags xform-time-to-string xform-string-to-time url-decode]]
             [taoensso.timbre :as timbre :refer [tracef debugf info]]))
@@ -36,6 +37,14 @@
   "An HTML response for a success (200)."
   [body]
   (html-response 200 body))
+
+(defn rss-response
+  "An RSS-XML response with code."
+  [code body]
+  {
+   :status code
+   :headers {"Content-Type" "application/rss+xml"}
+   :body body})
 
 (defn redir-response
   "A response for a redirection."
@@ -272,6 +281,16 @@
   (GET "/blog/media/delete" {:keys [user] {:keys [id]} :params} (when (auth/editor? user) (delete-media db/data-provider id)))
   (GET "/blog/media/new" {:keys [user session params]} (when (auth/editor? user) (pages/upload-media user (session-anti-forgery-token session) params)))
   (GET "/blog/media" {:keys [user params uri]} (when (auth/editor? user) (pages/media-list user (map #(hydrate/user db/data-provider %) (hydrate/medias (dp/blog-media db/data-provider params))) params uri)))
+  (GET "/blog.rss" {:keys [user params uri]}
+       (rss-response 200 (rss/articles-list
+                          config/admin-email
+                          config/site-title
+                          config/site-description
+                          config/site-url
+                          config/site-copyright
+                          config/site-language
+                          (str config/site-url "/" uri)
+                          (hydrate-articles (db-articles {:status ["published"]})))))
 
   (GET "/pages" {:keys [user uri] {:keys [slug]} :params}
        (when (auth/editor? user)

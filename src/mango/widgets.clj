@@ -44,6 +44,7 @@
     (let [items (toolbar options)]
       (conj items (link-to "/" "Home")
             (link-to "/blog" "Blog")
+            (link-to "/blog.rss" "RSS Feed")
             (link-to "/blog/tagged" "Tags")
             (if user
               (link-to (str "/signout?redir=" redir) "Sign Out")

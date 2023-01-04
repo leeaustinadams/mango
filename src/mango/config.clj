@@ -17,6 +17,7 @@
 (def site-title (:site-title env))
 (def site-description (:site-description env))
 (def site-copyright (:site-copyright env))
+(def site-language (or (:site-language env) "en-US"))
 (def twitter-site-handle (:twitter-site-handle env))
 (def twitter-creator-handle (:twitter-creator-handle env))
 (def admin-email (:admin-email env))
