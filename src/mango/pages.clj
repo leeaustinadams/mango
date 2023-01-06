@@ -59,11 +59,12 @@
                                :keywords keywords})]
            [:body {:onload on-load :onunload on-unload}
             [:div.mango
-             (when (and config/ads-enabled show-ad) (ads/google config/google-ad-client config/google-ad-slot))
+             (when (and config/ads-enabled config/header-ads-enabled show-ad) (ads/google config/google-ad-client config/google-ad-slot))
              (when show-toolbar (toolbar show-toolbar))
              (when header header)
              (when show-social (socialbar show-social))
-             content]
+             content
+             (when (and config/ads-enabled config/footer-ads-enabled show-ad) (ads/google config/google-ad-client config/google-ad-slot))]
             (when show-footer (footer))])))
 
 (defn article

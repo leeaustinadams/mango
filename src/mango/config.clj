@@ -33,6 +33,8 @@
 (def app-js (or (:app-js env) (str "js/mango-" version/version ".min.js")))
 (def app-css (or (:app-css env) "/css/mango.css"))
 (def ads-enabled (:ads-enabled env))
+(def header-ads-enabled (:header-ads-enabled env))
+(def footer-ads-enabled (:footer-ads-enabled env))
 (def analytics-enabled (:analytics-enabled env))
 (def google-analytics-id (:google-analytics-id env))
 (def google-ad-client (:google-ad-client env))

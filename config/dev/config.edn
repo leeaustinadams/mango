@@ -21,6 +21,8 @@
  :analytics-enabled false
  :google-analytics-id ""
  :ads-enabled false
+ :header-ads-enabled false
+ :footer-ads-enabled false
  :google-ad-client "your-ad"
  :google-ad-slot "your-slot"}
 
