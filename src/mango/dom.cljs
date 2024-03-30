@@ -97,8 +97,3 @@
   [root]
   (doseq [block (elements-by-tag root "code")]
     (.highlightBlock js/hljs block)))
-
-(defn twemoji
-  "Renders Twitter Emoji"
-  [root]
-  (.parse js/twemoji root))

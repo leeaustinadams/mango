@@ -4,7 +4,7 @@
             [mango.article]
             [mango.page]
             [mango.edit]
-            [mango.dom :refer [body js-script element-by-id elements-by-tag twemoji]]
+            [mango.dom :refer [body js-script element-by-id elements-by-tag]]
             [oops.core :refer [oget oset!]]))
 
 (enable-console-print!)
@@ -16,17 +16,6 @@
  / /  / / /_/ / / / / /_/ / /_/ /
 /_/  /_/\\__,_/_/ /_/\\__, /\\____/
                    /____/  v1.0")
-
-(defn bind-twitter
-  [id src]
-  (let [fjs (first (elements-by-tag "script"))
-        t (or (.-twttr js/window) (js-obj))]
-    (if-not (element-by-id id)
-      (let [s (js-script src {:id id})]
-        (.insertBefore (oget fjs "parentNode") s fjs)
-        (oset! t "!_e" #js [])
-        (oset! t "!ready" (fn [f] (.push (oget t "_e") f))))
-        t)))
 
 (defn bind-pocket
   [id src]
@@ -68,15 +57,11 @@
   [upload-form]
   (oset! upload-form "onsubmit" nil))
 
-;; Has to occur before the DOMContentLoaded
-(bind-twitter "twitter-wjs" "https://platform.twitter.com/widgets.js")
-
 ;; Has to happen after DOMContentLoaded
 (defn bind
   []
   (when-let [upload-form (element-by-id "upload-form")]
-    (bind-upload-form upload-form))
-  (twemoji (body)))
+    (bind-upload-form upload-form)))
 
 (defn unbind
   []

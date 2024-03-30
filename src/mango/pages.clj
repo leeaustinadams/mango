@@ -21,7 +21,6 @@
 
 (def site-meta-tags (-> (fn [options] '())
                         wrap-default
-                        wrap-twitter
                         wrap-og))
 
 (defn render-page-meta
@@ -45,15 +44,12 @@
                                                                on-load ""
                                                                on-unload ""
                                                                show-ad true}}]
-  (let [description (or description config/site-description)
-        twitter-handle config/twitter-site-handle]
+  (let [description (or description config/site-description)]
     (html5 [:head (head title)
             (render-page-meta {:url (str config/site-url url)
                                :title title
                                :description description
                                :image-url image-url
-                               :twitter-handle twitter-handle
-                               :twitter-card "summary"
                                :og-type "article"
                                :robots robots
                                :keywords keywords})]
@@ -69,7 +65,7 @@
 
 (defn article
   "Render an article. Expects media to have been hydrated"
-  [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-first-name :first-name author-last-name :last-name  author-twitter-handle :twitter-handle} :user :as article} url]
+  [user {:keys [title description tags media created rendered-content status] {author-user-name :username author-first-name :first-name author-last-name :last-name } :user :as article} url]
     (render-page user
                  title
                  description
@@ -84,14 +80,14 @@
                  [:div.article-content
                   (list rendered-content [:div.clearfix])]
                  :show-toolbar {:user user :redir url :article article}
-                 :show-social {:title title :description description :url url :twitter-handle author-twitter-handle}
+                 :show-social {:title title :description description :url url }
                  :keywords tags
                  :on-load "mango.article.on_load()"
                  :on-unload "mango.article.on_unload()"))
 
 (defn page
   "Render a page"
-  [{:keys [author-twitter-handle] :as user} {:keys [title rendered-content] :as page} url]
+  [user {:keys [title rendered-content] :as page} url]
   (render-page user
                title
                nil
@@ -101,7 +97,7 @@
                [:div.page-content
                 (list rendered-content [:div.clearfix])]
                :show-toolbar {:user user :redir url :page page}
-               :show-social {:title title :url url :twitter-handle author-twitter-handle}
+               :show-social {:title title :url url}
                :on-load "mango.page.on_load()"
                :on-unload "mango.page.on_unload()"))
 
@@ -243,7 +239,6 @@
                 (field-row text-field "first-name" "First")
                 (field-row text-field "last-name" "Last")
                 (field-row required-text-field "email" "Email Address")
-                (field-row text-field "twitter-handle" "Twitter Handle")
                 (field-row required-new-password-field "password" "Password")
                 (field-row required-new-password-field "password2" "Confirm Password")
                 (field-row dropdown-field "role" "Role" (list ["Editor" "editor"] ["Administrator" "admin"] ["User" "user"]) "user")
@@ -254,7 +249,7 @@
 
 (defn edit-user
   "Render editing form for a user"
-  [user anti-forgery-token & [{:keys [_id username first-name last-name email twitter-handle]}]]
+  [user anti-forgery-token & [{:keys [_id username first-name last-name email]}]]
   (render-page user
                "Edit"
                nil
@@ -269,7 +264,6 @@
                  (field-row text-field "first-name" "First" first-name)
                  (field-row text-field "last-name" "Last" last-name)
                  (field-row required-text-field "email" "Email Address" email)
-                 (field-row text-field "twitter-handle" "Twitter Handle" twitter-handle)
                  (submit-row "Submit")]]))
 
 (defn change-password

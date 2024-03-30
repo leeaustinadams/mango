@@ -14,7 +14,6 @@
            :first-name "Foo"
            :last-name "Bar"
            :email "user@foo.com"
-           :twitter-handle "foouser"
            :password (password/encrypt "passwd")
            :roles []})
 
@@ -22,7 +21,6 @@
              :first-name "Ed"
              :last-name "Itor"
              :email "editor@foo.com"
-             :twitter-handle "editoruser"
              :password (password/encrypt "passwde")
              :roles ["editor"]})
 
@@ -30,7 +28,6 @@
             :first-name "Ad"
             :last-name "Min"
             :email "admin@foo.com"
-            :twitter-handle "adminuser"
             :password (password/encrypt "passwda")
             :roles ["admin"]})
 

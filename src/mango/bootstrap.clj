@@ -11,7 +11,6 @@
    :first-name ""
    :last-name ""
    :email config/admin-email
-   :twitter-handle config/twitter-site-handle
    :roles ["admin" "editor"]
    :password "admin"})
 

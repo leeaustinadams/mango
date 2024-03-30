@@ -28,8 +28,6 @@ Each profile, `dev`, `test`, and `prod` can be configured by editing its corresp
  :site-title "My Mango Site"
  :site-description "A site I made with mango"
  :site-copyright "My copyright message"
- :twitter-site-handle "{your twitter handle}"
- :twitter-creator-handle "{your twitter handle}"
  :admin-email "your-email@your-domain.com"
  :port 8080
  :logo-url "https://s3-us-west-1.amazonaws.com/{your bucket}/logo.png"
@@ -136,7 +134,6 @@ Built with
 * [Clojurescript](https://clojurescript.org)
 * [Javascript](https://en.wikipedia.org/wiki/JavaScript)
   * [highlight-js](https://highlightjs.org/)
-  * [Twemoji](https://twemoji.twitter.com)
 
 ## License
 

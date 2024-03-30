@@ -28,12 +28,11 @@
 
 (defn new-user
   "Add a new user"
-  ([data-provider username first-name last-name email twitter-handle plaintext-password roles]
+  ([data-provider username first-name last-name email plaintext-password roles]
    (let [user {:username username
                :first-name first-name
                :last-name last-name
                :email email
-               :twitter-handle twitter-handle
                :password plaintext-password
                :roles roles}]
      (new-user data-provider user)))

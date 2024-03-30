@@ -9,16 +9,6 @@
           (when keywords [:meta {:name "keywords" :content (reduce str (interpose "," keywords))}])
           [:meta {:name "description" :content description}])))
 
-(defn wrap-twitter
-  [meta-tags]
-  (fn [{:keys [twitter-card twitter-handle title image-url description] :as options}]
-    (conj (meta-tags options)
-          [:meta {:name "twitter:card" :content twitter-card}]
-          [:meta {:name "twitter:site" :content twitter-handle}]
-          [:meta {:name "twitter:title" :content title}]
-          [:meta {:name "twitter:image" :content (or image-url config/logo-url)}]
-          [:meta {:name "twitter:description" :content description}])))
-
 (defn wrap-og
   [meta-tags]
   (fn [{:keys [og-type url title description image-url] :as options}]

@@ -27,8 +27,7 @@
    (include-js "/js/lib/highlight.pack.js")
    (include-js config/app-js)
    (when config/ads-enabled
-     (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"))
-   [:script {:type "text/javascript" :crossorigin "anonymous" :src "https://twemoji.maxcdn.com/v/latest/twemoji.min.js"}]))
+     (include-js "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"))))
 
 (defn footer
   "Render the footer"
@@ -85,46 +84,11 @@
   [:div.toolbar
    (unordered-list (filter (comp not nil?) (site-toolbar options)))])
 
-(defn tweet-button
-  "Render a Tweet button that will prepopulate with text"
-  [url text]
-  (when (and url text)
-    (link-to {:class "twitter-share-button"
-              :data-url url}
-             (hiccup.util/url "https://twitter.com/intent/tweet" {:text text})
-             "Tweet")))
-
-(defn follow-button
-  "Render a Twitter Follow button for handle"
-  [handle]
-  (when handle
-    (link-to {:class "twitter-follow-button"
-              :data-show-count "true"}
-             (str "https://twitter.com/" handle)
-             (str "Follow @" handle))))
-
-(defn- wrap-twitter-tweet
-  [socialbar]
-  (fn [{:keys [title description url twitter-handle] :as options}]
-    (let [items (socialbar options)]
-      (if (or title description)
-        (conj items (tweet-button (str config/site-url url) (str title (when (and title description)" - ") description)))
-        items))))
-
-
 (defn- pocket-button
   []
   [:a {:class "pocket-btn"
        :data-pocket-label "pocket"
        :data-pocket-count="horizontal"}])
-
-(defn- wrap-twitter-follow
-  [socialbar]
-  (fn [{:keys [twitter-handle] :as options}]
-    (let [items (socialbar options)]
-      (if twitter-handle
-        (conj items (follow-button twitter-handle))
-        items))))
 
 (defn wrap-pocket-share
   [socialbar]
@@ -132,10 +96,7 @@
     (let [items (socialbar options)]
       (conj items (pocket-button)))))
 
-(def site-social (-> (fn [options] [])
-                     wrap-twitter-tweet
-                     wrap-twitter-follow
-                     wrap-pocket-share))
+(def site-social (-> (fn [options] [])))
 
 (defn socialbar
   [options]
@@ -234,7 +195,7 @@
 
 (defn user-item
   "Render a user's details"
-  [{:keys [_id username first-name last-name email twitter-handle roles created]} auth-user]
+  [{:keys [_id username first-name last-name email roles created]} auth-user]
   (list
    [:div.row
     [:div.col-25 "Username: " username]]
@@ -242,8 +203,7 @@
     [:div.col-50 "First Name: " first-name]
     [:div.col-50 "Last Name: " last-name]]
    [:div.row
-    [:div.col-50 "Email: " (mail-to email email)]
-    (when twitter-handle [:div.col-50 "Twitter: " (link-to (str "https://twitter.com/" twitter-handle) twitter-handle)])]
+    [:div.col-50 "Email: " (mail-to email email)]]
    [:div.row
     [:div.col-100 "Roles: " (roles-list roles)]]
    [:div.row

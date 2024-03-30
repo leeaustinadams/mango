@@ -3,7 +3,7 @@
 
 (defn- article-list-item
   "Render an article list item"
-  [{:keys [title description tags media created rendered-content status slug] {author-user-name :username author-first-name :first-name author-last-name :last-name  author-twitter-handle :twitter-handle} :user :as article} site-url feed-url]
+  [{:keys [title description tags media created rendered-content status slug] {author-user-name :username author-first-name :first-name author-last-name :last-name } :user :as article} site-url feed-url]
   {:title title
    :description (str "<![CDATA[ " rendered-content " ]]>")
    :author author-user-name

@@ -92,7 +92,7 @@
   [params]
   (-> params
       keywordize-keys
-      (select-keys [:_id :username :first-name :last-name :email :twitter-handle])))
+      (select-keys [:_id :username :first-name :last-name :email])))
 
 ;; Convenience
 (def db-articles (partial dp/blog-articles db/data-provider))
@@ -176,9 +176,9 @@
 
 (defn- new-user
   "Route handler creating a new user"
-  [data-provider user session {:keys [username first-name last-name email twitter-handle password password2 role]}]
+  [data-provider user session {:keys [username first-name last-name email password password2 role]}]
   (if (= password password2)
-    (if (auth/new-user data-provider username first-name last-name email twitter-handle password [role])
+    (if (auth/new-user data-provider username first-name last-name email password [role])
       (redir-response 302 "/blog")
       (pages/new-user user (session-anti-forgery-token session) "Couldn't add user"))
     (pages/new-user user (session-anti-forgery-token session) "Passwords didn't match")))

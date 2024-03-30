@@ -8,8 +8,6 @@
  :site-title "TEST - Your Mango Site - TEST"
  :site-description "TEST - Your Mango Site - TEST"
  :site-copyright "© 2020 You "
- :twitter-site-handle "@test"
- :twitter-creator-handle "@test"
  :admin-email "email@yourdomain.com"
  :port 8080
  :logo-url "https://yourdomain.com/img/A.jpg"

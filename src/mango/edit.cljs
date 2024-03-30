@@ -33,7 +33,6 @@
         value (oget element "value")]
     (.preventDefault event)
     (oset! preview "innerHTML" (dom/markdown (first (replace-emoji value))))
-    (dom/twemoji preview)
     (dom/highlight-code preview)
     (dom/toggle-class preview "hidden")))
 
